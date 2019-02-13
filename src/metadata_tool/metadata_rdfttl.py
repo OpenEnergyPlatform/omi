@@ -19,6 +19,7 @@ def jsonToTtl(read_file):
     OEO = Namespace("http://openenergy-platform.org/ontology/v0.0.1/oeo/")
     DCATDE = Namespace("http://dcat-ap.de/def/dcatde/")
     SCHEMA = Namespace("http://schema.org/")
+    SKOS = Namespace("http://www.w3.org/2004/02/skos/core#")
 
     # initialize empty RDF-Graph
     g = Graph()
@@ -30,6 +31,7 @@ def jsonToTtl(read_file):
     g.namespace_manager.bind('dcatde', DCATDE)
     g.namespace_manager.bind('oeo', OEO)
     g.namespace_manager.bind('schema', SCHEMA)
+    g.namespace_manager.bind('skos', SKOS)
 
     # DCAT Catalog
     catalogURI = URIRef("https://www.bsp.de/catalogBsp")
@@ -40,59 +42,73 @@ def jsonToTtl(read_file):
         # DCAT Dataset
         g.add( (datasetURI, RDF.type, DCAT.Dataset))
         g.add( ( datasetURI, DCTERMS.title, Literal(metadatajson["title"]) ) )
+        g.add( ( datasetURI, DCTERMS.title, Literal(metadatajson["name"]) ) )
         # --- description language tag ?
         g.add( ( datasetURI, DCTERMS.description, Literal(metadatajson["description"]) ) )
         # language ---
-        print str(type(metadatajson["language"]))
+        print(str(type(metadatajson["language"])))
         langdict = {
             'eng' : 'http://publications.europa.eu/resource/authority/language/ENG',
             'en-GB' : 'http://publications.europa.eu/resource/authority/language/ENG',
-            'ger' : 'http://publications.europa.eu/resource/authority/language/GER'
+            'ger' : 'http://publications.europa.eu/resource/authority/language/GER',
+            "en-US" : '',
+            "de-DE" : 'http://publications.europa.eu/resource/authority/language/GER',
+            "fr-FR" : ''
         }
         for lang in metadatajson["language"][:]:
             g.add( ( datasetURI, DCTERMS.language, URIRef(langdict[lang]) ) )
 
         # keywords
-        if "keywords" in metadatajson: #---
+        if "keywords" in metadatajson:
             for k in metadatajson["keywords"]:
                 g.add( ( datasetURI, DCAT.keyword, Literal(k) ) )
+
+        # publicationDate
+        g.add( ( datasetURI, OEO.publicationDate, Literal(metadatajson["publicationDate"], datatype=XSD.date) ))
+
+        # context
+        g.add( (catalogURI, FOAF.homepage, Literal(metadatajson["context"]["homepage"])))
+        g.add( (datasetURI, DCAT.contactpoint, Literal(metadatajson["context"]["contact"])))
+
+        # spatial
+        s = BNode()
+        g.add( (datasetURI, DCTERMS.spatial, s) )
+        # in case extent is not a bounding box
+        g.add( (s, SKOS.prefLabel, Literal(metadatajson["spatial"]["extent"])) )
+        g.add( (s, OEO.has_spatial_resolution, Literal(metadatajson["spatial"]["resolution"])) )
 
         # sources
         for source in metadatajson["sources"][:]:
             s = BNode()
-            # ---
             g.add( ( datasetURI, DCTERMS.source, s ) )
             try:
-                g.add( ( s, DCTERMS.title, Literal(source["name"]) ) )
+                g.add( ( s, DCTERMS.title, Literal(source["title"]) ) )
             except:
                 print("source without name")
             g.add( ( s, DCTERMS.description, Literal(source["description"]) ) )
-            # --- url
-            g.add( ( s, DCTERMS.accessRights, Literal(source["license"]) ) )
-            # ----
-            g.add( ( s, DCTERMS.RightsStatement, Literal(source["copyright"]) ) )
+            g.add( ( s, FOAF.page, Literal(source["path"]) ) )
+            g.add( ( s, DCTERMS.license, Literal(source["license"]) ) )
+            g.add( ( s, DCTERMS.rights, Literal(source["copyright"]) ) )
 
-        # license
-        # ---
+        # licenses
         licdict = {
             'ODbL-1.0' : 'https://www.dcat-ap.de/def/licenses/odbl'
         }
-        try:
-            g.add( ( datasetURI, DCTERMS.license, URIRef(licdict[metadatajson["license"]["id"]])))
-        except:
-            # ---
-            g.add( ( datasetURI, DCTERMS.license, Literal(metadatajson["license"]["id"])))
-        # ---
-        g.add( ( datasetURI, DCATDE.licenseAttributionByText, Literal(metadatajson["license"]["instruction"])))
+        for l in metadatajson["licenses"]:
+            try:
+                g.add( ( datasetURI, DCTERMS.license, URIRef(licdict[l["name"]])))
+            except:
+                g.add( ( datasetURI, DCTERMS.license, Literal(l["name"])))
+            g.add( ( datasetURI, DCATDE.licenseAttributionByText, Literal(l["instruction"])))
 
-        # cotributors ---
+        # cotributors
         for contributor in metadatajson["contributors"]:
             c = BNode()
             g.add( ( datasetURI, DCTERMS.contributor, c))
             g.add( ( c, RDF.type, FOAF.Person))
-            g.add( ( c, FOAF.name, Literal(contributor["name"])))
+            g.add( ( c, FOAF.name, Literal(contributor["title"])))
             g.add( ( c, FOAF.mbox, Literal(contributor["email"])))
-            g.add( ( c, OEO.date, Literal(contributor["date"]))) # xsd:date ?
+            g.add( ( c, OEO.date, Literal(contributor["date"], datatype=XSD.date)))
             g.add( ( c, OEO.comment, Literal(contributor["comment"]))) #rdfs:comment ?
 
         # temporal
@@ -102,10 +118,11 @@ def jsonToTtl(read_file):
             g.add( (t, RDF.type, DCTERMS.PeriodOfTime) )
             g.add( (t, SCHEMA.startDate, Literal(metadatajson["temporal"]["start"])))
             g.add( (t, SCHEMA.endDate, Literal(metadatajson["temporal"]["end"])))
-            g.add( (t, OEO.t_resolution, Literal(metadatajson["temporal"]["resolution"])))
+            g.add( (t, OEO.has_time_resolution, Literal(metadatajson["temporal"]["resolution"])))
+            g.add( (t, OEO.referenceDate, Literal(metadatajson["temporal"]["referenceDate"])))
 
-    except Exception, e:
-        print "problem with: " + str(e)
+    except Exception as e:
+        print("problem with: " + str(e))
 
     filename, file_extension = os.path.splitext(read_file.name)
     i = 0
@@ -113,7 +130,7 @@ def jsonToTtl(read_file):
         d = filename + '_'+ str(i) + '.ttl'
         if not os.path.exists(d):
             g.serialize(destination=d, format='turtle')
-            print d
+            print(d)
             break
         i += 1
     return
@@ -132,14 +149,14 @@ def ttlToJson(read_file):
     for s,p,o in g.triples( (None,  DCTERMS.title, None) ):
         strh = strh + str(o) + "\n"
     jsondict['title'] = strh
-    print jsondict
+    print(jsondict)
     # for t in g.triples():
     #     print str(t)
     strh = ""
     for s,p,o in g.triples( (None,  DCTERMS.description, None) ):
         strh = strh + str(o) + "\n"
     jsondict['description'] = strh
-    print jsondict
+    print(jsondict)
 
     jsondict['abc'] = "123"
 
@@ -147,9 +164,9 @@ def ttlToJson(read_file):
     for s,p,o in g.triples( (None,  DCTERMS.language, None) ):
         lang.append(o.rsplit('/', 1)[1].lower())
     lang = list(set(lang))
-    print lang
+    print(lang)
     jsondict['language'] = lang
-    print jsondict
+    print(jsondict)
 
     ##### sources #####
     sources = []
@@ -168,32 +185,32 @@ def ttlToJson(read_file):
         if not os.path.exists(d):
             with open(filename+"_"+str(i)+".json", "w") as write_file:
                 json.dump(jsondict, write_file, indent=4)
-                print d
+                print(d)
             break
         i += 1
 
     return
 
 if __name__ == '__main__':
-    print sys.argv[:]
+    print(sys.argv[:])
     if(len(sys.argv) != 2):
         print("usage: ")
         exit()
     path = sys.argv[1]
     try:
         filename, file_extension = os.path.splitext(path)
-        print filename + "\t" + file_extension
+        print(filename + "\t" + file_extension)
         with open(path, "r") as read_file:
             print("name: " + read_file.name)
             if(file_extension == '.json'):
-                print "1"
+                print("1")
                 jsonToTtl(read_file)
             elif(file_extension == '.ttl'):
-                print "2"
+                print("2")
                 ttlToJson(read_file)
             else:
                 print("json or ttl file please")
-    except Exception, e:
+    except Exception as e:
         print(e)
     #main(sys.argv[1:])
     print("Ende")
