@@ -15,6 +15,10 @@ Why does this file exist, and why not put this in __main__?
   Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
 """
 import sys
+import os
+import metadata_version_to_1_4
+import metadata_rdfttl
+
 
 
 def main(argv=sys.argv):
@@ -28,4 +32,25 @@ def main(argv=sys.argv):
     Does stuff.
     """
     print(argv)
+
+    if(len(argv) < 2):
+        print("usage: ")
+        exit()
+    path = sys.argv[1]
+    filename, file_extension = os.path.splitext(path)
+    outputfile = filename + "_converted" + file_extension
+    if(len(sys.argv) >= 3):
+        outputfile = sys.argv[2]
+    try:
+        with open(path, "r") as read_file:
+            print("Converting " + read_file.name + " ...")
+            if(file_extension == '.json'):
+                metadata_version_to_1_4.metadata_conversion(path, outputfile, "converter_script", "")
+                metadata_rdfttl.jsonToTtl(read_file)
+            else:
+                print("json file please")
+    except Exception as e:
+        print(e)
+    print("Done")
+
     return 0

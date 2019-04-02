@@ -20,6 +20,7 @@ def jsonToTtl(read_file):
     DCATDE = Namespace("http://dcat-ap.de/def/dcatde/")
     SCHEMA = Namespace("http://schema.org/")
     SKOS = Namespace("http://www.w3.org/2004/02/skos/core#")
+    ADMS = Namespace("http://www.w3.org/ns/adms#")
 
     # initialize empty RDF-Graph
     g = Graph()
@@ -32,6 +33,7 @@ def jsonToTtl(read_file):
     g.namespace_manager.bind('oeo', OEO)
     g.namespace_manager.bind('schema', SCHEMA)
     g.namespace_manager.bind('skos', SKOS)
+    g.namespace_manager.bind('adms', ADMS)
 
     # DCAT Catalog
     catalogURI = URIRef("https://www.bsp.de/catalogBsp")
@@ -44,6 +46,9 @@ def jsonToTtl(read_file):
         g.add( ( datasetURI, DCTERMS.title, Literal(metadatajson["title"]) ) )
         g.add( ( datasetURI, DCTERMS.title, Literal(metadatajson["name"]) ) )
         # --- description language tag ?
+
+        g.add( ( datasetURI, ADMS.Identifier, Literal(metadatajson["id"]) ) )
+
         g.add( ( datasetURI, DCTERMS.description, Literal(metadatajson["description"]) ) )
         # language ---
         print(str(type(metadatajson["language"])))
@@ -56,6 +61,7 @@ def jsonToTtl(read_file):
             "fr-FR" : ''
         }
         for lang in metadatajson["language"][:]:
+            print(lang)
             g.add( ( datasetURI, DCTERMS.language, URIRef(langdict[lang]) ) )
 
         # keywords
@@ -69,6 +75,9 @@ def jsonToTtl(read_file):
         # context
         g.add( (catalogURI, FOAF.homepage, Literal(metadatajson["context"]["homepage"])))
         g.add( (datasetURI, DCAT.contactpoint, Literal(metadatajson["context"]["contact"])))
+        g.add( (datasetURI, OEO.documentation, Literal(metadatajson["context"]["documentation"])))
+        g.add( (datasetURI, OEO.sourceCode, Literal(metadatajson["context"]["sourceCode"])))
+        g.add( (datasetURI, OEO.grantNo, Literal(metadatajson["context"]["grantNo"])))
 
         # spatial
         s = BNode()
@@ -76,6 +85,18 @@ def jsonToTtl(read_file):
         # in case extent is not a bounding box
         g.add( (s, SKOS.prefLabel, Literal(metadatajson["spatial"]["extent"])) )
         g.add( (s, OEO.has_spatial_resolution, Literal(metadatajson["spatial"]["resolution"])) )
+
+        g.add( (s, OEO.location, Literal(metadatajson["spatial"]["location"])) )
+
+        # temporal
+        if "temporal" in metadatajson:
+            t = BNode()
+            g.add( (datasetURI, DCTERMS.temporal, t))
+            g.add( (t, RDF.type, DCTERMS.PeriodOfTime) )
+            g.add( (t, SCHEMA.startDate, Literal(metadatajson["temporal"]["start"])))
+            g.add( (t, SCHEMA.endDate, Literal(metadatajson["temporal"]["end"])))
+            g.add( (t, OEO.has_time_resolution, Literal(metadatajson["temporal"]["resolution"])))
+            g.add( (t, OEO.referenceDate, Literal(metadatajson["temporal"]["referenceDate"])))
 
         # sources
         for source in metadatajson["sources"][:]:
@@ -99,7 +120,12 @@ def jsonToTtl(read_file):
                 g.add( ( datasetURI, DCTERMS.license, URIRef(licdict[l["name"]])))
             except:
                 g.add( ( datasetURI, DCTERMS.license, Literal(l["name"])))
-            g.add( ( datasetURI, DCATDE.licenseAttributionByText, Literal(l["instruction"])))
+            g.add( ( datasetURI, DCATDE.licenseAttributionByText, Literal(l["instruction"] +"\t"+ l["attribution"])))
+            li = BNode()
+            g.add( ( datasetURI, DCTERMS.license, li))
+            g.add( ( li, RDF.type, DCTERMS.LicenseDocument))
+            g.add( ( li, DCTERMS.title, Literal(l["title"])))
+            g.add( ( li, OEO.path, Literal(l["path"])))
 
         # cotributors
         for contributor in metadatajson["contributors"]:
@@ -110,16 +136,54 @@ def jsonToTtl(read_file):
             g.add( ( c, FOAF.mbox, Literal(contributor["email"])))
             g.add( ( c, OEO.date, Literal(contributor["date"], datatype=XSD.date)))
             g.add( ( c, OEO.comment, Literal(contributor["comment"]))) #rdfs:comment ?
+            g.add( ( c, OEO.object, Literal(contributor["object"])))
 
-        # temporal
-        if "temporal" in metadatajson:
-            t = BNode()
-            g.add( (datasetURI, DCTERMS.temporal, t))
-            g.add( (t, RDF.type, DCTERMS.PeriodOfTime) )
-            g.add( (t, SCHEMA.startDate, Literal(metadatajson["temporal"]["start"])))
-            g.add( (t, SCHEMA.endDate, Literal(metadatajson["temporal"]["end"])))
-            g.add( (t, OEO.has_time_resolution, Literal(metadatajson["temporal"]["resolution"])))
-            g.add( (t, OEO.referenceDate, Literal(metadatajson["temporal"]["referenceDate"])))
+        # Distributions
+        for d in metadatajson["resources"]:
+            d_uri = URIRef('http://openenergy-platform.org/ontology/v0.0.1/oeo/'+ d["name"])
+            g.add( ( d_uri, RDF.type, DCAT.Distribution))
+            g.add( ( d_uri, DCTERMS.title, Literal(d["name"])))
+            g.add( ( d_uri, DCAT.accessURL, Literal(d["path"])))
+            g.add( ( d_uri, OEO.has_format, Literal(d["format"]))) # dct:format ?
+            g.add( ( d_uri, OEO.profile, Literal(d["profile"])))
+            g.add( ( d_uri, OEO.encoding, Literal(d["encoding"])))
+            schema = BNode()
+            g.add( ( d_uri, OEO.schema, schema))
+            for field in d["schema"]["fields"]:
+                field_uri = BNode()
+                g.add( ( schema, OEO.fields, field_uri))
+                g.add( ( field_uri, DCTERMS.title, Literal(field["name"])))
+                g.add( ( field_uri, DCTERMS.description, Literal(field["description"])))
+                g.add( ( field_uri, OEO.type, Literal(field["type"])))
+                g.add( ( field_uri, OEO.unit, Literal(field["unit"])))
+                if field["name"] in d["schema"]["primaryKey"]:
+                    print("primary..")
+                    g.add( ( field_uri, RDF.type, OEO.PrimaryKey))
+            foreignKey = BNode()
+            g.add( ( schema, OEO.has_foreignKey, foreignKey))
+            g.add( ( foreignKey, OEO.fields, Literal(d["schema"]["foreignKeys"]["fields"])))
+            reference = BNode()
+            g.add( ( foreignKey, OEO.reference, reference))
+            g.add( ( reference, OEO.ressource, Literal(d["schema"]["foreignKeys"]["reference"]["ressource"])))
+            g.add( ( reference, OEO.fields, Literal(d["schema"]["foreignKeys"]["reference"]["fields"])))
+            dialect = BNode()
+            g.add( ( d_uri, OEO.dialect, dialect))
+            g.add( ( dialect, OEO.delimiter, Literal(d["dialect"]["delimiter"])))
+            g.add( ( dialect, OEO.decimalSeparator, Literal(d["dialect"]["decimalSeparator"])))
+
+        # review
+        review = BNode()
+        g.add( ( datasetURI, OEO.review, review))
+        g.add( ( review, OEO.path, URIRef(metadatajson["review"]["path"])))
+        g.add( ( review, OEO.has_badge, Literal(metadatajson["review"]["badge"])))
+        # metaMetadata
+        g.add( ( datasetURI, OEO.metadataVersion, Literal(metadatajson["metaMetadata"]["metadataVersion"])))
+        metalicense = BNode()
+        g.add( ( datasetURI, OEO.metadataLicense, metalicense))
+        g.add( ( metalicense, RDF.type, DCTERMS.LicenseDocument))
+        g.add( ( metalicense, DCTERMS.title, Literal(metadatajson["metaMetadata"]["metadataLicense"]["name"])))
+        g.add( ( metalicense, DCTERMS.title, Literal(metadatajson["metaMetadata"]["metadataLicense"]["title"])))
+        g.add( ( metalicense, OEO.path, Literal(metadatajson["metaMetadata"]["metadataLicense"]["path"])))
 
     except Exception as e:
         print("problem with: " + str(e))
