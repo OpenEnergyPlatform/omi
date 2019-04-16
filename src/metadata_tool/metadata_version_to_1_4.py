@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json
-from collections import OrderedDict
-import datetime
-import re
 import os
 import sys
+import re
+import json
+import datetime
+from collections import OrderedDict
 
 def json_extraction(sql_input, json_output = 'old_json.json'):
     """Extracts the json string from an existing COMMENT ON TABLE query file to an output file.
