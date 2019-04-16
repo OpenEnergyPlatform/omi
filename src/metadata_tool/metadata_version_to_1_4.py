@@ -14,6 +14,13 @@ def file_to_string(path):
         filestring = myfile.read()
     return filestring
 
+def is_json(myjson):
+    try:
+        json_object = json.loads(myjson)
+    except ValueError:
+        return False
+    return True
+
 def json_extraction(sql_input, json_output = 'old_json.json'):
     """Extracts the json string from an existing COMMENT ON TABLE query file to an output file.
 
@@ -380,10 +387,11 @@ if __name__ == '__main__':
         outputfile = sys.argv[2]
     try:
         json_in = file_to_string(path)
+        if not is_json(json_in):
+            raise Exception("\nInput File contains no valid json string.\nAborting\n")
         if(file_extension == '.json'):
             metadata_conversion(path, outputfile, "converter_script", "")
         else:
             print("json file please")
     except Exception as e:
         print(e)
-    print("Done")
