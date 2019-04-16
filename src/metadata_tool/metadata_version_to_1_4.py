@@ -8,6 +8,12 @@ import json
 import datetime
 from collections import OrderedDict
 
+def file_to_string(path):
+    filestring = ""
+    with open(path, "r") as myfile:
+        filestring = myfile.read()
+    return filestring
+
 def json_extraction(sql_input, json_output = 'old_json.json'):
     """Extracts the json string from an existing COMMENT ON TABLE query file to an output file.
 
@@ -373,12 +379,11 @@ if __name__ == '__main__':
     if(len(sys.argv) >= 3):
         outputfile = sys.argv[2]
     try:
-        with open(path, "r") as read_file:
-            print("Converting " + read_file.name + " ...")
-            if(file_extension == '.json'):
-                metadata_conversion(path, outputfile, "converter_script", "")
-            else:
-                print("json file please")
+        json_in = file_to_string(path)
+        if(file_extension == '.json'):
+            metadata_conversion(path, outputfile, "converter_script", "")
+        else:
+            print("json file please")
     except Exception as e:
         print(e)
     print("Done")
