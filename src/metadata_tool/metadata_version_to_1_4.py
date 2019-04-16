@@ -9,12 +9,38 @@ import datetime
 from collections import OrderedDict
 
 def file_to_string(path):
+    """Extracts the text content of a file and returns it
+
+    Parameters
+    ----------
+    path: str
+        The path to the file.
+
+    Returns
+    -------
+    filestring: str
+        The contents of the input file.
+    """
+
     filestring = ""
     with open(path, "r") as myfile:
         filestring = myfile.read()
     return filestring
 
 def is_json(myjson):
+    """Checks the validity of a JSON string
+
+    Parameters
+    ----------
+    myjson: str
+        The JSON string to be checked.
+
+    Returns
+    -------
+    bool
+        True if valid JSON, False otherwise.
+    """
+
     try:
         json_object = json.loads(myjson)
     except ValueError:
