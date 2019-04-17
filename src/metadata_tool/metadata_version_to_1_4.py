@@ -94,6 +94,28 @@ def is_1_3_metastring(json_string):
 
     return True
 
+# TODO make function check all subkeys as well
+def rogue_keys(json_string):
+    """Checks all keys if they are part of the metadata specification. Gives warnings if not.
+
+    Parameters
+    ----------
+    json_string: str
+        The JSON string to be checked.
+
+    Returns
+    -------
+    """
+
+    keys = []
+    for i in json_string:
+        keys.append(i)
+    #print(keys)
+    allowed_keys = ["title", "description", "language", "spatial", "temporal", "sources", "license", "contributors", "resources", "metadata_version"]
+    for j in keys:
+        if not j in allowed_keys:
+            print('Warning: "{0}" is not among the allowed keys'.format(j))
+
 def json_extraction(sql_input, json_output = 'old_json.json'):
     """Extracts the json string from an existing COMMENT ON TABLE query file to an output file.
 
