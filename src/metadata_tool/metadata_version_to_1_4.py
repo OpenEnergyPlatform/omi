@@ -91,11 +91,10 @@ def is_1_3_metastring(json_string):
     except Exception as error:
         print("The input String does not conform to metadatastring version 1.3 standard")
         print(error)
-
     return True
 
 # TODO make function check all subkeys as well
-def rogue_keys(json_string):
+def has_rogue_keys(json_string):
     """Checks all keys if they are part of the metadata specification. Gives warnings if not.
 
     Parameters
@@ -110,7 +109,6 @@ def rogue_keys(json_string):
     keys = []
     for i in json_string:
         keys.append(i)
-    #print(keys)
     allowed_keys = ["title", "description", "language", "spatial", "temporal", "sources", "license", "contributors", "resources", "metadata_version"]
     for j in keys:
         if not j in allowed_keys:
@@ -481,12 +479,12 @@ if __name__ == '__main__':
     if(len(sys.argv) >= 3):
         outputfile = sys.argv[2]
     try:
-        json_in = file_to_string(path)
-        if not is_json(json_in):
+        json_string_in = file_to_string(path)
+        if not is_json(json_string_in):
             raise Exception("\nInput File contains no valid json string.\nAborting\n")
-        if(file_extension == '.json'):
-            metadata_conversion(path, outputfile, "converter_script", "")
-        else:
-            print("json file please")
+        json_in = json.loads(json_string_in)
+        is_1_3_metastring(json_in)
+        has_rogue_keys(json_in)
+        metadata_conversion(path, outputfile, "converter_script", "")
     except Exception as e:
         print(e)
