@@ -1,12 +1,118 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json
-from collections import OrderedDict
-import datetime
-import re
 import os
 import sys
+import re
+import json
+import datetime
+from collections import OrderedDict
+
+def file_to_string(path):
+    """Extracts the text content of a file and returns it
+
+    Parameters
+    ----------
+    path: str
+        The path to the file.
+
+    Returns
+    -------
+    filestring: str
+        The contents of the input file.
+    """
+
+    filestring = ""
+    with open(path, "r") as myfile:
+        filestring = myfile.read()
+    return filestring
+
+def is_json(myjson):
+    """Checks the validity of a JSON string
+
+    Parameters
+    ----------
+    myjson: str
+        The JSON string to be checked.
+
+    Returns
+    -------
+    bool
+        True if valid JSON, False otherwise.
+    """
+
+    try:
+        json_object = json.loads(myjson)
+    except ValueError:
+        return False
+    return True
+
+def is_1_3_metastring(json_string):
+    """Checks string conformity to OEP Metadata Standard Version 1.3
+
+    Parameters
+    ----------
+    json_string: str
+        The JSON string to be checked.
+
+    Returns
+    -------
+    bool
+        True if valid, Raises Exception otherwise.
+    """
+
+    keys = ["title", "description", "language", "spatial", "temporal", "sources", "license", "contributors", "resources", "metadata_version"]
+    subkeys_spatial = ["location", "extent", "resolution"]
+    subkeys_temporal = ["reference_date", "start", "end", "resolution"]
+    subkeys_license = ["id", "name", "version", "url", "instruction", "copyright"]
+    object_subkeys = {"spatial": subkeys_spatial, "temporal": subkeys_temporal, "license": subkeys_license}
+    subkeys_sources = ["name", "description", "url", "license", "copyright"] # in list of objects
+    subkeys_contributors = ["name", "email", "date", "comment"] # in list of objects
+    subkeys_resources = ["name", "format", "fields"] # in list of objects
+    list_subkeys = {"sources": subkeys_sources, "contributors": subkeys_contributors, "resources": subkeys_resources}
+    subkeys_resources_fields = ["name", "description", "unit"] # in list of objects
+
+    try:
+        # check if all top level keys are present
+        for i in keys:
+            if not i in json_string.keys():
+                raise Exception('The String did not contain the key "{0}"'.format(i))
+        # check for all keys in second level objects
+        for key in object_subkeys:
+            for subkey in object_subkeys[key]:
+                if not subkey in json_string[key]:
+                    raise Exception('The "{0}" object did not contain a "{1}" key'.format(key, subkey))
+        # check for all objects in lists if they contain all required keys
+        for key in list_subkeys:
+            for list_element in json_string[key]:
+                for subkey in list_subkeys[key]:
+                    if not subkey in list_element:
+                        raise Exception('An object in "{0}" is missing a "{1}" key'.format(key, subkey))
+    except Exception as error:
+        print("The input String does not conform to metadatastring version 1.3 standard")
+        print(error)
+    return True
+
+# TODO make function check all subkeys as well
+def has_rogue_keys(json_string):
+    """Checks all keys if they are part of the metadata specification. Gives warnings if not.
+
+    Parameters
+    ----------
+    json_string: str
+        The JSON string to be checked.
+
+    Returns
+    -------
+    """
+
+    keys = []
+    for i in json_string:
+        keys.append(i)
+    allowed_keys = ["title", "description", "language", "spatial", "temporal", "sources", "license", "contributors", "resources", "metadata_version"]
+    for j in keys:
+        if not j in allowed_keys:
+            print('Warning: "{0}" is not among the allowed keys'.format(j))
 
 def json_extraction(sql_input, json_output = 'old_json.json'):
     """Extracts the json string from an existing COMMENT ON TABLE query file to an output file.
@@ -107,7 +213,7 @@ def json_conversion(tablename, username, user_email, json_old_input, json_new_ou
     d_spatial = OrderedDict()
     d['spatial'] = d_spatial
     d_spatial['location'] = ''
-#    d_spatial['extend'] = json_old['spatial'][0]['extend']
+    #d_spatial['extend'] = json_old['spatial'][0]['extend']
     d_spatial['extent'] = json_old['spatial']['extent']
     d_spatial['resolution'] = json_old['spatial']['resolution']
 
@@ -355,7 +461,7 @@ def metadata_conversion(old_sql, new_sql, user, user_email, only_endfiles = True
     json_new_string = json_conversion(tablename, user, user_email, json_old_string, json_new_output = 'json_new.json')
 
     # creating the new metadata version
-    metadata_creation(new_sql, tablename, json_new_string) #
+    metadata_creation(new_sql, tablename, json_new_string)
 
     # if only endfiles are wihsed the cache files are deleted
     if only_endfiles:
@@ -373,12 +479,12 @@ if __name__ == '__main__':
     if(len(sys.argv) >= 3):
         outputfile = sys.argv[2]
     try:
-        with open(path, "r") as read_file:
-            print("Converting " + read_file.name + " ...")
-            if(file_extension == '.json'):
-                metadata_conversion(path, outputfile, "converter_script", "")
-            else:
-                print("json file please")
+        json_string_in = file_to_string(path)
+        if not is_json(json_string_in):
+            raise Exception("\nInput File contains no valid json string.\nAborting\n")
+        json_in = json.loads(json_string_in)
+        is_1_3_metastring(json_in)
+        has_rogue_keys(json_in)
+        metadata_conversion(path, outputfile, "converter_script", "")
     except Exception as e:
         print(e)
-    print("Done")
