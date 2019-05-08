@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import datetime
 
 from metadata_tool.dialects.base.parser import Parser
 from metadata_tool import structure
@@ -41,7 +42,7 @@ class JSONParser_1_3(JSONParser):
             return True
 
     def parse(self, inp: str):
-        json_old = json.load(inp)
+        json_old = json.loads(inp)
 
         # In the following a new structure is set. The yet implemented version is for metadata v1.2 to v1.3.
 
@@ -163,6 +164,154 @@ class JSONParser_1_3(JSONParser):
         )
         return metadata
 
+
+class JSONParser_1_4(JSONParser):
+    def is_valid(self, inp: str):
+        if not super(self, JSONParser_1_4).is_valid(inp):
+            return False
+        try:
+            self.assert_1_3_metastring(inp)
+        except:
+            return False
+        else:
+            return True
+
+    def parse(self, inp: str):
+        json_old = json.loads(inp)
+
+        # In the following a new structure is set. The yet implemented version is for metadata v1.2 to v1.3.
+
+        # context section
+        inp_context= json_old['context']
+        context = structure.Context(
+            homepage=inp_context['homepage'],
+            documentation=inp_context["documentation"],
+            source_code=inp_context["sourceCode"],
+            contact=inp_context["contact"],
+            grant_number=inp_context["grantNo"],
+        )
+
+        # filling the spatial section
+        old_spatial = json_old["spatial"]
+        spatial = structure.Spatial(
+            location=old_spatial["location"],
+            extend=old_spatial["extent"],
+            resolution=old_spatial["resolution"],
+        )
+
+        # filling the temporal section
+        inp_temporal = json_old["temporal"]
+        temporal = structure.Temporal(
+            reference_date=datetime.datetime.strptime(inp_temporal["referenceDate"], "%Y-%m-%d"),
+            start=datetime.datetime.strptime(inp_temporal["start"]+"00", "%Y-%m-%dT%H:%M%z"),
+            end=datetime.datetime.strptime(inp_temporal["end"]+"00", "%Y-%m-%dT%H:%M%z"),
+            resolution=inp_temporal["resolution"],
+        )
+
+        # filling the source section
+        sources = [
+            structure.Source(
+                title=old_source["title"],
+                description=old_source["description"],
+                path=old_source["path"],
+                source_license=structure.License(
+                    None,
+                    old_source['license'],
+                    None,
+                    None,
+                    None),
+                source_copyright=old_source["copyright"],
+            )
+            for old_source in json_old["sources"]
+            ]
+
+        # filling the license section
+        licenses = [
+            structure.License(
+                name=old_license["name"],
+                title=old_license["title"],
+                path=old_license["path"],
+                instruction=old_license["instruction"],
+                attribution=old_license["attribution"],
+            )
+             for old_license in json_old["licenses"]
+        ]
+
+        # filling the contributers section
+        contributors = [
+            structure.Contributor(
+                title=old_contributor["title"],
+                email=old_contributor["email"],
+                date=old_contributor["date"],
+                obj=old_contributor["object"],
+                comment=old_contributor["comment"],
+            )
+            for old_contributor in json_old["contributors"]
+            ]
+
+        # extending with script-user information
+
+        resources = []
+        for resource in json_old["resources"]:
+            fields = [
+                structure.Field(
+                    name=field["name"],
+                    description=field["description"],
+                    field_type=field["type"],
+                    unit=field["unit"],
+                )
+                for field in resource["schema"]["fields"]
+                ]
+            schema = structure.Schema(fields=fields, primary_key=[],
+                                      foreign_keys=[])
+            resources.append(
+                structure.Resource(
+                    profile=resource['profile'],
+                    name=resource['name'],
+                    path=resource["path"],
+                    resource_format=resource["format"],
+                    encoding=resource["encoding"],
+                    schema=schema,
+                )
+            )
+
+        inp_review = json_old['review']
+        review = structure.Review(path=inp_review['path'],
+                                  badge=inp_review["badge"])
+
+
+        inp_comment=json_old['_comment']
+        comment = structure.MetaComment(
+            metadata_info=inp_comment["metadata"],
+            dates=inp_comment["dates"],
+            units=inp_comment["units"],
+            languages=inp_comment["languages"],
+            licenses=inp_comment["licenses"],
+            review=inp_comment["review"],
+            none=inp_comment["none"],
+        )
+
+        metadata = structure.OEPMetadata(
+            name=json_old["name"],
+            title=json_old["title"],
+            identifier=json_old["id"],
+            description=json_old["description"],
+            languages=json_old["language"],
+            keywords=json_old["keywords"],
+            publication_date=datetime.datetime.strptime(json_old["publicationDate"], "%Y-%m-%d"),
+            context=context,
+            spatial=spatial,
+            temporal=temporal,
+            sources=sources,
+            object_licenses=licenses,
+            contributors=contributors,
+            resources=resources,
+            review=review,
+            comment=comment,
+        )
+        return metadata
+
+
     def assert_1_3_metastring(self, json_string: str):
         """Checks string conformity to OEP Metadata Standard Version 1.3
 
@@ -281,49 +430,6 @@ class JSONParser_1_3(JSONParser):
             if not j in allowed_keys:
                 print('Warning: "{0}" is not among the allowed keys'.format(j))
 
-    def json_extraction(self, sql_input, json_output="old_json.json"):
-        """Extracts the json string from an existing COMMENT ON TABLE query file to an output file.
-
-        Parameters
-        ----------
-        sql_input: str
-            The sql input file.
-        json_output: str
-            the extracted json output file.
-
-        Returns
-        -------
-        json_output: str
-            The name of the extracted output file.
-        """
-
-        # Open input and output file. The output with r+ -option (read-write)
-        input_file = open(sql_input, "r")
-        output_file = open(json_output, "w")
-
-        # list that include lines of v2 and v3
-        input_file_lines = input_file.readlines()
-
-        # TODO write function to check input string on correct structure
-        json_start = 1
-        if not json_start:
-            raise RuntimeError(
-                "The metadata input file does not match the requisite structure."
-            )
-
-        # copy the json from the input_file to output_file
-        output_file.write("{")
-        for index_l, line in enumerate(input_file_lines[json_start:]):
-            if index_l < len(input_file_lines[json_start:]):
-                output_file.write(line)
-            else:
-                output_file.write(line[:-3])
-
-        # closing files
-        input_file.close()
-        output_file.close()
-
-        return json_output
 
     def get_table_name(self, metadata_file):
         """Provides the tablename information from the metadata_file

@@ -24,42 +24,23 @@ class Parser:
         raise NotImplementedError
 
     @staticmethod
-    def __unpack_file(f: Callable[[Any, str, ...], [T]]):
+    def __unpack_file(*args, **kwargs):
         """
 
         Parameters
         ----------
-        f
 
         Returns
         -------
 
         """
-
-        def from_file(self, path: str, *args, file_kwargs=None, **kwargs) -> T:
-            """
-
-            Parameters
-            ----------
-            path: str
-                Path of the file to call `f` on
-            args
-                Additional arguments to pass to `f`
-            file_kwargs
-                Additional parameters to pass to the `open` function
-            kwargs
-                Additional parameters to pass to `f`
-
-            Returns
-            -------
-
-            """
-            with open(path, **file_kwargs) as inp:
-                return f(inp.read(), *args, **kwargs)
+        with open(*args, **kwargs) as inp:
+            return inp.read()
 
         return from_file
 
-    parse_from_file = __unpack_file(parse)
+    def parse_from_file(self, *args, **kwargs):
+        return self.parse(self.__unpack_file(*args, **kwargs))
 
     def is_valid(self, inp: str) -> bool:
         """
@@ -79,4 +60,5 @@ class Parser:
         """
         raise NotImplementedError
 
-    is_file_valid = __unpack_file(is_valid)
+    def is_file_valid(self, *args, **kwargs):
+        return self.is_valid(self.__unpack_file(*args, **kwargs))

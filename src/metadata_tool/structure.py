@@ -6,6 +6,10 @@ from datetime import datetime
 class Compilable:
     __compiler_name__ = None
 
+    def __repr__(self):
+        return "{}({})".format(
+            self.__class__.__name__,
+            ",".join("{}={}".format(key,val) for key, val in self.__dict__.items()))
 
 class Language(Compilable):
     __compiler_name__ = 'language'
@@ -38,22 +42,6 @@ class Temporal(Compilable):
         self.ts_resolution = resolution
 
 
-class Source(Compilable):
-    __compiler_name__ = "source"
-
-    def __init__(self,
-                 title: str,
-                 description: str,
-                 path: str,
-                 source_license: License,
-                 source_copyright: str):
-        self.title = title
-        self.description = description
-        self.path = path
-        self.license = source_license
-        self.copyright = source_copyright
-
-
 class License(Compilable):
     __compiler_name__ = "license"
 
@@ -70,6 +58,22 @@ class License(Compilable):
         self.attribution = attribution
 
 
+class Source(Compilable):
+    __compiler_name__ = "source"
+
+    def __init__(self,
+                 title: str,
+                 description: str,
+                 path: str,
+                 source_license: License,
+                 source_copyright: str):
+        self.title = title
+        self.description = description
+        self.path = path
+        self.license = source_license
+        self.copyright = source_copyright
+
+
 class Contributor(Compilable):
     __compiler_name__ = "contributor"
 
@@ -84,24 +88,6 @@ class Contributor(Compilable):
         self.date = date
         self.object = obj
         self.comment = comment
-
-
-class Resource(Compilable):
-    __compiler_name__ = "resource"
-
-    def __init__(self,
-                 name: str,
-                 path: str,
-                 profile: str,
-                 resource_format: str,
-                 encoding: str,
-                 schema: Schema):
-        self.name = name
-        self.path = path
-        self.profile = profile
-        self.format = resource_format
-        self.encoding = encoding
-        self.schema = schema
 
 
 class Field(Compilable):
@@ -164,6 +150,24 @@ class Schema(Compilable):
         self.fields = fields
         self.primary_key = primary_key
         self.foreign_keys = foreign_keys
+
+
+class Resource(Compilable):
+    __compiler_name__ = "resource"
+
+    def __init__(self,
+                 name: str,
+                 path: str,
+                 profile: str,
+                 resource_format: str,
+                 encoding: str,
+                 schema: Schema):
+        self.name = name
+        self.path = path
+        self.profile = profile
+        self.format = resource_format
+        self.encoding = encoding
+        self.schema = schema
 
 
 class MetaComment(Compilable):

@@ -16,7 +16,6 @@ Why does this file exist, and why not put this in __main__?
 """
 import sys
 import os
-from metadata_tool import metadata_version_to_1_4
 from metadata_tool import metadata_rdfttl
 import click
 
