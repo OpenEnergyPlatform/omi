@@ -1,8 +1,8 @@
 import datetime
 
-from metadata_tool.dialects.oep.parser import JSONParser_1_3
-from metadata_tool.dialects.oep.compiler import JSONCompiler
 from metadata_tool import structure
+from metadata_tool.dialects.oep.compiler import JSONCompiler
+from metadata_tool.dialects.oep.parser import JSONParser_1_3
 
 
 def metadata_conversion(old_sql, new_sql, user, user_email):

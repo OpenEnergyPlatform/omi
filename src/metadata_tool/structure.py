@@ -1,6 +1,5 @@
-from typing import Iterable
-
 from datetime import datetime
+from typing import Iterable
 
 
 class Compilable:

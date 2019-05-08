@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json
 import datetime
+import json
 
-from metadata_tool.dialects.base.parser import Parser
 from metadata_tool import structure
+from metadata_tool.dialects.base.parser import Parser
 
 
 class JSONParser(Parser):

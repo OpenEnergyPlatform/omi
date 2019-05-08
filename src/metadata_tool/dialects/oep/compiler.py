@@ -1,5 +1,4 @@
 import json
-
 from collections import OrderedDict
 
 from metadata_tool import structure

@@ -1,11 +1,18 @@
 # coding=utf8
-import sys
-import os
 import json
-from rdflib import URIRef, BNode, Literal
+import os
+import sys
+
+from rdflib import BNode
 from rdflib import Graph
-from rdflib.namespace import RDF, DCTERMS, FOAF, XSD, NamespaceManager
+from rdflib import Literal
 from rdflib import Namespace
+from rdflib import URIRef
+from rdflib.namespace import DCTERMS
+from rdflib.namespace import FOAF
+from rdflib.namespace import RDF
+from rdflib.namespace import XSD
+from rdflib.namespace import NamespaceManager
 
 
 def jsonToTtl(read_file):

@@ -1,4 +1,6 @@
-from typing import Callable, TypeVar, Any
+from typing import Any
+from typing import Callable
+from typing import TypeVar
 
 from metadata_tool.structure import OEPMetadata
 
