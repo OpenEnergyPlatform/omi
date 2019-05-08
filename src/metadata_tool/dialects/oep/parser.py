@@ -265,7 +265,20 @@ class JSONParser_1_4(JSONParser):
                 )
                 for field in resource["schema"]["fields"]
             ]
-            schema = structure.Schema(fields=fields, primary_key=[], foreign_keys=[])
+            schema = structure.Schema(
+                fields=fields,
+                primary_key=resource["schema"]["primaryKey"],
+                foreign_keys=[
+                    structure.ForeignKey(
+                        fields=fk["fields"],
+                        reference=structure.Reference(
+                            resource=fk["reference"]["resource"],
+                            fields=fk["reference"]["fields"],
+                        ),
+                    )
+                    for fk in resource["schema"]["foreignKeys"]
+                ],
+            )
             resources.append(
                 structure.Resource(
                     profile=resource["profile"],

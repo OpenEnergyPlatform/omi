@@ -37,8 +37,6 @@ class Parser:
         with open(*args, **kwargs) as inp:
             return inp.read()
 
-        return from_file
-
     def parse_from_file(self, *args, **kwargs):
         return self.parse(self.__unpack_file(*args, **kwargs))
 
