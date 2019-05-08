@@ -31,8 +31,8 @@ version = release = '0.0.0'
 pygments_style = 'trac'
 templates_path = ['.']
 extlinks = {
-    'issue': ('https://github.com/MGlauer/metadata_tool/issues/%s', '#'),
-    'pr': ('https://github.com/MGlauer/metadata_tool/pull/%s', 'PR #'),
+    'issue': ('https://github.com/MGlauer/metadata_tool/issues/%structure', '#'),
+    'pr': ('https://github.com/MGlauer/metadata_tool/pull/%structure', 'PR #'),
 }
 # on_rtd is whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'

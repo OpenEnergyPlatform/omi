@@ -16,10 +16,15 @@ Why does this file exist, and why not put this in __main__?
 """
 import sys
 import os
-import metadata_version_to_1_4
-import metadata_rdfttl
+from metadata_tool import metadata_version_to_1_4
+from metadata_tool import metadata_rdfttl
+import click
 
+@click.command()
+def translate():
+    pass
 
+cli = click.CommandCollection(sources=[translate])
 
 def main(argv=sys.argv):
     """
