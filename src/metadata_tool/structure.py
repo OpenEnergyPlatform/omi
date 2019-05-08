@@ -135,7 +135,7 @@ class ForeignKey(Compilable):
 
     def __init__(self,
                  fields: Iterable[str],
-                 reference: str):
+                 reference: Reference):
         self.fields = fields
         self.reference = reference
 
