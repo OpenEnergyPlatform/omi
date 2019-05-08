@@ -74,12 +74,12 @@ class Contributor(Compilable):
     __compiler_name__ = "contributor"
 
     def __init__(self,
-                 name: str,
+                 title: str,
                  email: str,
                  date: datetime,
                  obj: str,
                  comment: str):
-        self.name = name
+        self.title = title
         self.email = email
         self.date = date
         self.object = obj
@@ -186,7 +186,6 @@ class MetaComment(Compilable):
         self.none = none
 
 
-
 class Review(Compilable):
     __compiler_name__ = "review"
 
@@ -195,16 +194,6 @@ class Review(Compilable):
                  badge: str):
         self.path = path
         self.badge = badge
-
-
-class MetaMetaData(Compilable):
-    __compiler_name__ = "meta_meta_data"
-
-    def __init__(self,
-                 version: str,
-                 metadata_license: License):
-        self.version = version
-        self.license = metadata_license
 
 
 class OEPMetadata(Compilable):
@@ -226,7 +215,6 @@ class OEPMetadata(Compilable):
                  contributors: Iterable[Contributor],
                  resources: Iterable[Resource],
                  review: Review,
-                 meta_meta_data: MetaMetaData,
                  comment: MetaComment):
         self.name = name
         self.title = title
@@ -243,7 +231,6 @@ class OEPMetadata(Compilable):
         self.contributors = contributors
         self.resources = resources
         self.review = review
-        self.meta_meta_data = meta_meta_data
         self.comment = comment
 
     def has_keywords(self):
