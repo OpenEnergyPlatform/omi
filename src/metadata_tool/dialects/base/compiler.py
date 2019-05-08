@@ -2,11 +2,9 @@ from metadata_tool import structure
 
 
 class Compiler:
-
     def visit(self, obj):
         if isinstance(obj, structure.Compilable):
-            meth = getattr(self,
-                           "visit_{name}".format(name=obj.__compiler_name__))
+            meth = getattr(self, "visit_{name}".format(name=obj.__compiler_name__))
             return meth(obj)
         else:
             return obj
@@ -51,9 +49,6 @@ class Compiler:
         raise NotImplementedError
 
     def visit_meta_comment(self, comment: structure.MetaComment):
-        raise NotImplementedError
-
-    def visit_meta_meta_data(self, metadata: structure.MetaMetaData):
         raise NotImplementedError
 
     def visit_metadata(self, metadata: structure.OEPMetadata):
