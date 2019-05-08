@@ -9,33 +9,30 @@ class Compilable:
     def __repr__(self):
         return "{}({})".format(
             self.__class__.__name__,
-            ",".join("{}={}".format(key,val) for key, val in self.__dict__.items()))
+            ",".join("{}={}".format(key, val) for key, val in self.__dict__.items()),
+        )
+
 
 class Language(Compilable):
-    __compiler_name__ = 'language'
+    __compiler_name__ = "language"
 
 
 class Spatial(Compilable):
-    __compiler_name__ = 'spatial'
+    __compiler_name__ = "spatial"
 
-    def __init__(self,
-                 location: str,
-                 extend: str,
-                 resolution: str):
+    def __init__(self, location: str, extend: str, resolution: str):
         self.location = location
         self.extend = extend
         self.resolution = resolution
 
 
 class Temporal(Compilable):
-    __compiler_name__ = 'temporal'
+    __compiler_name__ = "temporal"
 
-    def __init__(self,
-                 reference_date: datetime,
-                 start: datetime,
-                 end: datetime,
-                 resolution: str):  # TODO: This should not be a string... maybe
-                                    # we should use datetime instead?
+    def __init__(
+        self, reference_date: datetime, start: datetime, end: datetime, resolution: str
+    ):  # TODO: This should not be a string... maybe
+        # we should use datetime instead?
         self.reference_date = reference_date
         self.ts_start = start
         self.ts_end = end
@@ -45,12 +42,9 @@ class Temporal(Compilable):
 class License(Compilable):
     __compiler_name__ = "license"
 
-    def __init__(self,
-                 name: str,
-                 title: str,
-                 path: str,
-                 instruction: str,
-                 attribution: str):
+    def __init__(
+        self, name: str, title: str, path: str, instruction: str, attribution: str
+    ):
         self.name = name
         self.title = title
         self.path = path
@@ -61,12 +55,14 @@ class License(Compilable):
 class Source(Compilable):
     __compiler_name__ = "source"
 
-    def __init__(self,
-                 title: str,
-                 description: str,
-                 path: str,
-                 source_license: License,
-                 source_copyright: str):
+    def __init__(
+        self,
+        title: str,
+        description: str,
+        path: str,
+        source_license: License,
+        source_copyright: str,
+    ):
         self.title = title
         self.description = description
         self.path = path
@@ -77,12 +73,7 @@ class Source(Compilable):
 class Contributor(Compilable):
     __compiler_name__ = "contributor"
 
-    def __init__(self,
-                 title: str,
-                 email: str,
-                 date: datetime,
-                 obj: str,
-                 comment: str):
+    def __init__(self, title: str, email: str, date: datetime, obj: str, comment: str):
         self.title = title
         self.email = email
         self.date = date
@@ -91,13 +82,9 @@ class Contributor(Compilable):
 
 
 class Field(Compilable):
-    __compiler_name__ = 'field'
+    __compiler_name__ = "field"
 
-    def __init__(self,
-                 name: str,
-                 description: str,
-                 field_type: str,
-                 unit: str):
+    def __init__(self, name: str, description: str, field_type: str, unit: str):
         self.name = name
         self.description = description
         self.type = field_type
@@ -105,14 +92,16 @@ class Field(Compilable):
 
 
 class Context(Compilable):
-    __compiler_name__ = 'context'
+    __compiler_name__ = "context"
 
-    def __init__(self,
-                 homepage: str,
-                 documentation: str,
-                 source_code: str,
-                 contact: str,
-                 grant_number: str):
+    def __init__(
+        self,
+        homepage: str,
+        documentation: str,
+        source_code: str,
+        contact: str,
+        grant_number: str,
+    ):
         self.homepage = homepage
         self.documentation = documentation
         self.source_code = source_code
@@ -123,30 +112,28 @@ class Context(Compilable):
 class Reference(Compilable):
     __compiler_name__ = "reference"
 
-    def __init__(self,
-                 resource: str,
-                 fields: Iterable[str]):
+    def __init__(self, resource: str, fields: Iterable[str]):
         self.resource = resource
         self.fields = fields
 
 
 class ForeignKey(Compilable):
-    __compiler_name__ = 'foreign_key'
+    __compiler_name__ = "foreign_key"
 
-    def __init__(self,
-                 fields: Iterable[str],
-                 reference: Reference):
+    def __init__(self, fields: Iterable[str], reference: Reference):
         self.fields = fields
         self.reference = reference
 
 
 class Schema(Compilable):
-    __compiler_name__ = 'schema'
+    __compiler_name__ = "schema"
 
-    def __init__(self,
-                 fields: Iterable[Field],
-                 primary_key: Iterable[str],
-                 foreign_keys: Iterable[ForeignKey]):
+    def __init__(
+        self,
+        fields: Iterable[Field],
+        primary_key: Iterable[str],
+        foreign_keys: Iterable[ForeignKey],
+    ):
         self.fields = fields
         self.primary_key = primary_key
         self.foreign_keys = foreign_keys
@@ -155,13 +142,15 @@ class Schema(Compilable):
 class Resource(Compilable):
     __compiler_name__ = "resource"
 
-    def __init__(self,
-                 name: str,
-                 path: str,
-                 profile: str,
-                 resource_format: str,
-                 encoding: str,
-                 schema: Schema):
+    def __init__(
+        self,
+        name: str,
+        path: str,
+        profile: str,
+        resource_format: str,
+        encoding: str,
+        schema: Schema,
+    ):
         self.name = name
         self.path = path
         self.profile = profile
@@ -173,14 +162,16 @@ class Resource(Compilable):
 class MetaComment(Compilable):
     __compiler_name__ = "meta_comment"
 
-    def __init__(self,
-                 metadata_info: str,
-                 dates: str,
-                 units: str,
-                 languages:str,
-                 licenses: str,
-                 review: str,
-                 none: str):
+    def __init__(
+        self,
+        metadata_info: str,
+        dates: str,
+        units: str,
+        languages: str,
+        licenses: str,
+        review: str,
+        none: str,
+    ):
         self.metadata_info = metadata_info
         self.dates = dates
         self.units = units
@@ -193,33 +184,33 @@ class MetaComment(Compilable):
 class Review(Compilable):
     __compiler_name__ = "review"
 
-    def __init__(self,
-                 path: str,
-                 badge: str):
+    def __init__(self, path: str, badge: str):
         self.path = path
         self.badge = badge
 
 
 class OEPMetadata(Compilable):
-    __compiler_name__ = 'metadata'
+    __compiler_name__ = "metadata"
 
-    def __init__(self,
-                 name: str,
-                 title: str,
-                 identifier: str,
-                 description: str,
-                 languages: Iterable[Language],
-                 keywords: Iterable[str],
-                 publication_date: datetime,
-                 context: Context,
-                 spatial: Spatial,
-                 temporal: Temporal,
-                 sources: Iterable[Source],
-                 object_licenses: Iterable[License],
-                 contributors: Iterable[Contributor],
-                 resources: Iterable[Resource],
-                 review: Review,
-                 comment: MetaComment):
+    def __init__(
+        self,
+        name: str,
+        title: str,
+        identifier: str,
+        description: str,
+        languages: Iterable[Language],
+        keywords: Iterable[str],
+        publication_date: datetime,
+        context: Context,
+        spatial: Spatial,
+        temporal: Temporal,
+        sources: Iterable[Source],
+        object_licenses: Iterable[License],
+        contributors: Iterable[Contributor],
+        resources: Iterable[Resource],
+        review: Review,
+        comment: MetaComment,
+    ):
         self.name = name
         self.title = title
         self.identifier = identifier

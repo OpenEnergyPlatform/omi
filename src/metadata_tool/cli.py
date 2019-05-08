@@ -19,11 +19,14 @@ import os
 from metadata_tool import metadata_rdfttl
 import click
 
+
 @click.command()
 def translate():
     pass
 
+
 cli = click.CommandCollection(sources=[translate])
+
 
 def main(argv=sys.argv):
     """
@@ -37,19 +40,21 @@ def main(argv=sys.argv):
     """
     print(argv)
 
-    if(len(argv) < 2):
+    if len(argv) < 2:
         print("usage: ")
         exit()
     path = sys.argv[1]
     filename, file_extension = os.path.splitext(path)
     outputfile = filename + "_converted" + file_extension
-    if(len(sys.argv) >= 3):
+    if len(sys.argv) >= 3:
         outputfile = sys.argv[2]
     try:
         with open(path, "r") as read_file:
             print("Converting " + read_file.name + " ...")
-            if(file_extension == '.json'):
-                metadata_version_to_1_4.metadata_conversion(path, outputfile, "converter_script", "")
+            if file_extension == ".json":
+                metadata_version_to_1_4.metadata_conversion(
+                    path, outputfile, "converter_script", ""
+                )
                 metadata_rdfttl.jsonToTtl(read_file)
             else:
                 print("json file please")

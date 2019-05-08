@@ -182,9 +182,9 @@ class JSONParser_1_4(JSONParser):
         # In the following a new structure is set. The yet implemented version is for metadata v1.2 to v1.3.
 
         # context section
-        inp_context= json_old['context']
+        inp_context = json_old["context"]
         context = structure.Context(
-            homepage=inp_context['homepage'],
+            homepage=inp_context["homepage"],
             documentation=inp_context["documentation"],
             source_code=inp_context["sourceCode"],
             contact=inp_context["contact"],
@@ -202,9 +202,15 @@ class JSONParser_1_4(JSONParser):
         # filling the temporal section
         inp_temporal = json_old["temporal"]
         temporal = structure.Temporal(
-            reference_date=datetime.datetime.strptime(inp_temporal["referenceDate"], "%Y-%m-%d"),
-            start=datetime.datetime.strptime(inp_temporal["start"]+"00", "%Y-%m-%dT%H:%M%z"),
-            end=datetime.datetime.strptime(inp_temporal["end"]+"00", "%Y-%m-%dT%H:%M%z"),
+            reference_date=datetime.datetime.strptime(
+                inp_temporal["referenceDate"], "%Y-%m-%d"
+            ),
+            start=datetime.datetime.strptime(
+                inp_temporal["start"] + "00", "%Y-%m-%dT%H:%M%z"
+            ),
+            end=datetime.datetime.strptime(
+                inp_temporal["end"] + "00", "%Y-%m-%dT%H:%M%z"
+            ),
             resolution=inp_temporal["resolution"],
         )
 
@@ -215,15 +221,12 @@ class JSONParser_1_4(JSONParser):
                 description=old_source["description"],
                 path=old_source["path"],
                 source_license=structure.License(
-                    None,
-                    old_source['license'],
-                    None,
-                    None,
-                    None),
+                    None, old_source["license"], None, None, None
+                ),
                 source_copyright=old_source["copyright"],
             )
             for old_source in json_old["sources"]
-            ]
+        ]
 
         # filling the license section
         licenses = [
@@ -234,7 +237,7 @@ class JSONParser_1_4(JSONParser):
                 instruction=old_license["instruction"],
                 attribution=old_license["attribution"],
             )
-             for old_license in json_old["licenses"]
+            for old_license in json_old["licenses"]
         ]
 
         # filling the contributers section
@@ -247,7 +250,7 @@ class JSONParser_1_4(JSONParser):
                 comment=old_contributor["comment"],
             )
             for old_contributor in json_old["contributors"]
-            ]
+        ]
 
         # extending with script-user information
 
@@ -261,13 +264,12 @@ class JSONParser_1_4(JSONParser):
                     unit=field["unit"],
                 )
                 for field in resource["schema"]["fields"]
-                ]
-            schema = structure.Schema(fields=fields, primary_key=[],
-                                      foreign_keys=[])
+            ]
+            schema = structure.Schema(fields=fields, primary_key=[], foreign_keys=[])
             resources.append(
                 structure.Resource(
-                    profile=resource['profile'],
-                    name=resource['name'],
+                    profile=resource["profile"],
+                    name=resource["name"],
                     path=resource["path"],
                     resource_format=resource["format"],
                     encoding=resource["encoding"],
@@ -275,12 +277,10 @@ class JSONParser_1_4(JSONParser):
                 )
             )
 
-        inp_review = json_old['review']
-        review = structure.Review(path=inp_review['path'],
-                                  badge=inp_review["badge"])
+        inp_review = json_old["review"]
+        review = structure.Review(path=inp_review["path"], badge=inp_review["badge"])
 
-
-        inp_comment=json_old['_comment']
+        inp_comment = json_old["_comment"]
         comment = structure.MetaComment(
             metadata_info=inp_comment["metadata"],
             dates=inp_comment["dates"],
@@ -298,7 +298,9 @@ class JSONParser_1_4(JSONParser):
             description=json_old["description"],
             languages=json_old["language"],
             keywords=json_old["keywords"],
-            publication_date=datetime.datetime.strptime(json_old["publicationDate"], "%Y-%m-%d"),
+            publication_date=datetime.datetime.strptime(
+                json_old["publicationDate"], "%Y-%m-%d"
+            ),
             context=context,
             spatial=spatial,
             temporal=temporal,
@@ -310,7 +312,6 @@ class JSONParser_1_4(JSONParser):
             comment=comment,
         )
         return metadata
-
 
     def assert_1_3_metastring(self, json_string: str):
         """Checks string conformity to OEP Metadata Standard Version 1.3
@@ -429,7 +430,6 @@ class JSONParser_1_4(JSONParser):
         for j in json_dict.keys():
             if not j in allowed_keys:
                 print('Warning: "{0}" is not among the allowed keys'.format(j))
-
 
     def get_table_name(self, metadata_file):
         """Provides the tablename information from the metadata_file
