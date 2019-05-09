@@ -224,6 +224,7 @@ def json_conversion(tablename, username, user_email, json_old_input, json_new_ou
     d_temporal['start'] = ''
     d_temporal['end'] = ''
     d_temporal['resolution'] = ''
+    d_temporal['timestamp'] = ''
 
     # filling the source section
     d['sources'] = []
