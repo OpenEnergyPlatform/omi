@@ -35,6 +35,7 @@ install:
   - easy_install --version
   - pip --version
   - tox --version
+  - pip install -r requirements.txt
   - |
     set -ex
     if [[ $TRAVIS_PYTHON_VERSION == 'pypy' ]]; then
