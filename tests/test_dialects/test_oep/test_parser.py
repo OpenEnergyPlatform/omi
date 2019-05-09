@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from ..base.parser import _test_generic_parsing, parse_date
 from metadata_tool import structure as s
 from metadata_tool.dialects.oep.parser import JSONParser_1_4
+
+from ..base.parser import _test_generic_parsing
 
 
 def test_parser_v1_4():
@@ -76,98 +77,98 @@ def test_parser_v1_4():
             s.Contributor(
                 title="Ludee",
                 email=None,
-                date=parse_date("2016-06-16"),
+                date=datetime.date(2016,6,16),
                 obj="metadata",
                 comment="Create metadata",
             ),
             s.Contributor(
                 title="Ludee",
                 email=None,
-                date=parse_date("2016-11-22"),
+                date=datetime.date(2016,11,22),
                 obj="metadata",
                 comment="Update metadata",
             ),
             s.Contributor(
                 title="Ludee",
                 email=None,
-                date=parse_date("2016-11-22"),
+                date=datetime.date(2016,11,22),
                 obj="metadata",
                 comment="Update header and license",
             ),
             s.Contributor(
                 title="Ludee",
                 email=None,
-                date=parse_date("2017-03-16"),
+                date=datetime.date(2017,3,16),
                 obj="metadata",
                 comment="Add license to source",
             ),
             s.Contributor(
                 title="Ludee",
                 email=None,
-                date=parse_date("2017-03-28"),
+                date=datetime.date(2017,3,28),
                 obj="metadata",
                 comment="Add copyright to source and license",
             ),
             s.Contributor(
                 title="Ludee",
                 email=None,
-                date=parse_date("2017-05-30"),
+                date=datetime.date(2017,5,30),
                 obj="metadata",
                 comment="Release metadata version 1.3",
             ),
             s.Contributor(
                 title="Ludee",
                 email=None,
-                date=parse_date("2017-06-26"),
+                date=datetime.date(2017,6,26),
                 obj="metadata",
                 comment="Move referenceDate into temporal and remove array",
             ),
             s.Contributor(
                 title="Ludee",
                 email=None,
-                date=parse_date("2018-07-19"),
+                date=datetime.date(2018,7,19),
                 obj="metadata",
                 comment="Start metadata version 1.4",
             ),
             s.Contributor(
                 title="Ludee",
                 email=None,
-                date=parse_date("2018-07-26"),
+                date=datetime.date(2018,7,26),
                 obj="data",
                 comment="Rename table and files",
             ),
             s.Contributor(
                 title="Ludee",
                 email=None,
-                date=parse_date("2018-10-18"),
+                date=datetime.date(2018,10,18),
                 obj="metadata",
                 comment="Add contribution object",
             ),
             s.Contributor(
                 title="christian-rli",
                 email=None,
-                date=parse_date("2018-10-18"),
+                date=datetime.date(2018,10,18),
                 obj="metadata",
                 comment="Add datapackage compatibility",
             ),
             s.Contributor(
                 title="Ludee",
                 email=None,
-                date=parse_date("2018-11-02"),
+                date=datetime.date(2018,11,2),
                 obj="metadata",
                 comment="Release metadata version 1.4",
             ),
             s.Contributor(
                 title="christian-rli",
                 email=None,
-                date=parse_date("2019-02-05"),
+                date=datetime.date(2019,2,5),
                 obj="metadata",
                 comment="Apply template structure to example.",
             ),
             s.Contributor(
                 title="Ludee",
                 email=None,
-                date=parse_date("2019-03-22"),
+                date=datetime.date(2019,3,22),
                 obj="metadata",
                 comment="Hotfix foreignKeys",
             ),

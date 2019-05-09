@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import datetime
 import json
+
+from dateutil.parser import parse as parse_date
 
 from metadata_tool import structure
 from metadata_tool.dialects.base.parser import Parser
@@ -202,15 +203,9 @@ class JSONParser_1_4(JSONParser):
         # filling the temporal section
         inp_temporal = json_old["temporal"]
         temporal = structure.Temporal(
-            reference_date=datetime.datetime.strptime(
-                inp_temporal["referenceDate"], "%Y-%m-%d"
-            ),
-            start=datetime.datetime.strptime(
-                inp_temporal["start"] + "00", "%Y-%m-%dT%H:%M%z"
-            ),
-            end=datetime.datetime.strptime(
-                inp_temporal["end"] + "00", "%Y-%m-%dT%H:%M%z"
-            ),
+            reference_date=parse_date(inp_temporal["referenceDate"]),
+            start=parse_date(inp_temporal["start"]),
+            end=parse_date(inp_temporal["end"]),
             resolution=inp_temporal["resolution"],
             ts_orientation=structure.TimestampOrientation.create(
                 inp_temporal["timestamp"]
@@ -248,7 +243,7 @@ class JSONParser_1_4(JSONParser):
             structure.Contributor(
                 title=old_contributor["title"],
                 email=old_contributor["email"],
-                date=old_contributor["date"],
+                date=parse_date(old_contributor["date"]),
                 obj=old_contributor["object"],
                 comment=old_contributor["comment"],
             )
@@ -314,9 +309,7 @@ class JSONParser_1_4(JSONParser):
             description=json_old["description"],
             languages=json_old["language"],
             keywords=json_old["keywords"],
-            publication_date=datetime.datetime.strptime(
-                json_old["publicationDate"], "%Y-%m-%d"
-            ),
+            publication_date=parse_date(json_old["publicationDate"]),
             context=context,
             spatial=spatial,
             temporal=temporal,

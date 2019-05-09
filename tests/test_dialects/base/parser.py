@@ -1,5 +1,5 @@
-import unittest
 import datetime
+import unittest
 
 from metadata_tool.structure import Compilable
 
@@ -26,7 +26,8 @@ def assertCompileableEqual(first, second):
         else:
             if l == "none" and r is None:
                 return
-            assert l == r, "Keys {} do not match ({} != {})".format(key, l, r)
+
+            assert l == r, "Keys {} do not match ({}:{} != {}:{})".format(key, type(l), l, type(r) ,r)
 
 
 def parse_date(s):
