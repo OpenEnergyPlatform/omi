@@ -77,7 +77,10 @@ with open(join(dirname(__file__),'requirements.txt')) as requirement_file:
             # eg: 'keyword1', 'keyword2', 'keyword3',
         ],
         python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
-        install_requires=[line for line in requirement_file.read().splitlines() if len(line) > 0],
+        install_requires=[
+            "click",
+            "rdfLib",
+            "python-dateutil"],
         tests_require=["tox", "pytest"],
         extras_require={
             # eg:
