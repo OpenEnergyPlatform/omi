@@ -1,6 +1,5 @@
 from datetime import datetime
 from enum import Enum
-from enum import auto
 from typing import Iterable
 
 
@@ -28,9 +27,9 @@ class Spatial(Compilable):
 
 
 class TimestampOrientation(Enum):
-    left = auto()
-    middle = auto()
-    right = auto()
+    left = 0
+    middle = 1
+    right = 2
 
     @staticmethod
     def create(value: str) -> "TimestampOrientation":
