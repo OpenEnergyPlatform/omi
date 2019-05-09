@@ -39,6 +39,7 @@ def test_parser_v1_4():
                 tzinfo=datetime.timezone(datetime.timedelta(0, 3600)),
             ),
             resolution="1 h",
+            ts_orientation=s.TimestampOrientation.left
         ),
         sources=[
             s.Source(
@@ -112,7 +113,7 @@ def test_parser_v1_4():
                 email=None,
                 date=parse_date("2017-05-30"),
                 obj="metadata",
-                comment="Update metadata to version 1.3",
+                comment="Release metadata version 1.3",
             ),
             s.Contributor(
                 title="Ludee",

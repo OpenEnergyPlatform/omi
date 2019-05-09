@@ -212,6 +212,9 @@ class JSONParser_1_4(JSONParser):
                 inp_temporal["end"] + "00", "%Y-%m-%dT%H:%M%z"
             ),
             resolution=inp_temporal["resolution"],
+            ts_orientation=structure.TimestampOrientation.create(
+                inp_temporal["timestamp"]
+            ),
         )
 
         # filling the source section

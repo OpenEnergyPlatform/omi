@@ -1,4 +1,6 @@
 from datetime import datetime
+from enum import Enum
+from enum import auto
 from typing import Iterable
 
 
@@ -25,17 +27,40 @@ class Spatial(Compilable):
         self.resolution = resolution
 
 
+class TimestampOrientation(Enum):
+    left = auto()
+    middle = auto()
+    right = auto()
+
+    @staticmethod
+    def create(value: str) -> "TimestampOrientation":
+        if value == "left":
+            return TimestampOrientation.left
+        elif value == "middle":
+            return TimestampOrientation.middle
+        elif value == "right":
+            return TimestampOrientation.right
+        else:
+            raise Exception("Unknown timestamp orientation:", value)
+
+
 class Temporal(Compilable):
     __compiler_name__ = "temporal"
 
     def __init__(
-        self, reference_date: datetime, start: datetime, end: datetime, resolution: str
+        self,
+        reference_date: datetime,
+        start: datetime,
+        end: datetime,
+        resolution: str,
+        ts_orientation: TimestampOrientation,
     ):  # TODO: This should not be a string... maybe
         # we should use datetime instead?
         self.reference_date = reference_date
         self.ts_start = start
         self.ts_end = end
         self.ts_resolution = resolution
+        self.ts_orientation = ts_orientation
 
 
 class License(Compilable):

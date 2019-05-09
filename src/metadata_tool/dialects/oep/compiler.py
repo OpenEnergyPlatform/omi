@@ -38,9 +38,10 @@ class JSONCompiler(Compiler):
     def visit_temporal(self, temporal: structure.Temporal):
         return OrderedDict(
             reference_date=self.visit(temporal.reference_date),
-            ts_start=self.visit(temporal.ts_start),
-            ts_end=self.visit(temporal.ts_end),
-            ts_resolution=self.visit(temporal.ts_resolution),
+            start=self.visit(temporal.ts_start),
+            end=self.visit(temporal.ts_end),
+            resolution=self.visit(temporal.ts_resolution),
+            timestamp=self.visit(temporal.ts_orientation),
         )
 
     def visit_source(self, source: structure.Source):

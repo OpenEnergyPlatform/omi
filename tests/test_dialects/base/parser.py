@@ -11,7 +11,7 @@ def _test_generic_parsing(parser, inp, res):
 
 
 def assertCompileableEqual(first, second):
-    for key in first.__dict__.keys():
+    for key in (set(first.__dict__.keys()).union(set(second.__dict__.keys()))):
         l = getattr(first, key)
         r = getattr(second, key)
         if isinstance(l, Compilable):
