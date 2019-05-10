@@ -24,6 +24,9 @@ class Compiler:
     def visit_temporal(self, temporal: structure.Temporal):
         raise NotImplementedError
 
+    def visit_timestamp_orientation(self, ts_orientation:structure.TimestampOrientation):
+        raise NotImplementedError
+
     def visit_source(self, source: structure.Source):
         raise NotImplementedError
 
@@ -34,6 +37,9 @@ class Compiler:
         raise NotImplementedError
 
     def visit_schema(self, context: structure.Schema):
+        raise NotImplementedError
+
+    def visit_dialect(self, context: structure.Dialect):
         raise NotImplementedError
 
     def visit_field(self, field: structure.Field):

@@ -19,9 +19,10 @@ class JSONCompiler(Compiler):
 
     def visit_contributor(self, contributor: structure.Contributor):
         return OrderedDict(
-            name=self.visit(contributor.name),
+            title=self.visit(contributor.title),
             email=self.visit(contributor.email),
-            date=self.visit(contributor.date),
+            object=self.visit(contributor.object),
+            date=contributor.date.strftime("%Y-%m-%d"),
             comment=self.visit(contributor.comment),
         )
 
@@ -31,15 +32,25 @@ class JSONCompiler(Compiler):
     def visit_spatial(self, spatial: structure.Spatial):
         return OrderedDict(
             location=self.visit(spatial.location),
-            extend=self.visit(spatial.extend),
+            extent=self.visit(spatial.extent),
             resolution=self.visit(spatial.resolution),
         )
 
+    def visit_timestamp_orientation(self, tso: structure.TimestampOrientation):
+        if tso == structure.TimestampOrientation.left:
+            return "left"
+        elif tso == structure.TimestampOrientation.middle:
+            return "middle"
+        elif tso == structure.TimestampOrientation.right:
+            return "right"
+        else:
+            raise NotImplementedError
+
     def visit_temporal(self, temporal: structure.Temporal):
         return OrderedDict(
-            reference_date=self.visit(temporal.reference_date),
-            start=self.visit(temporal.ts_start),
-            end=self.visit(temporal.ts_end),
+            referenceDate=temporal.reference_date.strftime("%Y-%m-%d"),
+            start=temporal.ts_start.strftime("%Y-%m-%dT%H:%M%z")[:-2],
+            end=temporal.ts_end.strftime("%Y-%m-%dT%H:%M%z")[:-2],
             resolution=self.visit(temporal.ts_resolution),
             timestamp=self.visit(temporal.ts_orientation),
         )
@@ -49,7 +60,7 @@ class JSONCompiler(Compiler):
             title=self.visit(source.title),
             description=self.visit(source.description),
             path=self.visit(source.path),
-            license=self.visit(source.license.name),
+            license=self.visit(source.license.title),
             copyright=self.visit(source.copyright),
         )
 
@@ -67,9 +78,10 @@ class JSONCompiler(Compiler):
             profile=self.visit(resource.profile),
             name=self.visit(resource.name),
             path=self.visit(resource.path),
-            format=self.visit(resource.name),
+            format=self.visit(resource.format),
             encoding=self.visit(resource.encoding),
             schema=self.visit(resource.schema),
+            dialect=self.visit(resource.dialect)
         )
 
     def visit_field(self, field: structure.Field):
@@ -85,6 +97,12 @@ class JSONCompiler(Compiler):
             fields=list(map(self.visit, schema.fields)),
             primaryKey=self.visit(schema.primary_key),
             foreignKeys=list(map(self.visit, schema.foreign_keys)),
+        )
+
+    def visit_dialect(self, dialect: structure.Dialect):
+        return OrderedDict(
+            delimiter=self.visit(dialect.delimiter),
+            decimalSeparator=self.visit(dialect.decimal_separator)
         )
 
     def visit_foreign_key(self, foreign_key: structure.ForeignKey):
@@ -114,17 +132,21 @@ class JSONCompiler(Compiler):
 
     def visit_metadata(self, metadata: structure.OEPMetadata):
         return OrderedDict(
+            name=metadata.name,
             title=metadata.title,
-            identifier=metadata.identifier,
+            id=metadata.identifier,
             description=metadata.description,
             language=list(map(self.visit, metadata.languages)),
             keywords=metadata.keywords,
+            publicationDate=metadata.publication_date.strftime("%Y-%m-%d"),
+            context=self.visit(metadata.context),
             spatial=self.visit(metadata.spatial),
             temporal=self.visit(metadata.temporal),
             sources=list(map(self.visit, metadata.sources)),
-            license=self.visit(metadata.license),
+            licenses=list(map(self.visit, metadata.license)),
             contributors=list(map(self.visit, metadata.contributors)),
             resources=list(map(self.visit, metadata.resources)),
+            review=self.visit(metadata.review),
             metaMetadata=OrderedDict(
                 metadataVersion=self.__METADATA_VERSION,
                 metadataLicense=OrderedDict(
@@ -133,7 +155,7 @@ class JSONCompiler(Compiler):
                     path="https://creativecommons.org/publicdomain/zero/1.0/",
                 ),
             ),
-            comment=self.visit(metadata.comment),
+            _comment=self.visit(metadata.comment),
         )
 
 

@@ -20,13 +20,14 @@ class Language(Compilable):
 class Spatial(Compilable):
     __compiler_name__ = "spatial"
 
-    def __init__(self, location: str, extend: str, resolution: str):
+    def __init__(self, location: str, extent: str, resolution: str):
         self.location = location
-        self.extend = extend
+        self.extent = extent
         self.resolution = resolution
 
 
-class TimestampOrientation(Enum):
+class TimestampOrientation(Compilable, Enum):
+    __compiler_name__ = "timestamp_orientation"
     left = 0
     middle = 1
     right = 2
@@ -162,6 +163,14 @@ class Schema(Compilable):
         self.foreign_keys = foreign_keys
 
 
+class Dialect(Compilable):
+    __compiler_name__ = "dialect"
+
+    def __init__(self, delimiter: str, decimal_separator: str):
+        self.delimiter = delimiter
+        self.decimal_separator = decimal_separator
+
+
 class Resource(Compilable):
     __compiler_name__ = "resource"
 
@@ -173,13 +182,15 @@ class Resource(Compilable):
         resource_format: str,
         encoding: str,
         schema: Schema,
-    ):
+        dialect: Dialect
+):
         self.name = name
         self.path = path
         self.profile = profile
         self.format = resource_format
         self.encoding = encoding
         self.schema = schema
+        self.dialect = dialect
 
 
 class MetaComment(Compilable):

@@ -60,7 +60,7 @@ class JSONParser_1_3(JSONParser):
         old_spatial = json_old["spatial"]
         spatial = structure.Spatial(
             location="",
-            extend=old_spatial["extent"],
+            extent=old_spatial["extent"],
             resolution=old_spatial["resolution"],
         )
 
@@ -196,7 +196,7 @@ class JSONParser_1_4(JSONParser):
         old_spatial = json_old["spatial"]
         spatial = structure.Spatial(
             location=old_spatial["location"],
-            extend=old_spatial["extent"],
+            extent=old_spatial["extent"],
             resolution=old_spatial["resolution"],
         )
 
@@ -277,6 +277,10 @@ class JSONParser_1_4(JSONParser):
                     for fk in resource["schema"]["foreignKeys"]
                 ],
             )
+            dialect = structure.Dialect(
+                delimiter=resource["dialect"]["delimiter"],
+                decimal_separator=resource["dialect"]["decimalSeparator"]
+            )
             resources.append(
                 structure.Resource(
                     profile=resource["profile"],
@@ -285,6 +289,7 @@ class JSONParser_1_4(JSONParser):
                     resource_format=resource["format"],
                     encoding=resource["encoding"],
                     schema=schema,
+                    dialect=dialect
                 )
             )
 
