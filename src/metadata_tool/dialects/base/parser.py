@@ -8,7 +8,7 @@ T = TypeVar("T")
 
 
 class Parser:
-    def parse(self, inp: str) -> OEPMetadata:
+    def parse(self, inp: str, *args, **kwargs) -> OEPMetadata:
         """
         Transforms the input string into metadata as used by the
         OpenEnergyPlatform
@@ -40,7 +40,7 @@ class Parser:
             return inp.read()
 
     def parse_from_file(self, *args, **kwargs):
-        return self.parse(self.__unpack_file(*args, **kwargs))
+        return self.parse(self.__unpack_file(), *args, **kwargs)
 
     def is_valid(self, inp: str) -> bool:
         """
