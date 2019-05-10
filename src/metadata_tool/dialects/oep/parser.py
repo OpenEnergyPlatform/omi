@@ -66,10 +66,11 @@ class JSONParser_1_3(JSONParser):
 
         # filling the temporal section
         temporal = structure.Temporal(
-            reference_date=json_old["temporal"]["reference_date"],
+            reference_date=parse_date(json_old["temporal"]["reference_date"]),
             start=None,
             end=None,
             resolution=None,
+            ts_orientation=None
         )
 
         # filling the source section
@@ -101,7 +102,7 @@ class JSONParser_1_3(JSONParser):
             structure.Contributor(
                 title=old_contributor["name"],
                 email=old_contributor["email"],
-                date=old_contributor["date"],
+                date=parse_date(old_contributor["date"]),
                 obj="",
                 comment=old_contributor["comment"],
             )
@@ -121,14 +122,18 @@ class JSONParser_1_3(JSONParser):
                 )
                 for field in resource["fields"]
             ]
-            schema = structure.Schema(fields=fields, primary_key=[], foreign_keys=[])
+            schema = structure.Schema(
+                fields=fields,
+                primary_key=None,
+                foreign_keys=[])
             resources.append(
                 structure.Resource(
                     profile=None,
-                    name=None,
+                    name=resource["name"],
                     path=None,
                     resource_format="PostgreSQL",
                     encoding=None,
+                    dialect=None,
                     schema=schema,
                 )
             )

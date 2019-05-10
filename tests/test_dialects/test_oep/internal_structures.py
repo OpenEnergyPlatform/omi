@@ -1,6 +1,123 @@
 from metadata_tool import structure as s
 import datetime
 
+metadata_v_1_3 = s.OEPMetadata(
+    name=None,
+    title="Conceived Example Table Meant for Creating an Illustrative Metadata String thereof",
+    identifier=None,
+    description="An imaginary table that provides many features, offering a suitable source for metadata template entries",
+    languages=["eng"],
+    keywords=[],
+    publication_date=None,
+    context=s.Context(
+        homepage=None,
+        documentation=None,
+        source_code=None,
+        contact=None,
+        grant_number=None,
+    ),
+    spatial=s.Spatial(
+        location=None,
+        extent="Berlin",
+        resolution="1 m"
+    ),
+    temporal=s.Temporal(
+        reference_date=datetime.datetime(2018, 11, 13),
+        start=None,
+        end=None,
+        resolution=None,
+        ts_orientation=None
+    ),
+    sources=[
+        s.Source(
+            title="Technical review and evaluation of Issue",
+            description="Study financed by Organisation describes Issue. The study is authored by Jon Doe and Erika Mustermann",
+            path="http://dx.doi.org/1.1/j.d.2000.01.001",
+            source_license=None,
+            source_copyright="Publisher"
+        ),
+        s.Source(
+            title="Metastudy on Issue",
+            description="Study financed by State Actor evaluates Issue in regions. The study is authored by Jane Doe and Otto Normal",
+            path="http://dx.doi.org/2.2/j.d.2022.02.022",
+            source_license=None,
+            source_copyright="Publisher2"
+        )
+    ],
+    object_licenses=[s.License(name="ODbL-1.0",
+                        title="Open Data Commons Open Database License 1.0",
+                        path="https://opendatacommons.org/licenses/odbl/1.0/",
+                        instruction="You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
+                        attribution="Institute"
+                        )],
+    contributors=[
+        s.Contributor(
+            title="Person McHuman",
+            email="person.mchuman@good-institute.net",
+            date=datetime.datetime(2011, 1, 11, 0, 0, 0),
+            obj=None,
+            comment="Prepared the dataset"
+        ),
+        s.Contributor(
+            title="Indivia Mensch",
+            email="indivia.mensch@gute-organisation.org",
+            date=datetime.datetime(2012, 2, 12, 0, 0, 0),
+            obj=None,
+            comment="Fixed Metadata String and date format "
+        )
+    ],
+    resources=[
+        s.Resource(
+            name="example.datatable",
+            resource_format="PostgreSQL",
+            schema=s.Schema(
+                fields=[
+                    s.Field(
+                        name="id",
+                        description="unambiguous unique numer",
+                        unit=None,
+                        field_type=None
+                    ),
+                    s.Field(
+                        name="component_id",
+                        description="Identifying numer of component. May repeat due to several occurences of the same component.",
+                        unit=None,
+                        field_type=None
+                    ),
+                    s.Field(
+                        name="measurement",
+                        description="Measured by Instrument",
+                        unit="kWh",
+                        field_type=None
+                    ),
+                    s.Field(
+                        name="reference",
+                        description="Bibtex String that references the information source.",
+                        unit=None,
+                        field_type=None
+                    ),
+                ],
+                primary_key=None,
+                foreign_keys=[]
+            ),
+            path=None,
+            profile=None,
+            encoding=None,
+            dialect=None,
+        )
+    ],
+    review=s.Review(path=None, badge=None),
+    comment=s.MetaComment(
+            metadata_info="Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
+            dates="Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
+            units="Use a space between numbers and units (100 m)",
+            languages="Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
+            licenses="License name must follow the SPDX License List (https://spdx.org/licenses/",
+            review="Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
+            none="If not applicable use (none)",
+        )
+)
+
 metadata_v_1_4 = s.OEPMetadata(
         name="oep_metadata_table_example_v14",
         title="Good example title",
