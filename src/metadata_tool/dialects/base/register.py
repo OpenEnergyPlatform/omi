@@ -7,6 +7,7 @@ def register(identifier: str):
     def inner(dialect_class: Dialect):
         DIALECT_DICT[identifier] = dialect_class
         return dialect_class
+
     return inner
 
 

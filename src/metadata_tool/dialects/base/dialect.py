@@ -7,11 +7,10 @@ class Dialect:
     _parser = Parser
     _compiler = Compiler
 
-    def compile(self, obj:OEPMetadata, *args, **kwargs):
+    def compile(self, obj: OEPMetadata, *args, **kwargs):
         c = self._compiler()
-        return c.visit(obj, *args, ** kwargs)
+        return c.visit(obj, *args, **kwargs)
 
     def parse(self, string: str, *args, **kwargs) -> OEPMetadata:
         p = self._parser()
         return p.parse(string, *args, **kwargs)
-
