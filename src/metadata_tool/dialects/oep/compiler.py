@@ -81,7 +81,7 @@ class JSONCompiler(Compiler):
             format=self.visit(resource.format),
             encoding=self.visit(resource.encoding),
             schema=self.visit(resource.schema),
-            dialect=self.visit(resource.dialect)
+            dialect=self.visit(resource.dialect),
         )
 
     def visit_field(self, field: structure.Field):
@@ -102,7 +102,7 @@ class JSONCompiler(Compiler):
     def visit_dialect(self, dialect: structure.Dialect):
         return OrderedDict(
             delimiter=self.visit(dialect.delimiter),
-            decimalSeparator=self.visit(dialect.decimal_separator)
+            decimalSeparator=self.visit(dialect.decimal_separator),
         )
 
     def visit_foreign_key(self, foreign_key: structure.ForeignKey):

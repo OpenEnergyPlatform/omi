@@ -70,7 +70,7 @@ class JSONParser_1_3(JSONParser):
             start=None,
             end=None,
             resolution=None,
-            ts_orientation=None
+            ts_orientation=None,
         )
 
         # filling the source section
@@ -122,10 +122,7 @@ class JSONParser_1_3(JSONParser):
                 )
                 for field in resource["fields"]
             ]
-            schema = structure.Schema(
-                fields=fields,
-                primary_key=None,
-                foreign_keys=[])
+            schema = structure.Schema(fields=fields, primary_key=None, foreign_keys=[])
             resources.append(
                 structure.Resource(
                     profile=None,
@@ -284,7 +281,7 @@ class JSONParser_1_4(JSONParser):
             )
             dialect = structure.Dialect(
                 delimiter=resource["dialect"]["delimiter"],
-                decimal_separator=resource["dialect"]["decimalSeparator"]
+                decimal_separator=resource["dialect"]["decimalSeparator"],
             )
             resources.append(
                 structure.Resource(
@@ -294,7 +291,7 @@ class JSONParser_1_4(JSONParser):
                     resource_format=resource["format"],
                     encoding=resource["encoding"],
                     schema=schema,
-                    dialect=dialect
+                    dialect=dialect,
                 )
             )
 

@@ -182,8 +182,8 @@ class Resource(Compilable):
         resource_format: str,
         encoding: str,
         schema: Schema,
-        dialect: Dialect
-):
+        dialect: Dialect,
+    ):
         self.name = name
         self.path = path
         self.profile = profile
