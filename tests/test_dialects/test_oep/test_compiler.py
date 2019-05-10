@@ -1,5 +1,5 @@
 from metadata_tool.dialects.oep.compiler import JSONCompiler
-from .metadata_v14 import internal
+from .internal_structures import metadata_v_1_4
 import json
 
 
@@ -7,7 +7,7 @@ def test_compiler_v1_4():
     compiler = JSONCompiler()
     with open("tests/data/metadata_v14.json", "r") as _input_file:
         expected_result = json.load(_input_file)
-        result = compiler.visit(internal)
+        result = compiler.visit(metadata_v_1_4)
         assert_equal(expected_result, result)
 
 

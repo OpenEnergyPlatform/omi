@@ -1,7 +1,7 @@
 from metadata_tool import structure as s
 import datetime
 
-internal = s.OEPMetadata(
+metadata_v_1_4 = s.OEPMetadata(
         name="oep_metadata_table_example_v14",
         title="Good example title",
         identifier="http://openenergyplatform.org/dataedit/view/model_draft/oep_metadata_table_example_v14",
