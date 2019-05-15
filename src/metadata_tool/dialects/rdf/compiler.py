@@ -1,6 +1,3 @@
-from metadata_tool import structure
-from metadata_tool.dialects.base.compiler import Compiler
-from metadata_tool.dialects.rdf.licenses import LICENSE_DICT
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
@@ -12,6 +9,10 @@ from rdflib.namespace import FOAF
 from rdflib.namespace import RDF
 from rdflib.namespace import XSD
 from rdflib.namespace import NamespaceManager
+
+from metadata_tool import structure
+from metadata_tool.dialects.base.compiler import Compiler
+from metadata_tool.dialects.rdf.licenses import LICENSE_DICT
 
 DCAT = Namespace("http://www.w3.org/ns/dcat#")
 OEO = Namespace("http://openenergy-platform.org/ontology/v0.0.1/oeo/")
