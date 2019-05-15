@@ -36,8 +36,7 @@ class RDFCompiler(Compiler):
         # context
         graph = args[0]
         parent = args[2]
-        graph.add(
-            (parent, FOAF.homepage, Literal(context.homepage)))
+        graph.add((parent, FOAF.homepage, Literal(context.homepage)))
         graph.add((parent, DCAT.contactpoint, Literal(context.contact)))
         graph.add((parent, OEO.documentation, Literal(context.documentation)))
         graph.add((parent, OEO.sourceCode, Literal(context.source_code)))
@@ -52,8 +51,7 @@ class RDFCompiler(Compiler):
         graph.add((c, FOAF.name, Literal(contributor.title)))
         graph.add((c, FOAF.mbox, Literal(contributor.email)))
         graph.add((c, OEO.date, Literal(contributor.date, datatype=XSD.date)))
-        graph.add(
-            (c, OEO.comment, Literal(contributor.comment)))
+        graph.add((c, OEO.comment, Literal(contributor.comment)))
         graph.add((c, OEO.object, Literal(contributor.object)))
 
     def visit_language(self, language: structure.Language, *args, **kwargs):
@@ -65,12 +63,7 @@ class RDFCompiler(Compiler):
         node = BNode()
         graph.add((root, DCTERMS.spatial, node))
         graph.add((node, SKOS.prefLabel, Literal(spatial.extent)))
-        graph.add((
-                node,
-                OEO.has_spatial_resolution,
-                Literal(spatial.resolution),
-            )
-        )
+        graph.add((node, OEO.has_spatial_resolution, Literal(spatial.resolution)))
         graph.add((node, OEO.location, Literal(spatial.location)))
         return node
 
@@ -82,20 +75,8 @@ class RDFCompiler(Compiler):
         graph.add((node, RDF.type, DCTERMS.PeriodOfTime))
         graph.add((node, SCHEMA.startDate, Literal(temporal.ts_start)))
         graph.add((node, SCHEMA.endDate, Literal(temporal.ts_end)))
-        graph.add(
-            (
-                node,
-                OEO.has_time_resolution,
-                Literal(temporal.ts_resolution),
-            )
-        )
-        graph.add(
-            (
-                node,
-                OEO.referenceDate,
-                Literal(temporal.reference_date),
-            )
-        )
+        graph.add((node, OEO.has_time_resolution, Literal(temporal.ts_resolution)))
+        graph.add((node, OEO.referenceDate, Literal(temporal.reference_date)))
         self.visit(temporal.ts_orientation, graph, node)
         return node
 
@@ -113,13 +94,7 @@ class RDFCompiler(Compiler):
             v = "right"
         else:
             raise Exception("Unknown timestamp orientation")
-        graph.add(
-            (
-                parent,
-                OEO.has_orientation,
-                Literal(v),
-            )
-        )
+        graph.add((parent, OEO.has_orientation, Literal(v)))
 
     def visit_source(self, source: structure.Source, *args, **kwargs):
         graph = args[0]
@@ -141,20 +116,8 @@ class RDFCompiler(Compiler):
         graph = args[0]
         parent = args[1]
 
-        graph.add(
-            (
-                parent,
-                DCATDE.licenseAttributionByText,
-                Literal(lic.attribution),
-            )
-        )
-        graph.add(
-            (
-                parent,
-                DCATDE.licenseAttributionByText,
-                Literal(lic.instruction),
-            )
-        )
+        graph.add((parent, DCATDE.licenseAttributionByText, Literal(lic.attribution)))
+        graph.add((parent, DCATDE.licenseAttributionByText, Literal(lic.instruction)))
         if lic.name in LICENSE_DICT:
             li = URIRef(LICENSE_DICT[lic.name])
         else:
@@ -180,7 +143,9 @@ class RDFCompiler(Compiler):
 
     def visit_schema(self, schema: structure.Schema, *args, **kwargs):
         graph = args[0]
-        field_dict = dict([self.visit(field, *args, **kwargs)] for field in schema.fields)
+        field_dict = dict(
+            [self.visit(field, *args, **kwargs)] for field in schema.fields
+        )
 
         for pk in schema.primary_key:
             graph.add((field_dict[pk], OEO.primaryKey, Literal(pk)))
@@ -194,13 +159,7 @@ class RDFCompiler(Compiler):
         node = BNode()
         graph.add((parent, OEO.dialect, node))
         graph.add((node, OEO.delimiter, Literal(dialect.delimiter)))
-        graph.add(
-            (
-                node,
-                OEO.decimalSeparator,
-                Literal(dialect.decimal_separator),
-            )
-        )
+        graph.add((node, OEO.decimalSeparator, Literal(dialect.decimal_separator)))
 
     def visit_field(self, field: structure.Field, *args, **kwargs):
         graph = args[0]
@@ -208,8 +167,7 @@ class RDFCompiler(Compiler):
         field_uri = BNode()
         graph.add((parent, OEO.fields, field_uri))
         graph.add((field_uri, DCTERMS.title, Literal(field.name)))
-        graph.add((field_uri, DCTERMS.description,
-                   Literal(field.description)))
+        graph.add((field_uri, DCTERMS.description, Literal(field.description)))
         graph.add((field_uri, OEO.type, Literal(field.type)))
         graph.add((field_uri, OEO.unit, Literal(field.unit)))
 
@@ -220,10 +178,7 @@ class RDFCompiler(Compiler):
         parent = args[2]
         foreignKey = BNode()
         graph.add((parent, OEO.has_foreignKey, foreignKey))
-        graph.add(
-            (foreignKey, OEO.fields,
-             Literal(fk.fields))
-        )
+        graph.add((foreignKey, OEO.fields, Literal(fk.fields)))
         reference = BNode()
 
     def visit_reference(self, reference: structure.Reference, *args, **kwargs):
@@ -231,14 +186,7 @@ class RDFCompiler(Compiler):
         parent = args[2]
         node = BNode()
         graph.add((parent, OEO.reference, reference))
-        graph.add(
-            (
-                reference,
-                OEO.ressource,
-                Literal(
-                    fk["reference"]["ressource"]),
-            )
-        )
+        graph.add((reference, OEO.ressource, Literal(fk["reference"]["ressource"])))
         graph.add(
             (
                 reference,
@@ -264,7 +212,8 @@ class RDFCompiler(Compiler):
             languages=Literal(comment.languages),
             licenses=Literal(comment.licenses),
             review=Literal(comment.review),
-            none=Literal(comment.none))
+            none=Literal(comment.none),
+        )
 
     def visit_metadata(self, metadata: structure.OEPMetadata, *args, **kwargs):
         g = Graph()
@@ -304,10 +253,20 @@ class RDFCompiler(Compiler):
         temporal = self.visit(metadata.temporal, g, datasetURI, datasetURI)
         sources = [self.visit(s, g, datasetURI, datasetURI) for s in metadata.sources]
         licenses = [self.visit(l, g, datasetURI, datasetURI) for l in metadata.license]
-        contributors = [self.visit(c, g, datasetURI, datasetURI) for c in metadata.contributors]
-        resources = [self.visit(r, g, datasetURI, datasetURI) for r in metadata.resources]
+        contributors = [
+            self.visit(c, g, datasetURI, datasetURI) for c in metadata.contributors
+        ]
+        resources = [
+            self.visit(r, g, datasetURI, datasetURI) for r in metadata.resources
+        ]
 
-        g.add((datasetURI, OEO.metadataLicense, URIRef("https://creativecommons.org/publicdomain/zero/1.0/legalcode")))
+        g.add(
+            (
+                datasetURI,
+                OEO.metadataLicense,
+                URIRef("https://creativecommons.org/publicdomain/zero/1.0/legalcode"),
+            )
+        )
 
         comment_dict = self.visit(metadata.comment)
 

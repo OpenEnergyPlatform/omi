@@ -394,6 +394,8 @@ SPDX_LICENSES = {
 
 ALL_LICENSE_DICTS = [SPDX_LICENSES]
 
-LICENSE_DICT = dict(itertools.chain.from_iterable(dct.items() for dct in ALL_LICENSE_DICTS))
+LICENSE_DICT = dict(
+    itertools.chain.from_iterable(dct.items() for dct in ALL_LICENSE_DICTS)
+)
 
 __all__ = [LICENSE_DICT]
