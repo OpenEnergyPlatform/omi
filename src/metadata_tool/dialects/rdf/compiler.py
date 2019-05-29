@@ -1,26 +1,21 @@
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
-from rdflib import Namespace
 from rdflib import URIRef
-from rdflib.collection import Collection
 from rdflib.namespace import DCTERMS
 from rdflib.namespace import FOAF
 from rdflib.namespace import RDF
 from rdflib.namespace import XSD
-from rdflib.namespace import NamespaceManager
 
 from metadata_tool import structure
 from metadata_tool.dialects.base.compiler import Compiler
 from metadata_tool.dialects.rdf.licenses import LICENSE_DICT
-
-DCAT = Namespace("http://www.w3.org/ns/dcat#")
-OEO = Namespace("http://openenergy-platform.org/ontology/v0.0.1/oeo/")
-DCATDE = Namespace("http://dcat-ap.de/def/dcatde/")
-SCHEMA = Namespace("http://schema.org/")
-SKOS = Namespace("http://www.w3.org/2004/02/skos/core#")
-ADMS = Namespace("http://www.w3.org/ns/adms#")
-
+from metadata_tool.dialects.rdf.namespace import ADMS
+from metadata_tool.dialects.rdf.namespace import DCAT
+from metadata_tool.dialects.rdf.namespace import DCATDE
+from metadata_tool.dialects.rdf.namespace import OEO
+from metadata_tool.dialects.rdf.namespace import SCHEMA
+from metadata_tool.dialects.rdf.namespace import SKOS
 
 LANG_DICT = {
     "eng": "http://publications.europa.eu/resource/authority/language/ENG",
@@ -166,7 +161,7 @@ class RDFCompiler(Compiler):
         graph = args[0]
         parent = args[2]
         field_uri = BNode()
-        graph.add((parent, OEO.fields, field_uri))
+        graph.add((parent, OEO.field, field_uri))
         graph.add((field_uri, DCTERMS.title, Literal(field.name)))
         graph.add((field_uri, DCTERMS.description, Literal(field.description)))
         graph.add((field_uri, OEO.type, Literal(field.type)))
@@ -179,22 +174,18 @@ class RDFCompiler(Compiler):
         parent = args[2]
         foreignKey = BNode()
         graph.add((parent, OEO.has_foreignKey, foreignKey))
-        graph.add((foreignKey, OEO.fields, Literal(fk.fields)))
-        reference = BNode()
+        for fk in foreign_key.fields:
+            graph.add((foreignKey, OEO.fields, Literal(fk)))
+        self.visit_reference(foreign_key.reference, graph, args[1], foreign_key)
 
     def visit_reference(self, reference: structure.Reference, *args, **kwargs):
         graph = args[0]
         parent = args[2]
         node = BNode()
-        graph.add((parent, OEO.reference, reference))
-        graph.add((reference, OEO.ressource, Literal(fk["reference"]["ressource"])))
-        graph.add(
-            (
-                reference,
-                OEO.fields,
-                Literal(d["schema"]["foreignKeys"]["reference"]["fields"]),
-            )
-        )
+        graph.add((parent, OEO.reference, node))
+        graph.add((node, OEO.ressource, Literal(reference.resource)))
+        for field in reference.fields:
+            graph.add((node, OEO.field, Literal(field)))
 
     def visit_review(self, review: structure.Review, *args, **kwargs):
         graph = args[0]
@@ -205,16 +196,18 @@ class RDFCompiler(Compiler):
         graph.add((node, OEO.has_badge, Literal(review.badge)))
 
     def visit_meta_comment(self, comment: structure.MetaComment, *args, **kwargs):
-        # metaMetadata
-        return dict(
-            metadata=Literal(comment.metadata_info),
-            dates=Literal(comment.dates),
-            units=Literal(comment.units),
-            languages=Literal(comment.languages),
-            licenses=Literal(comment.licenses),
-            review=Literal(comment.review),
-            none=Literal(comment.none),
-        )
+        graph = args[0]
+        parent = args[2]
+        com = BNode()
+        graph.add((com, OEO.metadata_info, Literal(comment.metadata_info)))
+        graph.add((com, OEO.dates_info, Literal(comment.dates)))
+        graph.add((com, OEO.units_info, Literal(comment.units)))
+        graph.add((com, OEO.languages_info, Literal(comment.languages)))
+        graph.add((com, OEO.licenses_info, Literal(comment.licenses)))
+        graph.add((com, OEO.review_info, Literal(comment.review)))
+        graph.add((com, OEO.none_info, Literal(comment.none)))
+        graph.add((parent, OEO.comment, com))
+        return com
 
     def visit_metadata(self, metadata: structure.OEPMetadata, *args, **kwargs):
         g = Graph()
