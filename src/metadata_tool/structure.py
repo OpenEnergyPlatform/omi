@@ -12,6 +12,17 @@ class Compilable:
             ",".join("{}={}".format(key, val) for key, val in self.__dict__.items()),
         )
 
+    def __lt__(self, other):
+        for key in sorted(self.__dict__):
+            s = getattr(self, key)
+            o = getattr(other, key)
+            if s is None:
+                return True
+            elif s < o:
+                return True
+            elif s > o:
+                return False
+        return False
 
 class Language(Compilable):
     __compiler_name__ = "language"
