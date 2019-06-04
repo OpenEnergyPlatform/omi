@@ -170,6 +170,7 @@ class RDFCompiler(Compiler):
         parent = args[2]
         field_uri = BNode()
         graph.add((parent, OEO.field, field_uri))
+        graph.add((field_uri, RDF.type, OEO.DatabaseField))
         graph.add((field_uri, DCTERMS.title, Literal(field.name)))
         graph.add((field_uri, DCTERMS.description, Literal(field.description)))
         graph.add((field_uri, OEO.type, Literal(field.type)))
@@ -183,20 +184,34 @@ class RDFCompiler(Compiler):
         if field_dict is None:
             field_dict = dict()
         graph.add((parent, OEO.has_foreignKey, fk_node))
+        fk_list = []
         for fk in foreign_key.fields:
             if fk not in field_dict:
                 raise Exception("Foreign key field ({fk}) is not part of table".format(fk=fk))
-            graph.add((fk_node, OEO.fields, field_dict[fk]))
-        self.visit_reference(foreign_key.reference, graph, args[1], fk_node)
+            fk_list.append(field_dict[fk])
+
+        self.visit_reference(foreign_key.reference, graph, args[1], fk_node, fk_list)
+
 
     def visit_reference(self, reference: structure.Reference, *args, **kwargs):
         graph = args[0]
         parent = args[2]
-        node = BNode()
-        graph.add((parent, OEO.reference, node))
-        graph.add((node, OEO.ressource, Literal(reference.resource)))
+        fields = args[3]
+        resource = BNode()
+        graph.add((resource, RDF.type, DCAT.Distribution))
+        graph.add((resource, DCTERMS.title, Literal(reference.resource)))
+        f_list = []
         for field in reference.fields:
-            graph.add((node, OEO.field, Literal(field)))
+            f_node = BNode()
+            graph.add((f_node, RDF.type, OEO.DatabaseField))
+            graph.add((f_node, DCTERMS.title, Literal(field)))
+            graph.add((f_node, OEO.is_field_of, resource))
+            f_list.append(f_node)
+        for (source, target) in zip(fields, f_list):
+            r_node = BNode()
+            graph.add((parent, OEO.has_reference, r_node))
+            graph.add((r_node, OEO.has_source, source))
+            graph.add((r_node, OEO.has_target, target))
 
     def visit_review(self, review: structure.Review, *args, **kwargs):
         graph = args[0]
