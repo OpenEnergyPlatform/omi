@@ -19,8 +19,8 @@ class JSONCompiler(Compiler):
 
     def visit_contributor(self, contributor: structure.Contributor):
         return OrderedDict(
-            title=self.visit(contributor.title),
-            email=self.visit(contributor.email),
+            title=self.visit(contributor.contributor.name),
+            email=self.visit(contributor.contributor.email),
             object=self.visit(contributor.object),
             date=contributor.date.strftime("%Y-%m-%d"),
             comment=self.visit(contributor.comment),

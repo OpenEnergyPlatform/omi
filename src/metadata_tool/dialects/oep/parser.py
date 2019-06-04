@@ -100,8 +100,9 @@ class JSONParser_1_3(JSONParser):
         # filling the contributers section
         contributors = [
             structure.Contributor(
-                title=old_contributor["name"],
-                email=old_contributor["email"],
+                contributor=structure.Person(
+                    name=old_contributor["name"],
+                    email=old_contributor["email"]),
                 date=parse_date(old_contributor["date"]),
                 obj="",
                 comment=old_contributor["comment"],
@@ -243,8 +244,9 @@ class JSONParser_1_4(JSONParser):
         # filling the contributers section
         contributors = [
             structure.Contributor(
-                title=old_contributor["title"],
-                email=old_contributor["email"],
+                contributor=structure.Person(
+                    name=old_contributor["title"],
+                    email=old_contributor["email"]),
                 date=parse_date(old_contributor["date"]),
                 obj=old_contributor["object"],
                 comment=old_contributor["comment"],

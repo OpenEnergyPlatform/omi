@@ -94,12 +94,19 @@ class Source(Compilable):
         self.copyright = source_copyright
 
 
+class Person(Compilable):
+    __compiler_name__ = "person"
+
+    def __init__(self, name: str, email: str):
+        self.name = name
+        self.email = email
+
+
 class Contributor(Compilable):
     __compiler_name__ = "contributor"
 
-    def __init__(self, title: str, email: str, date: datetime, obj: str, comment: str):
-        self.title = title
-        self.email = email
+    def __init__(self, contributor: Person, date: datetime, obj: str, comment: str):
+        self.contributor = contributor
         self.date = date
         self.object = obj
         self.comment = comment
