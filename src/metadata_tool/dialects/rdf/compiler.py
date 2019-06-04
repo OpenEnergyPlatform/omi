@@ -38,14 +38,20 @@ class RDFCompiler(Compiler):
         graph.add((parent, OEO.sourceCode, Literal(context.source_code)))
         graph.add((parent, OEO.grantNo, Literal(context.grant_number)))
 
+    def visit_person(self, person: structure.Person, *args, **kwargs):
+        graph = args[0]
+        node = BNode()
+        graph.add((node, RDF.type, FOAF.Person))
+        graph.add((node, FOAF.name, Literal(person.name)))
+        graph.add((node, FOAF.mbox, Literal(person.email)))
+        return node
+
     def visit_contributor(self, contributor: structure.Contributor, *args, **kwargs):
         graph = args[0]
-        parent = args[1]
+        parent = args[2]
         c = BNode()
         graph.add((parent, DCTERMS.contributor, c))
-        graph.add((c, RDF.type, FOAF.Person))
-        graph.add((c, FOAF.name, Literal(contributor.title)))
-        graph.add((c, FOAF.mbox, Literal(contributor.email)))
+        graph.add((c, DCTERMS.contributor, self.visit(contributor.contributor, *args, **kwargs)))
         graph.add((c, OEO.date, Literal(contributor.date, datatype=XSD.date)))
         graph.add((c, OEO.comment, Literal(contributor.comment)))
         graph.add((c, OEO.object, Literal(contributor.object)))
@@ -135,19 +141,21 @@ class RDFCompiler(Compiler):
         graph.add((s, OEO.has_format, Literal(resource.format)))  # dct:format ?
         graph.add((s, OEO.profile, Literal(resource.profile)))
         graph.add((s, OEO.encoding, Literal(resource.encoding)))
+        self.visit(resource.schema, graph, args[1], s)
         graph.add((parent, OEO.has_resource, s))
 
     def visit_schema(self, schema: structure.Schema, *args, **kwargs):
         graph = args[0]
+        parent = args[1]
         field_dict = dict(
-            [self.visit(field, *args, **kwargs)] for field in schema.fields
+            self.visit(field, *args, **kwargs) for field in schema.fields
         )
 
         for pk in schema.primary_key:
-            graph.add((field_dict[pk], OEO.primaryKey, Literal(pk)))
+            graph.add((parent, OEO.primaryKey, field_dict[pk]))
 
         for fk in schema.foreign_keys:
-            self.visit(fk, *args, **kwargs)
+            self.visit(fk, *args, field_dict=field_dict, **kwargs)
 
     def visit_dialect(self, dialect: structure.Dialect, *args, **kwargs):
         graph = args[0]
@@ -166,17 +174,20 @@ class RDFCompiler(Compiler):
         graph.add((field_uri, DCTERMS.description, Literal(field.description)))
         graph.add((field_uri, OEO.type, Literal(field.type)))
         graph.add((field_uri, OEO.unit, Literal(field.unit)))
-
         return (field.name, field_uri)
 
-    def visit_foreign_key(self, foreign_key: structure.ForeignKey, *args, **kwargs):
+    def visit_foreign_key(self, foreign_key: structure.ForeignKey, *args, field_dict=None, **kwargs):
         graph = args[0]
         parent = args[2]
-        foreignKey = BNode()
-        graph.add((parent, OEO.has_foreignKey, foreignKey))
+        fk_node = BNode()
+        if field_dict is None:
+            field_dict = dict()
+        graph.add((parent, OEO.has_foreignKey, fk_node))
         for fk in foreign_key.fields:
-            graph.add((foreignKey, OEO.fields, Literal(fk)))
-        self.visit_reference(foreign_key.reference, graph, args[1], foreign_key)
+            if fk not in field_dict:
+                raise Exception("Foreign key field ({fk}) is not part of table".format(fk=fk))
+            graph.add((fk_node, OEO.fields, field_dict[fk]))
+        self.visit_reference(foreign_key.reference, graph, args[1], fk_node)
 
     def visit_reference(self, reference: structure.Reference, *args, **kwargs):
         graph = args[0]
@@ -223,9 +234,8 @@ class RDFCompiler(Compiler):
         datasetURI = URIRef(metadata.identifier)
 
         g.add((datasetURI, RDF.type, DCAT.Dataset))
-        g.add((datasetURI, DCTERMS.title, Literal(metadata.title)))
+        g.add((datasetURI, ADMS.Identifier, Literal(metadata.title)))
         g.add((datasetURI, DCTERMS.title, Literal(metadata.name)))
-        g.add((datasetURI, ADMS.Identifier, Literal(metadata.identifier)))
         g.add((datasetURI, DCTERMS.description, Literal(metadata.description)))
 
         for lang in metadata.languages:
@@ -262,6 +272,6 @@ class RDFCompiler(Compiler):
             )
         )
 
-        comment_dict = self.visit(metadata.comment)
+        comment_dict = self.visit(metadata.comment, g, datasetURI, datasetURI)
 
         return g.serialize(format="turtle").decode("utf-8")
