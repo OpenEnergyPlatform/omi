@@ -18,13 +18,19 @@ from metadata_tool.dialects.rdf.namespace import SKOS
 
 
 def _only(gen):
+    r = _one_or_none(gen)
+    if r is None:
+        raise Exception("No matching elements")
+    return r
+
+
+def _one_or_none(gen):
     l = list(gen)
     if not l:
-        raise Exception("No matching elements")
+        return None
     if len(l) > 1:
         raise Exception("Found more than one match")
     return l[0]
-
 
 class RDFParser(Parser):
     def parse(self, inp: str, *args, **kwargs):
@@ -47,29 +53,34 @@ class RDFParser(Parser):
 
     def parse_contributor(self, graph: Graph, parent: Node) -> struc.Contributor:
         return struc.Contributor(
-            title=str(_only(graph.objects(parent, FOAF.name))),
-            email=str(_only(graph.objects(parent, FOAF.mbox))),
+            contributor=self.parse_person(graph, _only(graph.objects(parent, DCTERMS.contributor))),
             date=self.parse_date(_only(graph.objects(parent, OEO.date))),
             obj=str(_only(graph.objects(parent, OEO.object))),
             comment=str(_only(graph.objects(parent, OEO.comment))),
         )
 
+    def parse_person(self, graph, parent: Node):
+        return struc.Person(
+            name=str(_only(graph.objects(parent, FOAF.name))),
+            email=str(_only(graph.objects(parent, FOAF.mbox))),
+        )
+
     def parse_spatial(self, graph: Graph, parent: Node) -> struc.Spatial:
         return struc.Spatial(
-            extent=_only(graph.objects(parent, SKOS.prefLabel)),
-            location=_only(graph.objects(parent, OEO.has_spatial_resolution)),
-            resolution=_only(graph.objects(parent, OEO.location)),
+            extent=str(_only(graph.objects(parent, SKOS.prefLabel))),
+            location=str(_only(graph.objects(parent, OEO.location))),
+            resolution=str(_only(graph.objects(parent, OEO.has_spatial_resolution))),
         )
 
     def parse_temporal(self, graph: Graph, parent: Node) -> struc.Temporal:
         return struc.Temporal(
             start=self.parse_date(_only(graph.objects(parent, SCHEMA.startDate))),
             end=self.parse_date(_only(graph.objects(parent, SCHEMA.endDate))),
-            ts_orientation=_only(graph.objects(parent, OEO.has_orientation)),
+            ts_orientation=struc.TimestampOrientation.create(str(_only(graph.objects(parent, OEO.has_orientation)))),
             reference_date=self.parse_date(
                 _only(graph.objects(parent, OEO.referenceDate))
             ),
-            resolution=_only(graph.objects(parent, OEO.has_time_resolution)),
+            resolution=str(_only(graph.objects(parent, OEO.has_time_resolution))),
         )
 
     def parse_source(self, graph: Graph, parent: Node) -> struc.Source:
@@ -86,30 +97,30 @@ class RDFParser(Parser):
             return None
         else:
             return struc.License(
-                attribution=_only(
+                attribution=str(_only(
                     graph.objects(parent, DCATDE.licenseAttributionByText)
-                ),
-                instruction=_only(graph.objects(parent, DCTERMS.title)),
-                title=_only(graph.objects(parent, DCTERMS.title)),
-                name=_only(graph.objects(parent, DCTERMS.title)),
-                path=_only(graph.objects(parent, DCTERMS.title)),
+                )),
+                instruction=str(_only(graph.objects(parent, DCTERMS.title))),
+                title=str(_only(graph.objects(parent, DCTERMS.title))),
+                name=str(_only(graph.objects(parent, DCTERMS.title))),
+                path=str(_only(graph.objects(parent, DCTERMS.title))),
             )
 
     def parse_resource(self, graph: Graph, parent: Node) -> struc.Resource:
         return struc.Resource(
-            dialect=_only(graph.objects(parent, DCTERMS.title)),
-            encoding=_only(graph.objects(parent, DCTERMS.title)),
-            name=_only(graph.objects(parent, DCTERMS.title)),
-            path=_only(graph.objects(parent, DCTERMS.title)),
-            profile=_only(graph.objects(parent, DCTERMS.title)),
-            resource_format=_only(graph.objects(parent, DCTERMS.title)),
-            schema=_only(graph.objects(parent, DCTERMS.title)),
+            dialect=self.parse_dialect(graph, _only(graph.objects(parent, OEO.has_dialect))),
+            encoding=str(_only(graph.objects(parent, OEO.encoding))),
+            name=str(_only(graph.objects(parent, DCTERMS.title))),
+            path=str(_only(graph.objects(parent, DCAT.accessURL))),
+            profile=str(_only(graph.objects(parent, OEO.profile))),
+            resource_format=str(_only(graph.objects(parent, OEO.has_format))),
+            schema=self.parse_schema(graph, parent),
         )
 
     def parse_schema(self, graph: Graph, parent: Node) -> struc.Schema:
         return struc.Schema(
             fields=[
-                self.parse_field(graph, f) for f in graph.objects(parent, DCTERMS.title)
+                self.parse_field(graph, f) for f in graph.objects(parent, OEO.field)
             ],
             primary_key=[f for f in graph.objects(parent, OEO.primaryKey)],
             foreign_keys=[
@@ -119,17 +130,20 @@ class RDFParser(Parser):
         )
 
     def parse_dialect(self, graph: Graph, parent: Node) -> struc.Dialect:
+        delim = _one_or_none(graph.objects(parent, DCTERMS.delimiter))
+        if delim is not None:
+            delim = str(delim)
         return struc.Dialect(
-            decimal_separator=_only(graph.objects(parent, DCTERMS.decimalSeparator)),
-            delimiter=_only(graph.objects(parent, DCTERMS.delimiter)),
+            decimal_separator=str(_only(graph.objects(parent, OEO.decimalSeparator))),
+            delimiter=delim,
         )
 
     def parse_field(self, graph: Graph, parent: Node) -> struc.Field:
         return struc.Field(
-            name=_only(graph.objects(parent, DCTERMS.title)),
-            unit=_only(graph.objects(parent, DCTERMS.unit)),
-            field_type=_only(graph.objects(parent, DCTERMS.type)),
-            description=_only(graph.objects(parent, DCTERMS.description)),
+            name=str(_only(graph.objects(parent, DCTERMS.title))),
+            unit=str(_only(graph.objects(parent, OEO.unit))),
+            field_type=str(_only(graph.objects(parent, OEO.type))),
+            description=str(_only(graph.objects(parent, DCTERMS.description))),
         )
 
     def parse_foreign_key(self, graph: Graph, parent: Node) -> struc.ForeignKey:
@@ -140,8 +154,8 @@ class RDFParser(Parser):
 
     def parse_reference(self, graph: Graph, parent: Node) -> struc.Reference:
         return struc.Reference(
-            resource=_only(graph.objects(parent, DCTERMS.title)),
-            fields=graph.objects(parent, DCTERMS.field),
+            resource=str(_only(graph.objects(parent, DCTERMS.title))),
+            fields=str(graph.objects(parent, DCTERMS.field)),
         )
 
     def parse_review(self, graph: Graph, parent: Node) -> struc.Review:
@@ -152,20 +166,20 @@ class RDFParser(Parser):
 
     def parse_meta_comment(self, graph: Graph, parent: Node) -> struc.MetaComment:
         return struc.MetaComment(
-            dates=_only(graph.objects(parent, OEO.dates_info)),
-            languages=_only(graph.objects(parent, OEO.languages_info)),
-            licenses=_only(graph.objects(parent, OEO.licenses_info)),
-            metadata_info=_only(graph.objects(parent, OEO.metadata_info)),
-            none=_only(graph.objects(parent, OEO.none_info)),
-            review=_only(graph.objects(parent, OEO.review_info)),
-            units=_only(graph.objects(parent, OEO.units_info)),
+            dates=str(_only(graph.objects(parent, OEO.dates_info))),
+            languages=str(_only(graph.objects(parent, OEO.languages_info))),
+            licenses=str(_only(graph.objects(parent, OEO.licenses_info))),
+            metadata_info=str(_only(graph.objects(parent, OEO.metadata_info))),
+            none=str(_only(graph.objects(parent, OEO.none_info))),
+            review=str(_only(graph.objects(parent, OEO.review_info))),
+            units=str(_only(graph.objects(parent, OEO.units_info))),
         )
 
     def parse_metadata(self, graph: Graph, parent: Node) -> struc.OEPMetadata:
         context = self.parse_context(graph, parent)
         contributors = [
             self.parse_contributor(graph, c)
-            for c in graph.objects(parent, DCTERMS.contributor)
+            for c in graph.objects(parent, OEO.has_contribution)
         ]
         language = [str(l) for l in graph.objects(parent, DCTERMS.language)]
         spatial = self.parse_spatial(
