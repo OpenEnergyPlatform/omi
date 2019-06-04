@@ -52,15 +52,17 @@ metadata_v_1_3 = s.OEPMetadata(
                         )],
     contributors=[
         s.Contributor(
-            title="Person McHuman",
-            email="person.mchuman@good-institute.net",
+            contributor=s.Person(
+                name="Person McHuman",
+                email="person.mchuman@good-institute.net"),
             date=datetime.datetime(2011, 1, 11, 0, 0, 0),
             obj=None,
             comment="Prepared the dataset"
         ),
         s.Contributor(
-            title="Indivia Mensch",
-            email="indivia.mensch@gute-organisation.org",
+            contributor=s.Person(
+                name="Indivia Mensch",
+                email="indivia.mensch@gute-organisation.org"),
             date=datetime.datetime(2012, 2, 12, 0, 0, 0),
             obj=None,
             comment="Fixed Metadata String and date format "
@@ -157,7 +159,7 @@ metadata_v_1_4 = s.OEPMetadata(
                 path="https://github.com/OpenEnergyPlatform",
                 source_license=s.License(
                     None,
-                    "Creative Commons Zero v1.0 Universal (CC0-1.0)",
+                    "CC0-1.0",
                     None,
                     None,
                     None,
@@ -183,99 +185,113 @@ metadata_v_1_4 = s.OEPMetadata(
         ],
         contributors=[
             s.Contributor(
-                title="Ludee",
-                email=None,
+                contributor=s.Person(
+                    name="Ludee",
+                    email=None),
                 date=datetime.datetime(2016,6,16),
                 obj="metadata",
                 comment="Create metadata",
             ),
             s.Contributor(
-                title="Ludee",
-                email=None,
+                contributor=s.Person(
+                    name="Ludee",
+                    email=None),
                 date=datetime.datetime(2016,11,22),
                 obj="metadata",
                 comment="Update metadata",
             ),
             s.Contributor(
-                title="Ludee",
-                email=None,
+                contributor=s.Person(
+                    name="Ludee",
+                    email=None),
                 date=datetime.datetime(2016,11,22),
                 obj="metadata",
                 comment="Update header and license",
             ),
             s.Contributor(
-                title="Ludee",
-                email=None,
+                contributor=s.Person(
+                    name="Ludee",
+                email=None),
                 date=datetime.datetime(2017,3,16),
                 obj="metadata",
                 comment="Add license to source",
             ),
             s.Contributor(
-                title="Ludee",
-                email=None,
+                contributor=s.Person(
+                    name="Ludee",
+                email=None),
                 date=datetime.datetime(2017,3,28),
                 obj="metadata",
                 comment="Add copyright to source and license",
             ),
             s.Contributor(
-                title="Ludee",
-                email=None,
+                contributor=s.Person(
+                    name="Ludee",
+                email=None),
                 date=datetime.datetime(2017,5,30),
                 obj="metadata",
                 comment="Release metadata version 1.3",
             ),
             s.Contributor(
-                title="Ludee",
-                email=None,
+                contributor=s.Person(
+                    name="Ludee",
+                    email=None),
                 date=datetime.datetime(2017,6,26),
                 obj="metadata",
                 comment="Move referenceDate into temporal and remove array",
             ),
             s.Contributor(
-                title="Ludee",
-                email=None,
+                contributor=s.Person(
+                    name="Ludee",
+                    email=None),
                 date=datetime.datetime(2018,7,19),
                 obj="metadata",
                 comment="Start metadata version 1.4",
             ),
             s.Contributor(
-                title="Ludee",
-                email=None,
+                contributor=s.Person(
+                    name="Ludee",
+                    email=None),
                 date=datetime.datetime(2018,7,26),
                 obj="data",
                 comment="Rename table and files",
             ),
             s.Contributor(
-                title="Ludee",
-                email=None,
+                contributor=s.Person(
+                    name="Ludee",
+                    email=None),
                 date=datetime.datetime(2018,10,18),
                 obj="metadata",
                 comment="Add contribution object",
             ),
             s.Contributor(
-                title="christian-rli",
-                email=None,
+                contributor=s.Person(
+                    name="christian-rli",
+                    email=None),
                 date=datetime.datetime(2018,10,18),
                 obj="metadata",
                 comment="Add datapackage compatibility",
             ),
             s.Contributor(
-                title="Ludee",
-                email=None,
+                contributor=s.Person(
+                    name="Ludee",
+                    email=None),
                 date=datetime.datetime(2018,11,2),
                 obj="metadata",
                 comment="Release metadata version 1.4",
             ),
             s.Contributor(
-                title="christian-rli",
-                email=None,
+                contributor=s.Person(
+                    name="christian-rli",
+                    email=None),
                 date=datetime.datetime(2019,2,5),
                 obj="metadata",
                 comment="Apply template structure to example.",
             ),
             s.Contributor(
-                title="Ludee",
-                email=None,
+                contributor=s.Person(
+                    name="Ludee",
+                    email=None),
                 date=datetime.datetime(2019,3,22),
                 obj="metadata",
                 comment="Hotfix foreignKeys",
