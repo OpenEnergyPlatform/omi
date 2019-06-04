@@ -25,7 +25,7 @@
     {"title": "OpenEnergyPlatform Metadata Example",
     "description": "Metadata description",
     "path": "https://github.com/OpenEnergyPlatform",
-    "license": "Creative Commons Zero v1.0 Universal (CC0-1.0)",
+    "license": "CC0-1.0",
     "copyright": "© Reiner Lemoine Institut"},
     {"title": "OpenStreetMap",
     "description": "A collaborative project to create a free editable map of the world",
