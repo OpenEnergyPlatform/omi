@@ -141,7 +141,9 @@ class RDFCompiler(Compiler):
         graph.add((s, OEO.has_format, Literal(resource.format)))  # dct:format ?
         graph.add((s, OEO.profile, Literal(resource.profile)))
         graph.add((s, OEO.encoding, Literal(resource.encoding)))
+        self.visit(resource.dialect, graph, args[1], s)
         self.visit(resource.schema, graph, args[1], s)
+
         graph.add((parent, OEO.has_resource, s))
 
     def visit_schema(self, schema: structure.Schema, *args, **kwargs):
@@ -161,7 +163,7 @@ class RDFCompiler(Compiler):
         graph = args[0]
         parent = args[2]
         node = BNode()
-        graph.add((parent, OEO.dialect, node))
+        graph.add((parent, OEO.has_dialect, node))
         graph.add((node, OEO.delimiter, Literal(dialect.delimiter)))
         graph.add((node, OEO.decimalSeparator, Literal(dialect.decimal_separator)))
 
