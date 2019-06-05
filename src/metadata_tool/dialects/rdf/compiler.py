@@ -1,3 +1,5 @@
+from typing import Dict
+
 from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
@@ -17,8 +19,6 @@ from metadata_tool.dialects.rdf.namespace import DCATDE
 from metadata_tool.dialects.rdf.namespace import OEO
 from metadata_tool.dialects.rdf.namespace import SCHEMA
 from metadata_tool.dialects.rdf.namespace import SKOS
-
-from typing import Dict, Iterable
 
 LANG_DICT = {
     "eng": "http://publications.europa.eu/resource/authority/language/ENG",
