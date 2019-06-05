@@ -2,6 +2,7 @@ from rdflib import BNode
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
+from rdflib.graph import Node
 from rdflib.namespace import DCTERMS
 from rdflib.namespace import FOAF
 from rdflib.namespace import RDF
@@ -16,6 +17,8 @@ from metadata_tool.dialects.rdf.namespace import DCATDE
 from metadata_tool.dialects.rdf.namespace import OEO
 from metadata_tool.dialects.rdf.namespace import SCHEMA
 from metadata_tool.dialects.rdf.namespace import SKOS
+
+from typing import Dict
 
 LANG_DICT = {
     "eng": "http://publications.europa.eu/resource/authority/language/ENG",
@@ -152,12 +155,16 @@ class RDFCompiler(Compiler):
         field_dict = dict(
             self.visit(field, *args, **kwargs) for field in schema.fields
         )
-
         for pk in schema.primary_key:
             graph.add((parent, OEO.primaryKey, field_dict[pk]))
 
+        if schema.fields:
+            resource_dict = {schema.fields[0].resource.name: field_dict}
+        else:
+            resource_dict = {}
+
         for fk in schema.foreign_keys:
-            self.visit(fk, *args, field_dict=field_dict, **kwargs)
+            self.visit(fk, *args, resouce_dict=resource_dict, **kwargs)
 
     def visit_dialect(self, dialect: structure.Dialect, *args, **kwargs):
         graph = args[0]
@@ -179,41 +186,23 @@ class RDFCompiler(Compiler):
         graph.add((field_uri, OEO.unit, Literal(field.unit)))
         return (field.name, field_uri)
 
-    def visit_foreign_key(self, foreign_key: structure.ForeignKey, *args, field_dict=None, **kwargs):
+    def visit_foreign_key(self, foreign_key: structure.ForeignKey, *args, resouce_dict=None, **kwargs):
         graph = args[0]
         parent = args[2]
         fk_node = BNode()
-        if field_dict is None:
-            field_dict = dict()
         graph.add((parent, OEO.has_foreignKey, fk_node))
         fk_list = []
-        for fk in foreign_key.fields:
-            if fk not in field_dict:
-                raise Exception("Foreign key field ({fk}) is not part of table".format(fk=fk))
-            fk_list.append(field_dict[fk])
-
-        self.visit_reference(foreign_key.reference, graph, args[1], fk_node, fk_list)
+        for r in foreign_key.references:
+            self.visit(r, graph, args[1], fk_node, *args, resouce_dict=resouce_dict, **kwargs)
 
 
-    def visit_reference(self, reference: structure.Reference, *args, **kwargs):
+    def visit_reference(self, reference: structure.Reference, *args, resouce_dict=None, **kwargs):
         graph = args[0]
         parent = args[2]
-        fields = args[3]
-        resource = BNode()
-        graph.add((resource, RDF.type, DCAT.Distribution))
-        graph.add((resource, DCTERMS.title, Literal(reference.resource)))
-        f_list = []
-        for field in reference.fields:
-            f_node = BNode()
-            graph.add((f_node, RDF.type, OEO.DatabaseField))
-            graph.add((f_node, DCTERMS.title, Literal(field)))
-            graph.add((f_node, OEO.is_field_of, resource))
-            f_list.append(f_node)
-        for (source, target) in zip(fields, f_list):
-            r_node = BNode()
-            graph.add((parent, OEO.has_reference, r_node))
-            graph.add((r_node, OEO.has_source, source))
-            graph.add((r_node, OEO.has_target, target))
+        r_node = BNode()
+        graph.add((parent, OEO.has_reference, r_node))
+        graph.add((r_node, OEO.has_source, self._get_field(reference.source, resouce_dict)))
+        graph.add((r_node, OEO.has_target, self._get_or_create_field(reference.target, resouce_dict, *args, **kwargs)))
 
     def visit_review(self, review: structure.Review, *args, **kwargs):
         graph = args[0]
@@ -292,3 +281,34 @@ class RDFCompiler(Compiler):
         comment_dict = self.visit(metadata.comment, g, datasetURI, datasetURI)
 
         return g.serialize(format="turtle").decode("utf-8")
+
+    def _get_or_create_field(self, field: structure.Field,
+                             resource_dict: Dict[str, Dict[str, Node]], *args, **kwargs):
+        try:
+            if field.resource.name not in resource_dict:
+                resource_dict[field.resource.name] = {}
+            return self._get_field(field, resource_dict)
+        except FieldNotFoundError:
+            f = self.visit_field(field, *args, **kwargs)[1]
+            resource_dict[field.resource.name][field.name] = f
+            return f
+
+    def _get_field(self, field: structure.Field,
+                   resource_dict: Dict[str, Dict[str, Node]]):
+        res = resource_dict.get(field.resource.name)
+        if res is None:
+            raise ResourceNotFoundError(field.resource.name)
+        node = resource_dict[field.resource.name].get(field.name)
+        if node is None:
+            raise FieldNotFoundError(field.name)
+        return node
+
+
+
+class FieldNotFoundError(Exception):
+    pass
+
+
+class ResourceNotFoundError(Exception):
+    pass
+
