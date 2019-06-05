@@ -32,7 +32,13 @@ LANG_DICT = {
 
 class RDFCompiler(Compiler):
     def visit_context(self, context: structure.Context, *args, **kwargs):
-        return Literal(context.homepage), Literal(context.contact), Literal(context.documentation), Literal(context.source_code), Literal(context.grant_number)
+        return (
+            Literal(context.homepage),
+            Literal(context.contact),
+            Literal(context.documentation),
+            Literal(context.source_code),
+            Literal(context.grant_number),
+        )
 
     def visit_person(self, person: structure.Person, *args, **kwargs):
         graph = args[0]
@@ -45,7 +51,13 @@ class RDFCompiler(Compiler):
     def visit_contributor(self, contributor: structure.Contributor, *args, **kwargs):
         graph = args[0]
         c = BNode()
-        graph.add((c, DCTERMS.contributor, self.visit(contributor.contributor, *args, **kwargs)))
+        graph.add(
+            (
+                c,
+                DCTERMS.contributor,
+                self.visit(contributor.contributor, *args, **kwargs),
+            )
+        )
         graph.add((c, OEO.date, Literal(contributor.date, datatype=XSD.date)))
         graph.add((c, OEO.comment, Literal(contributor.comment)))
         graph.add((c, OEO.object, Literal(contributor.object)))
@@ -70,7 +82,9 @@ class RDFCompiler(Compiler):
         graph.add((node, SCHEMA.endDate, Literal(temporal.ts_end)))
         graph.add((node, OEO.has_time_resolution, Literal(temporal.ts_resolution)))
         graph.add((node, OEO.referenceDate, Literal(temporal.reference_date)))
-        graph.add((node, OEO.has_orientation, self.visit(temporal.ts_orientation, graph)))
+        graph.add(
+            (node, OEO.has_orientation, self.visit(temporal.ts_orientation, graph))
+        )
         return node
 
     def visit_timestamp_orientation(
@@ -145,9 +159,10 @@ class RDFCompiler(Compiler):
         else:
             resource_dict = {}
 
-        fks = [self.visit(fk, *args, resouce_dict=resource_dict, **kwargs)
-        for fk in schema.foreign_keys]
-
+        fks = [
+            self.visit(fk, *args, resouce_dict=resource_dict, **kwargs)
+            for fk in schema.foreign_keys
+        ]
 
         return fields, pks, fks
 
@@ -168,18 +183,38 @@ class RDFCompiler(Compiler):
         graph.add((field_uri, OEO.unit, Literal(field.unit)))
         return field_uri
 
-    def visit_foreign_key(self, foreign_key: structure.ForeignKey, *args, resouce_dict=None, **kwargs):
+    def visit_foreign_key(
+        self, foreign_key: structure.ForeignKey, *args, resouce_dict=None, **kwargs
+    ):
         graph = args[0]
         fk_node = BNode()
         for r in foreign_key.references:
-            graph.add((fk_node, OEO.has_reference, self.visit(r, graph, *args, resouce_dict=resouce_dict, **kwargs)))
+            graph.add(
+                (
+                    fk_node,
+                    OEO.has_reference,
+                    self.visit(r, graph, *args, resouce_dict=resouce_dict, **kwargs),
+                )
+            )
         return fk_node
 
-    def visit_reference(self, reference: structure.Reference, *args, resouce_dict=None, **kwargs):
+    def visit_reference(
+        self, reference: structure.Reference, *args, resouce_dict=None, **kwargs
+    ):
         graph = args[0]
         r_node = BNode()
-        graph.add((r_node, OEO.has_source, self._get_field(reference.source, resouce_dict)))
-        graph.add((r_node, OEO.has_target, self._get_or_create_field(reference.target, resouce_dict, *args, **kwargs)))
+        graph.add(
+            (r_node, OEO.has_source, self._get_field(reference.source, resouce_dict))
+        )
+        graph.add(
+            (
+                r_node,
+                OEO.has_target,
+                self._get_or_create_field(
+                    reference.target, resouce_dict, *args, **kwargs
+                ),
+            )
+        )
         return r_node
 
     def visit_review(self, review: structure.Review, *args, **kwargs):
@@ -233,7 +268,9 @@ class RDFCompiler(Compiler):
             )
         )
 
-        homepage, contact, documentation, source_code, grant_number = self.visit(metadata.context, g)
+        homepage, contact, documentation, source_code, grant_number = self.visit(
+            metadata.context, g
+        )
 
         g.add((datasetURI, FOAF.homepage, homepage))
         g.add((datasetURI, DCAT.contactpoint, contact))
@@ -247,8 +284,8 @@ class RDFCompiler(Compiler):
             g.add((datasetURI, DCTERMS.source, self.visit(s, g)))
         for l in metadata.license:
             attribution, instruction, license_node = self.visit(l, g)
-            g.add((datasetURI, DCATDE.licenseAttributionByText,attribution))
-            g.add((datasetURI, DCATDE.licenseAttributionByText,instruction))
+            g.add((datasetURI, DCATDE.licenseAttributionByText, attribution))
+            g.add((datasetURI, DCATDE.licenseAttributionByText, instruction))
             g.add((datasetURI, DCTERMS.license, license_node))
         for c in metadata.contributors:
             g.add((datasetURI, DCTERMS.contributor, self.visit(c, g)))
@@ -269,8 +306,13 @@ class RDFCompiler(Compiler):
 
         return g.serialize(format="turtle").decode("utf-8")
 
-    def _get_or_create_field(self, field: structure.Field,
-                             resource_dict: Dict[str, Dict[str, Node]], *args, **kwargs):
+    def _get_or_create_field(
+        self,
+        field: structure.Field,
+        resource_dict: Dict[str, Dict[str, Node]],
+        *args,
+        **kwargs
+    ):
         try:
             if field.resource.name not in resource_dict:
                 resource_dict[field.resource.name] = {}
@@ -280,8 +322,9 @@ class RDFCompiler(Compiler):
             resource_dict[field.resource.name][field.name] = f
             return f
 
-    def _get_field(self, field: structure.Field,
-                   resource_dict: Dict[str, Dict[str, Node]]):
+    def _get_field(
+        self, field: structure.Field, resource_dict: Dict[str, Dict[str, Node]]
+    ):
         res = resource_dict.get(field.resource.name)
         if res is None:
             raise ResourceNotFoundError(field.resource.name)
@@ -291,11 +334,9 @@ class RDFCompiler(Compiler):
         return node
 
 
-
 class FieldNotFoundError(Exception):
     pass
 
 
 class ResourceNotFoundError(Exception):
     pass
-

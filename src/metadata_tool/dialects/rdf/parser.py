@@ -32,6 +32,7 @@ def _one_or_none(gen):
         raise Exception("Found more than one match")
     return l[0]
 
+
 class RDFParser(Parser):
     def parse(self, inp: str, *args, **kwargs):
         g = Graph()
@@ -53,7 +54,9 @@ class RDFParser(Parser):
 
     def parse_contributor(self, graph: Graph, parent: Node) -> struc.Contributor:
         return struc.Contributor(
-            contributor=self.parse_person(graph, _only(graph.objects(parent, DCTERMS.contributor))),
+            contributor=self.parse_person(
+                graph, _only(graph.objects(parent, DCTERMS.contributor))
+            ),
             date=self.parse_date(_only(graph.objects(parent, OEO.date))),
             obj=str(_only(graph.objects(parent, OEO.object))),
             comment=str(_only(graph.objects(parent, OEO.comment))),
@@ -76,7 +79,9 @@ class RDFParser(Parser):
         return struc.Temporal(
             start=self.parse_date(_only(graph.objects(parent, SCHEMA.startDate))),
             end=self.parse_date(_only(graph.objects(parent, SCHEMA.endDate))),
-            ts_orientation=struc.TimestampOrientation.create(str(_only(graph.objects(parent, OEO.has_orientation)))),
+            ts_orientation=struc.TimestampOrientation.create(
+                str(_only(graph.objects(parent, OEO.has_orientation)))
+            ),
             reference_date=self.parse_date(
                 _only(graph.objects(parent, OEO.referenceDate))
             ),
@@ -97,9 +102,9 @@ class RDFParser(Parser):
             return None
         else:
             return struc.License(
-                attribution=str(_only(
-                    graph.objects(parent, DCATDE.licenseAttributionByText)
-                )),
+                attribution=str(
+                    _only(graph.objects(parent, DCATDE.licenseAttributionByText))
+                ),
                 instruction=str(_only(graph.objects(parent, DCTERMS.title))),
                 title=str(_only(graph.objects(parent, DCTERMS.title))),
                 name=str(_only(graph.objects(parent, DCTERMS.title))),
@@ -108,7 +113,9 @@ class RDFParser(Parser):
 
     def parse_resource(self, graph: Graph, parent: Node) -> struc.Resource:
         return struc.Resource(
-            dialect=self.parse_dialect(graph, _only(graph.objects(parent, OEO.has_dialect))),
+            dialect=self.parse_dialect(
+                graph, _only(graph.objects(parent, OEO.has_dialect))
+            ),
             encoding=str(_only(graph.objects(parent, OEO.encoding))),
             name=str(_only(graph.objects(parent, DCTERMS.title))),
             path=str(_only(graph.objects(parent, DCAT.accessURL))),
@@ -148,12 +155,20 @@ class RDFParser(Parser):
 
     def parse_foreign_key(self, graph: Graph, parent: Node) -> struc.ForeignKey:
         return struc.ForeignKey(
-            references=[self.parse_reference(graph, r) for r in graph.objects(parent, OEO.reference)])
+            references=[
+                self.parse_reference(graph, r)
+                for r in graph.objects(parent, OEO.reference)
+            ]
+        )
 
     def parse_reference(self, graph: Graph, parent: Node) -> struc.Reference:
         return struc.Reference(
-            source=self.parse_field(graph, _only(graph.objects(parent, OEO.has_source))),
-            target=self.parse_field(graph, _only(graph.objects(parent, OEO.has_target)))
+            source=self.parse_field(
+                graph, _only(graph.objects(parent, OEO.has_source))
+            ),
+            target=self.parse_field(
+                graph, _only(graph.objects(parent, OEO.has_target))
+            ),
         )
 
     def parse_review(self, graph: Graph, parent: Node) -> struc.Review:

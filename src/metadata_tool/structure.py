@@ -24,6 +24,7 @@ class Compilable:
                 return False
         return False
 
+
 class Language(Compilable):
     __compiler_name__ = "language"
 
@@ -122,10 +123,18 @@ class Contributor(Compilable):
         self.object = obj
         self.comment = comment
 
+
 class Field(Compilable):
     __compiler_name__ = "field"
 
-    def __init__(self, name: str, description: str, field_type: str, unit: str, resource:"Resource"=None):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        field_type: str,
+        unit: str,
+        resource: "Resource" = None,
+    ):
         self.name = name
         self.description = description
         self.type = field_type
@@ -135,8 +144,13 @@ class Field(Compilable):
     def __repr__(self):
         return "{}({})".format(
             self.__class__.__name__,
-            ",".join("{}={}".format(key, val) for key, val in self.__dict__.items() if key != "resource"),
+            ",".join(
+                "{}={}".format(key, val)
+                for key, val in self.__dict__.items()
+                if key != "resource"
+            ),
         )
+
 
 class Context(Compilable):
     __compiler_name__ = "context"

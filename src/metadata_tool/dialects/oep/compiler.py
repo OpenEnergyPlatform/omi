@@ -106,20 +106,25 @@ class JSONCompiler(Compiler):
         )
 
     def visit_foreign_key(self, foreign_key: structure.ForeignKey):
-        source_fields, target_fields, target_resources = zip(*map(self.visit, foreign_key.references))
-
+        source_fields, target_fields, target_resources = zip(
+            *map(self.visit, foreign_key.references)
+        )
 
         target_resource = target_resources[0]
 
         return OrderedDict(
             fields=source_fields,
             reference=OrderedDict(
-                resource=self.visit(target_resource),
-                fields=self.visit(target_fields))
+                resource=self.visit(target_resource), fields=self.visit(target_fields)
+            ),
         )
 
     def visit_reference(self, reference: structure.Reference):
-        return reference.source.name, reference.target.name, reference.target.resource.name
+        return (
+            reference.source.name,
+            reference.target.name,
+            reference.target.resource.name,
+        )
 
     def visit_review(self, review: structure.Review):
         return OrderedDict(path=review.path, badge=review.badge)
