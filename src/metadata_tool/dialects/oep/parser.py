@@ -267,20 +267,41 @@ class JSONParser_1_4(JSONParser):
                 )
                 for field in resource["schema"]["fields"]
             ]
+            field_dict = {field.name:field for field in fields}
+            foreign_keys = []
+            for fk in resource["schema"]["foreignKeys"]:
+                source_fields = [field_dict[field_name]
+                    for field_name in fk["fields"]]
+                referenced_fields = [structure.Field(
+                        name=fk_field,
+                        unit=None,
+                        field_type=None,
+                        description=None
+                    ) for fk_field in fk["reference"]["fields"]]
+                referenced_resource = structure.Resource(
+                    name=fk["reference"]["resource"],
+                    schema=structure.Schema(
+                        fields=referenced_fields,
+                        foreign_keys=None,
+                        primary_key=None
+                    ),
+                    dialect=None,
+                    encoding=None,
+                    path=None,
+                    profile=None,
+                    resource_format=None,
+                )
+                l = list()
+                print(l)
+                references = [structure.Reference(s,t) for s,t in zip(source_fields, referenced_fields)]
+                foreign_keys.append(structure.ForeignKey(
+                        references=references
+                    ))
             schema = structure.Schema(
                 fields=fields,
                 primary_key=resource["schema"]["primaryKey"],
-                foreign_keys=[
-                    structure.ForeignKey(
-                        fields=fk["fields"],
-                        reference=structure.Reference(
-                            resource=fk["reference"]["resource"],
-                            fields=fk["reference"]["fields"],
-                        ),
-                    )
-                    for fk in resource["schema"]["foreignKeys"]
-                ],
-            )
+                foreign_keys=foreign_keys)
+
             dialect = structure.Dialect(
                 delimiter=resource["dialect"]["delimiter"],
                 decimal_separator=resource["dialect"]["decimalSeparator"],

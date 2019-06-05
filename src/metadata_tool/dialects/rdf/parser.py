@@ -148,14 +148,12 @@ class RDFParser(Parser):
 
     def parse_foreign_key(self, graph: Graph, parent: Node) -> struc.ForeignKey:
         return struc.ForeignKey(
-            fields=graph.objects(parent, DCTERMS.fields),
-            reference=self.parse_reference(graph, graph.objects(parent, OEO.reference)),
-        )
+            references=[self.parse_reference(graph, r) for r in graph.objects(parent, OEO.reference)])
 
     def parse_reference(self, graph: Graph, parent: Node) -> struc.Reference:
         return struc.Reference(
-            resource=str(_only(graph.objects(parent, DCTERMS.title))),
-            fields=str(graph.objects(parent, DCTERMS.field)),
+            source=self.parse_field(graph, _only(graph.objects(parent, OEO.has_source))),
+            target=self.parse_field(graph, _only(graph.objects(parent, OEO.has_target)))
         )
 
     def parse_review(self, graph: Graph, parent: Node) -> struc.Review:

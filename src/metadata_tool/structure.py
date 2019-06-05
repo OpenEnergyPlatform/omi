@@ -122,16 +122,21 @@ class Contributor(Compilable):
         self.object = obj
         self.comment = comment
 
-
 class Field(Compilable):
     __compiler_name__ = "field"
 
-    def __init__(self, name: str, description: str, field_type: str, unit: str):
+    def __init__(self, name: str, description: str, field_type: str, unit: str, resource:"Resource"=None):
         self.name = name
         self.description = description
         self.type = field_type
         self.unit = unit
+        self.resource = resource
 
+    def __repr__(self):
+        return "{}({})".format(
+            self.__class__.__name__,
+            ",".join("{}={}".format(key, val) for key, val in self.__dict__.items() if key != "resource"),
+        )
 
 class Context(Compilable):
     __compiler_name__ = "context"
@@ -154,17 +159,16 @@ class Context(Compilable):
 class Reference(Compilable):
     __compiler_name__ = "reference"
 
-    def __init__(self, resource: str, fields: Iterable[str]):
-        self.resource = resource
-        self.fields = fields
+    def __init__(self, source: Field, target: Field):
+        self.source = source
+        self.target = target
 
 
 class ForeignKey(Compilable):
     __compiler_name__ = "foreign_key"
 
-    def __init__(self, fields: Iterable[str], reference: Reference):
-        self.fields = fields
-        self.reference = reference
+    def __init__(self, references: Iterable[Reference]):
+        self.references = references
 
 
 class Schema(Compilable):
@@ -208,6 +212,8 @@ class Resource(Compilable):
         self.format = resource_format
         self.encoding = encoding
         self.schema = schema
+        for field in schema.fields:
+            field.resource = self
         self.dialect = dialect
 
 
