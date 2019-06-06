@@ -79,14 +79,27 @@ class License(Compilable):
     __compiler_name__ = "license"
 
     def __init__(
-        self, name: str, title: str, path: str, instruction: str, attribution: str
+        self, name: str, identifier: str, text:str, path: str, other_references: Iterable[str], comment:str=None
     ):
         self.name = name
-        self.title = title
         self.path = path
+        self.identifier = identifier
+        self.other_references = other_references
+        self.text = text
+        self.comment = comment
+
+    @staticmethod
+    def instance_name_from_id(identifier:str):
+        return "L_" + identifier.replace("-","_").replace(".","_")
+
+
+class TermsOfUse(Compilable):
+    __compiler_name__ = "terms_of_use"
+
+    def __init__(self, instruction: str, attribution: str, lic:License):
         self.instruction = instruction
         self.attribution = attribution
-
+        self.license = lic
 
 class Source(Compilable):
     __compiler_name__ = "source"
@@ -277,7 +290,7 @@ class OEPMetadata(Compilable):
         spatial: Spatial,
         temporal: Temporal,
         sources: Iterable[Source],
-        object_licenses: Iterable[License],
+        terms_of_use: Iterable[TermsOfUse],
         contributors: Iterable[Contributor],
         resources: Iterable[Resource],
         review: Review,
@@ -294,7 +307,7 @@ class OEPMetadata(Compilable):
         self.spatial = spatial
         self.temporal = temporal
         self.sources = sources
-        self.license = object_licenses
+        self.license = terms_of_use
         self.contributors = contributors
         self.resources = resources
         self.review = review

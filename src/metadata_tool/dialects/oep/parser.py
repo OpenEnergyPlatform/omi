@@ -88,13 +88,16 @@ class JSONParser_1_3(JSONParser):
         # filling the license section
         old_license = json_old["license"]
         licenses = [
-            structure.License(
-                name=old_license["id"],
-                title=old_license["name"],
-                path=old_license["url"],
+            structure.TermsOfUse(
+                lic=structure.License(
+                    identifier=old_license["id"],
+                    name=old_license["name"],
+                    path=old_license["url"],
+                    other_references=[],
+                    text=None
+                ),
                 instruction=old_license["instruction"],
-                attribution=old_license["copyright"],
-            )
+                attribution=old_license["copyright"],)
         ]
 
         # filling the contributers section
@@ -160,7 +163,7 @@ class JSONParser_1_3(JSONParser):
             spatial=spatial,
             temporal=temporal,
             sources=sources,
-            object_licenses=licenses,
+            terms_of_use=licenses,
             contributors=contributors,
             resources=resources,
             review=review,
@@ -231,13 +234,16 @@ class JSONParser_1_4(JSONParser):
 
         # filling the license section
         licenses = [
-            structure.License(
-                name=old_license["name"],
-                title=old_license["title"],
-                path=old_license["path"],
+            structure.TermsOfUse(
+                lic=structure.License(
+                    identifier=old_license["name"],
+                    name=old_license["title"],
+                    path=old_license["path"],
+                    other_references=[],
+                    text=None
+                ),
                 instruction=old_license["instruction"],
-                attribution=old_license["attribution"],
-            )
+                attribution=old_license["attribution"])
             for old_license in json_old["licenses"]
         ]
 
@@ -343,7 +349,7 @@ class JSONParser_1_4(JSONParser):
             spatial=spatial,
             temporal=temporal,
             sources=sources,
-            object_licenses=licenses,
+            terms_of_use=licenses,
             contributors=contributors,
             resources=resources,
             review=review,

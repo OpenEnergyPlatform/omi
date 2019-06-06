@@ -243,7 +243,7 @@ class RDFParser(Parser):
             keywords=list(map(str, graph.objects(parent, DCAT.keyword))),
             languages=language,
             name=str(_only(graph.objects(parent, ADMS.Identifier))),
-            object_licenses=licenses,
+            terms_of_use=licenses,
             publication_date=self.parse_date(
                 _only(graph.objects(parent, OEO.publicationDate))
             ),

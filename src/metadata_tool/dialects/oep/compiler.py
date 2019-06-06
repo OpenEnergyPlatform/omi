@@ -60,18 +60,22 @@ class JSONCompiler(Compiler):
             title=self.visit(source.title),
             description=self.visit(source.description),
             path=self.visit(source.path),
-            license=self.visit(source.license.title),
+            license=self.visit(source.license.identifier),
             copyright=self.visit(source.copyright),
         )
 
     def visit_license(self, lic: structure.License):
         return OrderedDict(
-            name=self.visit(lic.name),
-            title=self.visit(lic.title),
+            name=self.visit(lic.identifier),
+            title=self.visit(lic.name),
             path=self.visit(lic.path),
-            instruction=self.visit(lic.instruction),
-            attribution=self.visit(lic.attribution),
         )
+
+    def visit_terms_of_use(self, terms_of_use: structure.TermsOfUse):
+        return OrderedDict(
+            instruction=self.visit(terms_of_use.instruction),
+            attribution=self.visit(terms_of_use.attribution),
+            **self.visit(terms_of_use.license))
 
     def visit_resource(self, resource: structure.Resource):
         return OrderedDict(
