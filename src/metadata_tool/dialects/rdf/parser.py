@@ -166,7 +166,7 @@ class RDFParser(Parser):
         return struc.ForeignKey(
             references=[
                 self.parse_reference(graph, r)
-                for r in graph.objects(parent, OEO.reference)
+                for r in graph.objects(parent, OEO.has_reference)
             ]
         )
 
