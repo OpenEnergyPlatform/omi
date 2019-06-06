@@ -250,8 +250,8 @@ class RDFCompiler(Compiler):
         datasetURI = URIRef(metadata.identifier)
 
         g.add((datasetURI, RDF.type, DCAT.Dataset))
-        g.add((datasetURI, ADMS.Identifier, Literal(metadata.title)))
-        g.add((datasetURI, DCTERMS.title, Literal(metadata.name)))
+        g.add((datasetURI, ADMS.Identifier, Literal(metadata.name)))
+        g.add((datasetURI, DCTERMS.title, Literal(metadata.title)))
         g.add((datasetURI, DCTERMS.description, Literal(metadata.description)))
 
         for lang in metadata.languages:
