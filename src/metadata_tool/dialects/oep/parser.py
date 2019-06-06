@@ -225,7 +225,11 @@ class JSONParser_1_4(JSONParser):
                 description=old_source["description"],
                 path=old_source["path"],
                 source_license=structure.License(
-                    None, old_source["license"], None, None, None
+                    name=None,
+                    identifier=old_source["license"],
+                    other_references=[],
+                    path=None,
+                    text=None
                 ),
                 source_copyright=old_source["copyright"],
             )
