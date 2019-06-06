@@ -16,6 +16,7 @@ from metadata_tool.dialects.rdf.namespace import OEO
 from metadata_tool.dialects.rdf.namespace import SCHEMA
 from metadata_tool.dialects.rdf.namespace import SKOS
 
+from typing import Dict, Tuple
 
 def _only(gen):
     r = _one_or_none(gen)
@@ -120,18 +121,24 @@ class RDFParser(Parser):
                 path=str(_only(graph.objects(parent, DCTERMS.title))),
             )
 
-    def parse_resource(self, graph: Graph, parent: Node) -> struc.Resource:
-        return struc.Resource(
-            dialect=self.parse_dialect(
-                graph, _only(graph.objects(parent, OEO.has_dialect))
-            ),
-            encoding=str(_only(graph.objects(parent, OEO.encoding))),
-            name=str(_only(graph.objects(parent, DCTERMS.title))),
-            path=str(_only(graph.objects(parent, DCAT.accessURL))),
-            profile=str(_only(graph.objects(parent, OEO.profile))),
-            resource_format=str(_only(graph.objects(parent, OEO.has_format))),
-            schema=self.parse_schema(graph, parent),
-        )
+    def parse_resource(self, graph: Graph, parent: Node, resources: Dict[str,Tuple[struc.Resource,Dict[str,struc.Field]]]=None) -> struc.Resource:
+        rname = str(_only(graph.objects(parent, DCTERMS.title)))
+        resources = resources or dict()
+        if resources and rname in resources:
+            return resources[rname][0]
+        else:
+            r = struc.Resource(
+                dialect=self.parse_dialect(
+                    graph, _only(graph.objects(parent, OEO.has_dialect))
+                ),
+                encoding=str(_only(graph.objects(parent, OEO.encoding))),
+                name=rname,
+                path=str(_only(graph.objects(parent, DCAT.accessURL))),
+                profile=str(_only(graph.objects(parent, OEO.profile))),
+                resource_format=str(_only(graph.objects(parent, OEO.has_format))),
+                schema=self.parse_schema(graph, parent),
+            )
+            resources[rname] = r, {f.name: f for f in r.schema.fields}
 
     def parse_schema(self, graph: Graph, parent: Node) -> struc.Schema:
         return struc.Schema(
