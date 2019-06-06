@@ -76,17 +76,26 @@ class RDFParser(Parser):
         )
 
     def parse_temporal(self, graph: Graph, parent: Node) -> struc.Temporal:
+
+        orientation = self.parse_timestamp_orientation(_only(graph.objects(parent, OEO.has_orientation)))
+
         return struc.Temporal(
             start=self.parse_date(_only(graph.objects(parent, SCHEMA.startDate))),
             end=self.parse_date(_only(graph.objects(parent, SCHEMA.endDate))),
-            ts_orientation=struc.TimestampOrientation.create(
-                str(_only(graph.objects(parent, OEO.has_orientation)))
-            ),
+            ts_orientation=orientation,
             reference_date=self.parse_date(
                 _only(graph.objects(parent, OEO.referenceDate))
             ),
             resolution=str(_only(graph.objects(parent, OEO.has_time_resolution))),
         )
+
+    def parse_timestamp_orientation(self, node):
+        if node == OEO.left_alignment:
+            return struc.TimestampOrientation.left
+        elif node == OEO.left_alignment:
+            return struc.TimestampOrientation.left
+        elif node == OEO.left_alignment:
+            return struc.TimestampOrientation.left
 
     def parse_source(self, graph: Graph, parent: Node) -> struc.Source:
         return struc.Source(
