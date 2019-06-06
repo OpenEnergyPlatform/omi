@@ -288,7 +288,7 @@ class RDFCompiler(Compiler):
             g.add((datasetURI, DCATDE.licenseAttributionByText, instruction))
             g.add((datasetURI, DCTERMS.license, license_node))
         for c in metadata.contributors:
-            g.add((datasetURI, DCTERMS.contributor, self.visit(c, g)))
+            g.add((datasetURI, DCTERMS.has_contribution, self.visit(c, g)))
         for r in metadata.resources:
             g.add((datasetURI, OEO.has_resource, self.visit(r, g)))
 
