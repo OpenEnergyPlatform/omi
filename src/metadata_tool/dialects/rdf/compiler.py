@@ -220,7 +220,7 @@ class RDFCompiler(Compiler):
     def visit_review(self, review: structure.Review, *args, **kwargs):
         graph = args[0]
         node = BNode()
-        graph.add((node, OEO.path, URIRef(review.path)))
+        graph.add((node, FOAF.page, URIRef(review.path)))
         graph.add((node, OEO.has_badge, Literal(review.badge)))
         return node
 
