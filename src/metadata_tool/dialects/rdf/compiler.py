@@ -19,6 +19,7 @@ from metadata_tool.dialects.rdf.namespace import DCATDE
 from metadata_tool.dialects.rdf.namespace import OEO
 from metadata_tool.dialects.rdf.namespace import SCHEMA
 from metadata_tool.dialects.rdf.namespace import SKOS
+from metadata_tool.dialects.rdf.namespace import SPDX
 
 LANG_DICT = {
     "eng": "http://publications.europa.eu/resource/authority/language/ENG",
@@ -105,25 +106,34 @@ class RDFCompiler(Compiler):
         graph.add((node, DCTERMS.title, Literal(source.title)))
         graph.add((node, DCTERMS.description, Literal(source.description)))
         graph.add((node, FOAF.page, Literal(source.path)))
-        if source.license.title in LICENSE_DICT:
-            li = URIRef(LICENSE_DICT[source.license.title])
-        else:
-            li = Literal(source.license.title)
+        li = self.visit(source.license, graph)
         graph.add((node, DCTERMS.license, li))
         graph.add((node, DCTERMS.rights, Literal(source.copyright)))
         return node
 
+    def visit_terms_of_use(self, tou: structure.TermsOfUse, *args, **kwargs):
+        graph = args[0]
+
+        node = BNode()
+        graph.add((node, DCATDE.licenseAttributionByText, Literal(tou.attribution)))
+        graph.add((node, OEO.has_instruction, Literal(tou.instruction)))
+        graph.add((node, DCAT.license, self.visit(tou.license, graph)))
+        return node
+
     def visit_license(self, lic: structure.License, *args, **kwargs):
         graph = args[0]
-        if lic.name in LICENSE_DICT:
-            li = URIRef(LICENSE_DICT[lic.name])
+        if False:#lic.name in LICENSE_DICT:
+            li = URIRef(LICENSE_DICT[lic.identifier])
         else:
             li = BNode()
-            graph.add((li, RDF.type, DCTERMS.LicenseDocument))
-            graph.add((li, DCTERMS.title, Literal(lic.name)))
-            graph.add((li, DCTERMS.title, Literal(lic.title)))
-            graph.add((li, OEO.path, Literal(lic.path)))
-        return Literal(lic.attribution), Literal(lic.instruction), li
+            graph.add((li, RDF.type, DCAT.LicenseDocument))
+            for ref in lic.other_references:
+                graph.add((li, SPDX.seeAlso, Literal(ref)))
+            graph.add((li, FOAF.page, Literal(lic.path)))
+            graph.add((li, SPDX.licenseId, Literal(lic.identifier)))
+            graph.add((li, SPDX.licenseText, Literal(lic.text)))
+            graph.add((li, SPDX.name, Literal(lic.name)))
+        return li
 
     def visit_resource(self, resource: structure.Resource, *args, **kwargs):
         graph = args[0]
@@ -246,6 +256,7 @@ class RDFCompiler(Compiler):
         g.namespace_manager.bind("schema", SCHEMA)
         g.namespace_manager.bind("skos", SKOS)
         g.namespace_manager.bind("adms", ADMS)
+        g.namespace_manager.bind("spdx", SPDX)
 
         datasetURI = URIRef(metadata.identifier)
 
@@ -283,10 +294,8 @@ class RDFCompiler(Compiler):
         for s in metadata.sources:
             g.add((datasetURI, DCTERMS.source, self.visit(s, g)))
         for l in metadata.license:
-            attribution, instruction, license_node = self.visit(l, g)
-            g.add((datasetURI, DCATDE.licenseAttributionByText, attribution))
-            g.add((datasetURI, DCATDE.licenseAttributionByText, instruction))
-            g.add((datasetURI, DCTERMS.license, license_node))
+            g.add((datasetURI, OEO.has_terms_of_use, self.visit(l, g)))
+
         for c in metadata.contributors:
             g.add((datasetURI, DCTERMS.has_contribution, self.visit(c, g)))
         for r in metadata.resources:

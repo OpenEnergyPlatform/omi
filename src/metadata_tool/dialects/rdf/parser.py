@@ -5,6 +5,7 @@ from rdflib.graph import URIRef
 from rdflib.namespace import DCTERMS
 from rdflib.namespace import FOAF
 from rdflib.namespace import RDF
+from rdflib.namespace import RDFS
 from rdflib.namespace import XSD
 
 import metadata_tool.structure as struc
@@ -15,6 +16,7 @@ from metadata_tool.dialects.rdf.namespace import DCATDE
 from metadata_tool.dialects.rdf.namespace import OEO
 from metadata_tool.dialects.rdf.namespace import SCHEMA
 from metadata_tool.dialects.rdf.namespace import SKOS
+from metadata_tool.dialects.rdf.namespace import SPDX
 
 from typing import Dict, Tuple
 
@@ -30,7 +32,7 @@ def _one_or_none(gen):
     if not l:
         return None
     if len(l) > 1:
-        raise Exception("Found more than one match")
+        raise Exception("Found more than one match:" + str(l))
     return l[0]
 
 
@@ -109,18 +111,27 @@ class RDFParser(Parser):
             source_copyright=str(_only(graph.objects(parent, DCTERMS.rights))),
         )
 
-    def parse_license(self, graph: Graph, parent: Node) -> struc.License:
+    def parse_terms_of_use(self, graph: Graph, parent: Node) -> struc.TermsOfUse:
         if isinstance(parent, URIRef):
             return None
         else:
-            return struc.License(
+            lic_node = _only(graph.objects(parent, DCAT.license))
+            kw=dict()
+            for c in graph.objects(lic_node, RDFS.comment):
+                kw["comment"] = str(_only(c))
+            return struc.TermsOfUse(
+                lic=struc.License(
+                    name=str(_only(graph.objects(lic_node, SPDX.name))),
+                    identifier=str(_only(graph.objects(lic_node, SPDX.licenseId))),
+                    path=str(_only(graph.objects(lic_node, FOAF.page))),
+                    other_references=[n for n in graph.objects(lic_node, RDFS.seeAlso)],
+                    text=str(_only(graph.objects(lic_node, SPDX.licenseText))),
+                    **kw),
                 attribution=str(
-                    _only(graph.objects(parent, DCATDE.licenseAttributionByText))
+                    _only(
+                        graph.objects(parent, DCATDE.licenseAttributionByText))
                 ),
-                instruction=str(_only(graph.objects(parent, DCTERMS.title))),
-                title=str(_only(graph.objects(parent, DCTERMS.title))),
-                name=str(_only(graph.objects(parent, DCTERMS.title))),
-                path=str(_only(graph.objects(parent, DCTERMS.title))),
+                instruction=str(_only(graph.objects(parent, OEO.has_instruction))),
             )
 
     def parse_resource(self, graph: Graph, parent: Node, resources: Dict[str,Tuple[struc.Resource,Dict[str,struc.Field]]]=None) -> struc.Resource:
@@ -227,8 +238,8 @@ class RDFParser(Parser):
             self.parse_resource(graph, r)
             for r in graph.objects(parent, OEO.has_resource)
         ]
-        licenses = [
-            self.parse_license(graph, l) for l in graph.objects(parent, DCTERMS.license)
+        terms_of_use = [
+            self.parse_terms_of_use(graph, l) for l in graph.objects(parent, OEO.has_terms_of_use)
         ]
         sources = [
             self.parse_source(graph, s) for s in graph.objects(parent, DCTERMS.source)
@@ -243,7 +254,7 @@ class RDFParser(Parser):
             keywords=list(map(str, graph.objects(parent, DCAT.keyword))),
             languages=language,
             name=str(_only(graph.objects(parent, ADMS.Identifier))),
-            terms_of_use=licenses,
+            terms_of_use=terms_of_use,
             publication_date=self.parse_date(
                 _only(graph.objects(parent, OEO.publicationDate))
             ),
