@@ -292,7 +292,7 @@ class RDFCompiler(Compiler):
         for r in metadata.resources:
             g.add((datasetURI, OEO.has_resource, self.visit(r, g)))
 
-        g.add((datasetURI, OEO.review, self.visit(metadata.review, g)))
+        g.add((datasetURI, OEO.has_review, self.visit(metadata.review, g)))
 
         g.add(
             (
