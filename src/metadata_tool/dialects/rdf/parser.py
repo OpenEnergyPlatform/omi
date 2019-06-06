@@ -91,12 +91,14 @@ class RDFParser(Parser):
         )
 
     def parse_timestamp_orientation(self, node):
-        if node == OEO.left_alignment:
+        if node == OEO.left_orientation:
             return struc.TimestampOrientation.left
-        elif node == OEO.left_alignment:
-            return struc.TimestampOrientation.left
-        elif node == OEO.left_alignment:
-            return struc.TimestampOrientation.left
+        elif node == OEO.middle_orientation:
+            return struc.TimestampOrientation.middle
+        elif node == OEO.right_orientation:
+            return struc.TimestampOrientation.right
+        else:
+            raise Exception("Unknown timestamp orientation: {}".format(node))
 
     def parse_source(self, graph: Graph, parent: Node) -> struc.Source:
         return struc.Source(
