@@ -16,7 +16,7 @@ def metadata_conversion(old_sql, new_sql, user, user_email):
     new_sql: str
         The filename of the new sql file.
     user: str
-        The name of the user for the 'contributors' section
+        The name of the user for the 'contributions' section
     user_email: str
         The email address of the user.
 
@@ -28,7 +28,7 @@ def metadata_conversion(old_sql, new_sql, user, user_email):
     metadata = parser.parse_from_file(old_sql)
 
     metadata.contributors.append(
-        structure.Contributor(
+        structure.Contribution(
             title=user,
             email=user_email,
             date=datetime.now,

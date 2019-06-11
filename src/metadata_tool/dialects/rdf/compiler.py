@@ -64,20 +64,20 @@ class RDFCompiler(Compiler):
         self._add_literal_or_None(node, FOAF.mbox, person.email)
         return node
 
-    def visit_contributor(self, contributor: structure.Contributor, *args, **kwargs):
+    def visit_contribution(self, contribution: structure.Contribution, *args, **kwargs):
         c = BNode()
         self.graph.add(
             (
                 c,
                 DCTERMS.contributor,
-                self.visit(contributor.contributor, *args, **kwargs),
+                self.visit(contribution.contributor, *args, **kwargs),
             )
         )
         self._add_literal_or_None(
-            c, OEO.date, contributor.date.strftime("%Y-%m-%d"), datatype=XSD.date
+            c, OEO.date, contribution.date.strftime("%Y-%m-%d"), datatype=XSD.date
         )
-        self._add_literal_or_None(c, OEO.comment, contributor.comment)
-        self._add_literal_or_None(c, OEO.object, contributor.object)
+        self._add_literal_or_None(c, OEO.comment, contribution.comment)
+        self._add_literal_or_None(c, OEO.object, contribution.object)
         return c
 
     def visit_language(self, language: structure.Language, *args, **kwargs):
@@ -291,7 +291,7 @@ class RDFCompiler(Compiler):
         for l in metadata.license:
             self.graph.add((datasetURI, OEO.has_terms_of_use, self.visit(l)))
 
-        for c in metadata.contributors:
+        for c in metadata.contributions:
             self.graph.add((datasetURI, OEO.has_contribution, self.visit(c)))
         for r in metadata.resources:
             self.graph.add((datasetURI, OEO.has_resource, self.visit(r)))

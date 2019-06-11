@@ -136,8 +136,8 @@ class Person(Compilable):
         self.email = email
 
 
-class Contributor(Compilable):
-    __compiler_name__ = "contributor"
+class Contribution(Compilable):
+    __compiler_name__ = "contribution"
 
     def __init__(self, contributor: Person, date: datetime, obj: str, comment: str):
         self.contributor = contributor
@@ -300,7 +300,7 @@ class OEPMetadata(Compilable):
         temporal: Temporal,
         sources: Iterable[Source],
         terms_of_use: Iterable[TermsOfUse],
-        contributors: Iterable[Contributor],
+        contributions: Iterable[Contribution],
         resources: Iterable[Resource],
         review: Review,
         comment: MetaComment,
@@ -317,7 +317,7 @@ class OEPMetadata(Compilable):
         self.temporal = temporal
         self.sources = sources
         self.license = terms_of_use
-        self.contributors = contributors
+        self.contributions = contributions
         self.resources = resources
         self.review = review
         self.comment = comment

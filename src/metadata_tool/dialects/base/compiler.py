@@ -12,7 +12,7 @@ class Compiler:
     def visit_context(self, context: structure.Context, *args, **kwargs):
         raise NotImplementedError
 
-    def visit_contributor(self, contributor: structure.Contributor, *args, **kwargs):
+    def visit_contributor(self, contributor: structure.Contribution, *args, **kwargs):
         raise NotImplementedError
 
     def visit_language(self, language: structure.Language, *args, **kwargs):

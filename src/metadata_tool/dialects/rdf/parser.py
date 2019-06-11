@@ -64,8 +64,8 @@ class RDFParser(Parser):
             source_code=_one_str_or_none(graph.objects(parent, OEO.sourceCode)),
         )
 
-    def parse_contributor(self, graph: Graph, parent: Node) -> struc.Contributor:
-        return struc.Contributor(
+    def parse_contributor(self, graph: Graph, parent: Node) -> struc.Contribution:
+        return struc.Contribution(
             contributor=self.parse_person(
                 graph, _only(graph.objects(parent, DCTERMS.contributor))
             ),
@@ -282,7 +282,7 @@ class RDFParser(Parser):
         return struc.OEPMetadata(
             comment=comment,
             context=context,
-            contributors=contributors,
+            contributions=contributors,
             description=_one_str_or_none(graph.objects(parent, DCTERMS.description)),
             identifier=str(parent),
             keywords=list(map(str, graph.objects(parent, DCAT.keyword))),

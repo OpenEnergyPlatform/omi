@@ -102,8 +102,8 @@ class JSONParser_1_3(JSONParser):
         ]
 
         # filling the contributers section
-        contributors = [
-            structure.Contributor(
+        contributions = [
+            structure.Contribution(
                 contributor=structure.Person(
                     name=old_contributor.get("name"), email=old_contributor.get("email")
                 ),
@@ -165,7 +165,7 @@ class JSONParser_1_3(JSONParser):
             temporal=temporal,
             sources=sources,
             terms_of_use=licenses,
-            contributors=contributors,
+            contributions=contributions,
             resources=resources,
             review=review,
             comment=comment,
@@ -255,7 +255,7 @@ class JSONParser_1_4(JSONParser):
 
         # filling the contributers section
         contributors = [
-            structure.Contributor(
+            structure.Contribution(
                 contributor=structure.Person(
                     name=old_contributor.get("title"),
                     email=old_contributor.get("email"),
@@ -361,7 +361,7 @@ class JSONParser_1_4(JSONParser):
             temporal=temporal,
             sources=sources,
             terms_of_use=licenses,
-            contributors=contributors,
+            contributions=contributors,
             resources=resources,
             review=review,
             comment=comment,
@@ -390,7 +390,7 @@ class JSONParser_1_4(JSONParser):
             "temporal",
             "sources",
             "license",
-            "contributors",
+            "contributions",
             "resources",
             "metadata_version",
         ]
@@ -418,7 +418,7 @@ class JSONParser_1_4(JSONParser):
         subkeys_resources = ["name", "format", "fields"]  # in list of objects
         list_subkeys = {
             "sources": subkeys_sources,
-            "contributors": subkeys_contributors,
+            "contributions": subkeys_contributors,
             "resources": subkeys_resources,
         }
         subkeys_resources_fields = ["name", "description", "unit"]  # in list of objects
@@ -478,7 +478,7 @@ class JSONParser_1_4(JSONParser):
             "temporal",
             "sources",
             "license",
-            "contributors",
+            "contributions",
             "resources",
             "metadata_version",
         ]

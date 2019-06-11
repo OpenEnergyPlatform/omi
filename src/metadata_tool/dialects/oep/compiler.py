@@ -17,13 +17,13 @@ class JSONCompiler(Compiler):
             grantNo=self.visit(context.grant_number),
         )
 
-    def visit_contributor(self, contributor: structure.Contributor, *args, **kwargs):
+    def visit_contribution(self, contribution: structure.Contribution, *args, **kwargs):
         return OrderedDict(
-            title=self.visit(contributor.contributor.name),
-            email=self.visit(contributor.contributor.email),
-            object=self.visit(contributor.object),
-            date=contributor.date.strftime("%Y-%m-%d"),
-            comment=self.visit(contributor.comment),
+            title=self.visit(contribution.contributor.name),
+            email=self.visit(contribution.contributor.email),
+            object=self.visit(contribution.object),
+            date=contribution.date.strftime("%Y-%m-%d"),
+            comment=self.visit(contribution.comment),
         )
 
     def visit_language(self, language: structure.Language, *args, **kwargs):
@@ -165,7 +165,7 @@ class JSONCompiler(Compiler):
             temporal=self.visit(metadata.temporal),
             sources=list(map(self.visit, metadata.sources)),
             licenses=list(map(self.visit, metadata.license)),
-            contributors=list(map(self.visit, metadata.contributors)),
+            contributors=list(map(self.visit, metadata.contributions)),
             resources=list(map(self.visit, metadata.resources)),
             review=self.visit(metadata.review),
             metaMetadata=OrderedDict(
