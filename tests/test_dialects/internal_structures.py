@@ -1,6 +1,35 @@
 from metadata_tool import structure as s
 import datetime
 
+_source_year = s.Field(
+                            name="year",
+                            description="Reference year",
+                            field_type="integer",
+                            unit=None,
+                        )
+
+_target_year = s.Field(
+    name="year",
+    description=None,
+    field_type=None,
+    unit=None)
+
+_target_resource = s.Resource(
+                    name="schema.table",
+                    schema=s.Schema(
+                        fields=[_target_year],
+                        foreign_keys=None,
+                        primary_key=None
+                    ),
+                    dialect=None,
+                    encoding=None,
+                    path=None,
+                    profile=None,
+                    resource_format=None,
+                )
+
+_target_year.resource = _target_resource
+
 metadata_v_1_3 = s.OEPMetadata(
     name=None,
     title="Conceived Example Table Meant for Creating an Illustrative Metadata String thereof",
@@ -44,12 +73,16 @@ metadata_v_1_3 = s.OEPMetadata(
             source_copyright="Publisher2"
         )
     ],
-    object_licenses=[s.License(name="ODbL-1.0",
-                        title="Open Data Commons Open Database License 1.0",
-                        path="https://opendatacommons.org/licenses/odbl/1.0/",
-                        instruction="You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
-                        attribution="Institute"
-                        )],
+    terms_of_use=[s.TermsOfUse(
+        lic=s.License(
+            identifier="ODbL-1.0",
+            name="Open Data Commons Open Database License 1.0",
+            path="https://opendatacommons.org/licenses/odbl/1.0/",
+            other_references=[],
+            text=None
+        ),
+        instruction = "You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
+        attribution = "Institute")],
     contributors=[
         s.Contributor(
             contributor=s.Person(
@@ -170,15 +203,19 @@ metadata_v_1_4 = s.OEPMetadata(
                 title="OpenStreetMap",
                 description="A collaborative project to create a free editable map of the world",
                 path="https://www.openstreetmap.org/",
-                source_license=s.License(None, "ODbL-1.0", None, None, None),
+                source_license=s.License(name=None, identifier="ODbL-1.0", path=None, other_references=[], text=None),
                 source_copyright="© OpenStreetMap contributors",
             ),
         ],
-        object_licenses=[
-            s.License(
-                name="ODbL-1.0",
-                title="Open Data Commons Open Database License 1.0",
-                path="https://opendatacommons.org/licenses/odbl/1.0/",
+        terms_of_use=[
+            s.TermsOfUse(
+                lic=s.License(
+                    identifier="ODbL-1.0",
+                    name="Open Data Commons Open Database License 1.0",
+                    path="https://opendatacommons.org/licenses/odbl/1.0/",
+                    other_references=[],
+                    text=None
+                ),
                 instruction="You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
                 attribution="© Reiner Lemoine Institut",
             )
@@ -312,12 +349,7 @@ metadata_v_1_4 = s.OEPMetadata(
                             field_type="serial",
                             unit=None,
                         ),
-                        s.Field(
-                            name="year",
-                            description="Reference year",
-                            field_type="integer",
-                            unit=None,
-                        ),
+                        _source_year,
                         s.Field(
                             name="value",
                             description="Example value",
@@ -334,10 +366,10 @@ metadata_v_1_4 = s.OEPMetadata(
                     primary_key=["id"],
                     foreign_keys=[
                         s.ForeignKey(
-                            fields=["year"],
-                            reference=s.Reference(
-                                resource="schema.table", fields=["year"]
-                            ),
+                            references=[s.Reference(
+                                source=_source_year,
+                                target=_target_year
+                            )]
                         )
                     ],
                 ),
