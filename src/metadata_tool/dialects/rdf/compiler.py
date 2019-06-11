@@ -60,8 +60,8 @@ class RDFCompiler(Compiler):
 
         node = BNode()
         self.graph.add((node, RDF.type, FOAF.Person))
-        self.graph.add((node, FOAF.name, Literal(person.name)))
-        self.graph.add((node, FOAF.mbox, Literal(person.email)))
+        self._add_literal_or_None(node, FOAF.name, person.name)
+        self._add_literal_or_None(node, FOAF.mbox, person.email)
         return node
 
     def visit_contributor(self, contributor: structure.Contributor, *args, **kwargs):
@@ -73,9 +73,9 @@ class RDFCompiler(Compiler):
                 self.visit(contributor.contributor, *args, **kwargs),
             )
         )
-        self.graph.add((c, OEO.date, Literal(contributor.date, datatype=XSD.date)))
-        self.graph.add((c, OEO.comment, Literal(contributor.comment)))
-        self.graph.add((c, OEO.object, Literal(contributor.object)))
+        self._add_literal_or_None(c, OEO.date, contributor.date, datatype=XSD.date)
+        self._add_literal_or_None(c, OEO.comment, contributor.comment)
+        self._add_literal_or_None(c, OEO.object, contributor.object)
         return c
 
     def visit_language(self, language: structure.Language, *args, **kwargs):
@@ -83,18 +83,18 @@ class RDFCompiler(Compiler):
 
     def visit_spatial(self, spatial: structure.Spatial, *args, **kwargs):
         node = BNode()
-        self.graph.add((node, SKOS.prefLabel, Literal(spatial.extent)))
-        self.graph.add((node, OEO.has_spatial_resolution, Literal(spatial.resolution)))
-        self.graph.add((node, OEO.location, Literal(spatial.location)))
+        self._add_literal_or_None(node, SKOS.prefLabel, spatial.extent)
+        self._add_literal_or_None(node, OEO.has_spatial_resolution, spatial.resolution)
+        self._add_literal_or_None(node, OEO.location, spatial.location)
         return node
 
     def visit_temporal(self, temporal: structure.Temporal, *args, **kwargs):
         node = BNode()
         self.graph.add((node, RDF.type, DCTERMS.PeriodOfTime))
-        self.graph.add((node, SCHEMA.startDate, Literal(temporal.ts_start)))
-        self.graph.add((node, SCHEMA.endDate, Literal(temporal.ts_end)))
-        self.graph.add((node, OEO.has_time_resolution, Literal(temporal.ts_resolution)))
-        self.graph.add((node, OEO.referenceDate, Literal(temporal.reference_date)))
+        self._add_literal_or_None(node, SCHEMA.startDate, temporal.ts_start)
+        self._add_literal_or_None(node, SCHEMA.endDate, temporal.ts_end)
+        self._add_literal_or_None(node, OEO.has_time_resolution, temporal.ts_resolution)
+        self._add_literal_or_None(node, OEO.referenceDate, temporal.reference_date)
         self.graph.add(
             (node, OEO.has_orientation, self.visit(temporal.ts_orientation))
         )
@@ -114,18 +114,18 @@ class RDFCompiler(Compiler):
 
     def visit_source(self, source: structure.Source, *args, **kwargs):
         node = BNode()
-        self.graph.add((node, DCTERMS.title, Literal(source.title)))
-        self.graph.add((node, DCTERMS.description, Literal(source.description)))
-        self.graph.add((node, FOAF.page, Literal(source.path)))
+        self._add_literal_or_None(node, DCTERMS.title, source.title)
+        self._add_literal_or_None(node, DCTERMS.description, source.description)
+        self._add_literal_or_None(node, FOAF.page, source.path)
         li = self.visit(source.license)
         self.graph.add((node, DCTERMS.license, li))
-        self.graph.add((node, DCTERMS.rights, Literal(source.copyright)))
+        self._add_literal_or_None(node, DCTERMS.rights, source.copyright)
         return node
 
     def visit_terms_of_use(self, tou: structure.TermsOfUse, *args, **kwargs):
         node = BNode()
-        self.graph.add((node, DCATDE.licenseAttributionByText, Literal(tou.attribution)))
-        self.graph.add((node, OEO.has_instruction, Literal(tou.instruction)))
+        self._add_literal_or_None(node, DCATDE.licenseAttributionByText, tou.attribution)
+        self._add_literal_or_None(node, OEO.has_instruction, tou.instruction)
         self.graph.add((node, DCAT.license, self.visit(tou.license)))
         return node
 
@@ -136,22 +136,22 @@ class RDFCompiler(Compiler):
             li = BNode()
             self.graph.add((li, RDF.type, DCAT.LicenseDocument))
             for ref in lic.other_references:
-                self.graph.add((li, SPDX.seeAlso, Literal(ref)))
-            self.graph.add((li, FOAF.page, Literal(lic.path)))
-            self.graph.add((li, SPDX.licenseId, Literal(lic.identifier)))
+                self._add_literal_or_None(li, SPDX.seeAlso, ref)
+            self._add_literal_or_None(li, FOAF.page, lic.path)
+            self._add_literal_or_None(li, SPDX.licenseId, lic.identifier)
             if lic.text:
-                self.graph.add((li, SPDX.licenseText, Literal(lic.text)))
-            self.graph.add((li, SPDX.name, Literal(lic.name)))
+                self._add_literal_or_None(li, SPDX.licenseText, lic.text)
+            self._add_literal_or_None(li, SPDX.name, lic.name)
         return li
 
     def visit_resource(self, resource: structure.Resource, *args, **kwargs):
         s = BNode()
         self.graph.add((s, RDF.type, DCAT.Distribution))
-        self.graph.add((s, DCTERMS.title, Literal(resource.name)))
-        self.graph.add((s, DCAT.accessURL, Literal(resource.path)))
-        self.graph.add((s, OEO.has_format, Literal(resource.format)))  # dct:format ?
-        self.graph.add((s, OEO.profile, Literal(resource.profile)))
-        self.graph.add((s, OEO.encoding, Literal(resource.encoding)))
+        self._add_literal_or_None(s, DCTERMS.title, resource.name)
+        self._add_literal_or_None(s, DCAT.accessURL, resource.path)
+        self._add_literal_or_None(s, OEO.has_format, resource.format)  # dct:format ?
+        self._add_literal_or_None(s, OEO.profile, resource.profile)
+        self._add_literal_or_None(s, OEO.encoding, resource.encoding)
         self.graph.add((s, OEO.has_dialect, self.visit(resource.dialect)))
         fields, pks, fks = self.visit(resource.schema)
         for f in fields:
@@ -186,17 +186,17 @@ class RDFCompiler(Compiler):
 
     def visit_dialect(self, dialect: structure.Dialect, *args, **kwargs):
         node = BNode()
-        self.graph.add((node, OEO.delimiter, Literal(dialect.delimiter)))
-        self.graph.add((node, OEO.decimalSeparator, Literal(dialect.decimal_separator)))
+        self._add_literal_or_None(node, OEO.delimiter, dialect.delimiter)
+        self._add_literal_or_None(node, OEO.decimalSeparator, dialect.decimal_separator)
         return node
 
     def visit_field(self, field: structure.Field, *args, **kwargs):
         field_uri = BNode()
         self.graph.add((field_uri, RDF.type, OEO.DatabaseField))
-        self.graph.add((field_uri, DCTERMS.title, Literal(field.name)))
-        self.graph.add((field_uri, DCTERMS.description, Literal(field.description)))
-        self.graph.add((field_uri, OEO.type, Literal(field.type)))
-        self.graph.add((field_uri, OEO.unit, Literal(field.unit)))
+        self._add_literal_or_None(field_uri, DCTERMS.title, field.name)
+        self._add_literal_or_None(field_uri, DCTERMS.description, field.description)
+        self._add_literal_or_None(field_uri, OEO.type, field.type)
+        self._add_literal_or_None(field_uri, OEO.unit, field.unit)
         return field_uri
 
     def visit_foreign_key(
@@ -234,33 +234,33 @@ class RDFCompiler(Compiler):
     def visit_review(self, review: structure.Review, *args, **kwargs):
         node = BNode()
         self.graph.add((node, FOAF.page, URIRef(review.path)))
-        self.graph.add((node, OEO.has_badge, Literal(review.badge)))
+        self._add_literal_or_None(node, OEO.has_badge, review.badge)
         return node
 
     def visit_meta_comment(self, comment: structure.MetaComment, *args, **kwargs):
         com = BNode()
-        self.graph.add((com, OEO.metadata_info, Literal(comment.metadata_info)))
-        self.graph.add((com, OEO.dates_info, Literal(comment.dates)))
-        self.graph.add((com, OEO.units_info, Literal(comment.units)))
-        self.graph.add((com, OEO.languages_info, Literal(comment.languages)))
-        self.graph.add((com, OEO.licenses_info, Literal(comment.licenses)))
-        self.graph.add((com, OEO.review_info, Literal(comment.review)))
-        self.graph.add((com, OEO.none_info, Literal(comment.none)))
+        self._add_literal_or_None(com, OEO.metadata_info, comment.metadata_info)
+        self._add_literal_or_None(com, OEO.dates_info, comment.dates)
+        self._add_literal_or_None(com, OEO.units_info, comment.units)
+        self._add_literal_or_None(com, OEO.languages_info, comment.languages)
+        self._add_literal_or_None(com, OEO.licenses_info, comment.licenses)
+        self._add_literal_or_None(com, OEO.review_info, comment.review)
+        self._add_literal_or_None(com, OEO.none_info, comment.none)
         return com
 
     def visit_metadata(self, metadata: structure.OEPMetadata, *args, **kwargs):
         datasetURI = URIRef(metadata.identifier)
 
         self.graph.add((datasetURI, RDF.type, DCAT.Dataset))
-        self.graph.add((datasetURI, ADMS.Identifier, Literal(metadata.name)))
-        self.graph.add((datasetURI, DCTERMS.title, Literal(metadata.title)))
-        self.graph.add((datasetURI, DCTERMS.description, Literal(metadata.description)))
+        self._add_literal_or_None(datasetURI, ADMS.Identifier, metadata.name)
+        self._add_literal_or_None(datasetURI, DCTERMS.title, metadata.title)
+        self._add_literal_or_None(datasetURI, DCTERMS.description, metadata.description)
 
         for lang in metadata.languages:
-            self.graph.add((datasetURI, DCTERMS.language, Literal(self.visit(lang))))
+            self._add_literal_or_None(datasetURI, DCTERMS.language, self.visit(lang))
 
         for k in metadata.keywords:
-            self.graph.add((datasetURI, DCAT.keyword, Literal(k)))
+            self._add_literal_or_None(datasetURI, DCAT.keyword, k)
 
         self.graph.add(
             (
@@ -336,9 +336,10 @@ class RDFCompiler(Compiler):
     def _add_literal_or_None(self,
                              subject: Node,
                              predicate,
-                             obj: str):
+                             obj: str,
+                             **kwargs):
         if obj is not None:
-            self.graph.add((subject, predicate, Literal(obj)))
+            self.graph.add((subject, predicate, Literal(obj, **kwargs)))
 
 class FieldNotFoundError(Exception):
     pass
