@@ -10,8 +10,9 @@ def _test_generic_parsing(parser, inp, expected, **kwargs):
         assert_compileable_equal(expected, result, **kwargs)
 
 
-def assert_compileable_equal(expected, got, nulls=frozenset(["none"]), exclude=None):
+def assert_compileable_equal(expected, got, nulls=None, exclude=None):
     exclude = exclude or []
+    nulls = nulls or [None]
     for key in (set(expected.__dict__.keys()).union(set(got.__dict__.keys()))):
         if key not in exclude:
             l = getattr(expected, key)
@@ -33,7 +34,7 @@ def assert_compileable_equal(expected, got, nulls=frozenset(["none"]), exclude=N
                     else:
                         assert l0 == r0, "Expected: {}; Got: {}".format(l0, r0)
             else:
-                if not (l is None and r is None):
+                if not (l is None and r in nulls):
                     assert l == r, "Keys {} do not match (Expected:{}:{}; Got: {}:{})".format(key, type(l), l, type(r) ,r)
 
 
