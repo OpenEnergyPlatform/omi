@@ -304,7 +304,7 @@ class RDFCompiler(Compiler):
 
         self.graph.add((datasetURI, OEO.comment, self.visit(metadata.comment)))
 
-        return self.graph.serialize(format="turtle").decode("utf-8")
+        return datasetURI
 
     def _get_or_create_field(
         self,
