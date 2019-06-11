@@ -167,7 +167,8 @@ class RDFParser(Parser):
             fields=[
                 self.parse_field(graph, f) for f in graph.objects(parent, OEO.field)
             ],
-            primary_key=[f for f in graph.objects(parent, OEO.primaryKey)],
+            primary_key=[self.parse_field(graph, f).name
+                         for f in graph.objects(parent, OEO.primaryKey)],
             foreign_keys=[
                 self.parse_foreign_key(graph, f)
                 for f in graph.objects(parent, OEO.has_foreignKey)
