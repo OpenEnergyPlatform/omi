@@ -4,41 +4,37 @@ import unittest
 from metadata_tool.structure import Compilable, Field
 
 
-def _test_generic_parsing(parser, inp, res, **kwargs):
+def _test_generic_parsing(parser, inp, expected, **kwargs):
     if parser:
         result = parser.parse_from_file(inp)
-        assert_compileable_equal(result, res, **kwargs)
+        assert_compileable_equal(expected, result, **kwargs)
 
 
-def assert_compileable_equal(first, second, nulls=frozenset(["none"]), exclude=None):
+def assert_compileable_equal(expected, got, nulls=frozenset(["none"]), exclude=None):
     exclude = exclude or []
-    for key in (set(first.__dict__.keys()).union(set(second.__dict__.keys()))):
+    for key in (set(expected.__dict__.keys()).union(set(got.__dict__.keys()))):
         if key not in exclude:
-            l = getattr(first, key)
-            r = getattr(second, key)
+            l = getattr(expected, key)
+            r = getattr(got, key)
             if isinstance(l, Compilable):
                 new_exclude = []
                 if isinstance(l, Field):
                     new_exclude = ["resource"]
-                print(key, new_exclude, type(l), first)
                 assert_compileable_equal(l, r, nulls=nulls, exclude=new_exclude)
             elif isinstance(l, list) and isinstance(r, list):
-                assert len(l) == len(r), "Lists do not match ({} != {})".format(l, r)
+                assert len(l) == len(r), "Lists do not match (Expected: {}; Got: {})".format(l, r)
                 for l0, r0 in zip(sorted(l), sorted(r)):
                     if isinstance(l0, Compilable):
                         if isinstance(l0, Field):
                             new_exclude = ["resource"]
                         else:
                             new_exclude = []
-                        print(key, new_exclude, type(l0), first)
                         assert_compileable_equal(l0, r0, nulls=nulls, exclude=new_exclude)
                     else:
-                        assert l0 == r0, "{} != {}".format(l0, r0)
+                        assert l0 == r0, "Expected: {}; Got: {}".format(l0, r0)
             else:
-                if l in nulls and r is None:
-                    return
-
-                assert l == r, "Keys {} do not match ({}:{} != {}:{})".format(key, type(l), l, type(r) ,r)
+                if not (l is None and r is None):
+                    assert l == r, "Keys {} do not match (Expected:{}:{}; Got: {}:{})".format(key, type(l), l, type(r) ,r)
 
 
 def parse_date(s):
