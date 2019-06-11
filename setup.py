@@ -80,6 +80,7 @@ setup(
         "python-dateutil"],
     tests_require=["tox", "pytest"],
     extras_require={
+        "licenses": ["Jinja2"]
         # eg:
         #   'rst': ['docutils>=0.11'],
         #   ':python_version=="2.6"': ['argparse'],

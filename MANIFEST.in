@@ -1,5 +1,6 @@
 graft docs
 graft src
+graft licenses
 graft ci
 graft tests
 
