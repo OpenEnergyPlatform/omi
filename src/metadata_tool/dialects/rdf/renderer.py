@@ -1,7 +1,7 @@
 from metadata_tool.dialects.base.renderer import Renderer
-from rdflib.graph import Node
+from rdflib.graph import Graph
 
 
 class GraphRenderer(Renderer):
-    def render(self, inp: Node, *args, **kwargs):
+    def render(self, inp: Graph, *args, **kwargs):
         return inp.serialize(format="ttl")
