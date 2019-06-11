@@ -8,9 +8,7 @@ from rdflib.graph import Node
 from rdflib.graph import URIRef
 from rdflib.namespace import DCTERMS
 from rdflib.namespace import FOAF
-from rdflib.namespace import RDF
 from rdflib.namespace import RDFS
-from rdflib.namespace import XSD
 
 import metadata_tool.structure as struc
 from metadata_tool.dialects.base.parser import Parser
@@ -179,8 +177,13 @@ class RDFParser(Parser):
                 resource_format=_one_str_or_none(graph.objects(parent, OEO.has_format)),
                 schema=None,
             )
-            resources[rname] = r, {f.name: f for f in r.schema.fields}
-            r.schema = self.parse_schema(graph, parent, resources=resources)
+            r_fields = {}
+            resources[rname] = r, r_fields
+            schema = self.parse_schema(graph, parent, resources=resources)
+            r.schema = (schema,)
+            for f in schema.fields:
+                if f.name not in r_fields:
+                    r_fields[f.name] = f
             return r
 
     def parse_schema(

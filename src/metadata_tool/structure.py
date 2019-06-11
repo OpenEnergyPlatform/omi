@@ -248,8 +248,9 @@ class Resource(Compilable):
         self.format = resource_format
         self.encoding = encoding
         self.schema = schema
-        for field in schema.fields:
-            field.resource = self
+        if schema is not None:
+            for field in schema.fields:
+                field.resource = self
         self.dialect = dialect
 
 
