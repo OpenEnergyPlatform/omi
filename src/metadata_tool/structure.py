@@ -79,7 +79,13 @@ class License(Compilable):
     __compiler_name__ = "license"
 
     def __init__(
-        self, name: str, identifier: str, text:str, path: str, other_references: Iterable[str], comment:str=None
+        self,
+        name: str,
+        identifier: str,
+        text: str,
+        path: str,
+        other_references: Iterable[str],
+        comment: str = None,
     ):
         self.name = name
         self.path = path
@@ -89,17 +95,18 @@ class License(Compilable):
         self.comment = comment
 
     @staticmethod
-    def instance_name_from_id(identifier:str):
-        return "L_" + identifier.replace("-","_").replace(".","_")
+    def instance_name_from_id(identifier: str):
+        return "L_" + identifier.replace("-", "_").replace(".", "_")
 
 
 class TermsOfUse(Compilable):
     __compiler_name__ = "terms_of_use"
 
-    def __init__(self, instruction: str, attribution: str, lic:License):
+    def __init__(self, instruction: str, attribution: str, lic: License):
         self.instruction = instruction
         self.attribution = attribution
         self.license = lic
+
 
 class Source(Compilable):
     __compiler_name__ = "source"

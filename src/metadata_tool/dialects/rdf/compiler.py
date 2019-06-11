@@ -32,7 +32,6 @@ LANG_DICT = {
 
 
 class RDFCompiler(Compiler):
-
     def __init__(self, graph: Graph = None):
         if graph is None:
             self.graph = Graph()
@@ -47,6 +46,7 @@ class RDFCompiler(Compiler):
             self.graph.namespace_manager.bind("spdx", SPDX)
         else:
             self.graph = graph
+
     def visit_context(self, context: structure.Context, *args, **kwargs):
         return (
             Literal(context.homepage),
@@ -95,9 +95,7 @@ class RDFCompiler(Compiler):
         self._add_literal_or_None(node, SCHEMA.endDate, temporal.ts_end)
         self._add_literal_or_None(node, OEO.has_time_resolution, temporal.ts_resolution)
         self._add_literal_or_None(node, OEO.referenceDate, temporal.reference_date)
-        self.graph.add(
-            (node, OEO.has_orientation, self.visit(temporal.ts_orientation))
-        )
+        self.graph.add((node, OEO.has_orientation, self.visit(temporal.ts_orientation)))
         return node
 
     def visit_timestamp_orientation(
@@ -124,13 +122,15 @@ class RDFCompiler(Compiler):
 
     def visit_terms_of_use(self, tou: structure.TermsOfUse, *args, **kwargs):
         node = BNode()
-        self._add_literal_or_None(node, DCATDE.licenseAttributionByText, tou.attribution)
+        self._add_literal_or_None(
+            node, DCATDE.licenseAttributionByText, tou.attribution
+        )
         self._add_literal_or_None(node, OEO.has_instruction, tou.instruction)
         self.graph.add((node, DCAT.license, self.visit(tou.license)))
         return node
 
     def visit_license(self, lic: structure.License, *args, **kwargs):
-        if False:#lic.name in LICENSE_DICT:
+        if False:  # lic.name in LICENSE_DICT:
             li = URIRef(LICENSE_DICT[lic.identifier])
         else:
             li = BNode()
@@ -333,13 +333,10 @@ class RDFCompiler(Compiler):
             raise FieldNotFoundError(field.name)
         return node
 
-    def _add_literal_or_None(self,
-                             subject: Node,
-                             predicate,
-                             obj: str,
-                             **kwargs):
+    def _add_literal_or_None(self, subject: Node, predicate, obj: str, **kwargs):
         if obj is not None:
             self.graph.add((subject, predicate, Literal(obj, **kwargs)))
+
 
 class FieldNotFoundError(Exception):
     pass

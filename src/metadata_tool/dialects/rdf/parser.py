@@ -1,3 +1,6 @@
+from typing import Dict
+from typing import Tuple
+
 from dateutil.parser import parse as parse_date
 from rdflib import Graph
 from rdflib.graph import Node
@@ -18,7 +21,6 @@ from metadata_tool.dialects.rdf.namespace import SCHEMA
 from metadata_tool.dialects.rdf.namespace import SKOS
 from metadata_tool.dialects.rdf.namespace import SPDX
 
-from typing import Dict, Tuple
 
 def _only(gen):
     r = _one_or_none(gen)
@@ -26,11 +28,13 @@ def _only(gen):
         raise Exception("No matching elements")
     return r
 
+
 def _one_str_or_none(gen):
     r = _one_or_none(gen)
     if r is None:
         return None
     return str(r)
+
 
 def _one_or_none(gen):
     l = list(gen)
@@ -73,19 +77,23 @@ class RDFParser(Parser):
     def parse_person(self, graph, parent: Node):
         return struc.Person(
             name=_one_str_or_none(graph.objects(parent, FOAF.name)),
-            email=_one_str_or_none(graph.objects(parent, FOAF.mbox))
+            email=_one_str_or_none(graph.objects(parent, FOAF.mbox)),
         )
 
     def parse_spatial(self, graph: Graph, parent: Node) -> struc.Spatial:
         return struc.Spatial(
             extent=_one_str_or_none(graph.objects(parent, SKOS.prefLabel)),
             location=_one_str_or_none(graph.objects(parent, OEO.location)),
-            resolution=_one_str_or_none(graph.objects(parent, OEO.has_spatial_resolution)),
+            resolution=_one_str_or_none(
+                graph.objects(parent, OEO.has_spatial_resolution)
+            ),
         )
 
     def parse_temporal(self, graph: Graph, parent: Node) -> struc.Temporal:
 
-        orientation = self.parse_timestamp_orientation(_only(graph.objects(parent, OEO.has_orientation)))
+        orientation = self.parse_timestamp_orientation(
+            _only(graph.objects(parent, OEO.has_orientation))
+        )
 
         return struc.Temporal(
             start=self.parse_date(_only(graph.objects(parent, SCHEMA.startDate))),
@@ -112,7 +120,9 @@ class RDFParser(Parser):
             title=_one_str_or_none(graph.objects(parent, DCTERMS.title)),
             description=_one_str_or_none(graph.objects(parent, DCTERMS.description)),
             path=_one_str_or_none(graph.objects(parent, FOAF.page)),
-            source_license=self.parse_license(graph, _only(graph.objects(parent, DCTERMS.license))),
+            source_license=self.parse_license(
+                graph, _only(graph.objects(parent, DCTERMS.license))
+            ),
             source_copyright=_one_str_or_none(graph.objects(parent, DCTERMS.rights)),
         )
 
@@ -122,15 +132,18 @@ class RDFParser(Parser):
         else:
 
             return struc.TermsOfUse(
-                lic=self.parse_license(graph, _only(graph.objects(parent, DCAT.license))),
-                attribution=str(
-                    _only(
-                        graph.objects(parent, DCATDE.licenseAttributionByText))
+                lic=self.parse_license(
+                    graph, _only(graph.objects(parent, DCAT.license))
                 ),
-                instruction=_one_str_or_none(graph.objects(parent, OEO.has_instruction)),
+                attribution=str(
+                    _only(graph.objects(parent, DCATDE.licenseAttributionByText))
+                ),
+                instruction=_one_str_or_none(
+                    graph.objects(parent, OEO.has_instruction)
+                ),
             )
 
-    def parse_license(self, graph, parent:Node):
+    def parse_license(self, graph, parent: Node):
         kw = dict()
         for c in graph.objects(parent, RDFS.comment):
             kw["comment"] = _one_str_or_none(c)
@@ -140,9 +153,15 @@ class RDFParser(Parser):
             path=_one_str_or_none(graph.objects(parent, FOAF.page)),
             other_references=[n for n in graph.objects(parent, RDFS.seeAlso)],
             text=_one_str_or_none(graph.objects(parent, SPDX.licenseText)),
-            **kw)
+            **kw
+        )
 
-    def parse_resource(self, graph: Graph, parent: Node, resources: Dict[str,Tuple[struc.Resource,Dict[str,struc.Field]]]=None) -> struc.Resource:
+    def parse_resource(
+        self,
+        graph: Graph,
+        parent: Node,
+        resources: Dict[str, Tuple[struc.Resource, Dict[str, struc.Field]]] = None,
+    ) -> struc.Resource:
         rname = _one_str_or_none(graph.objects(parent, DCTERMS.title))
         resources = resources or dict()
         if resources and rname in resources:
@@ -167,8 +186,10 @@ class RDFParser(Parser):
             fields=[
                 self.parse_field(graph, f) for f in graph.objects(parent, OEO.field)
             ],
-            primary_key=[self.parse_field(graph, f).name
-                         for f in graph.objects(parent, OEO.primaryKey)],
+            primary_key=[
+                self.parse_field(graph, f).name
+                for f in graph.objects(parent, OEO.primaryKey)
+            ],
             foreign_keys=[
                 self.parse_foreign_key(graph, f)
                 for f in graph.objects(parent, OEO.has_foreignKey)
@@ -180,7 +201,9 @@ class RDFParser(Parser):
         if delim is not None:
             delim = str(delim)
         return struc.Dialect(
-            decimal_separator=_one_str_or_none(graph.objects(parent, OEO.decimalSeparator)),
+            decimal_separator=_one_str_or_none(
+                graph.objects(parent, OEO.decimalSeparator)
+            ),
             delimiter=delim,
         )
 
@@ -249,7 +272,8 @@ class RDFParser(Parser):
             for r in graph.objects(parent, OEO.has_resource)
         ]
         terms_of_use = [
-            self.parse_terms_of_use(graph, l) for l in graph.objects(parent, OEO.has_terms_of_use)
+            self.parse_terms_of_use(graph, l)
+            for l in graph.objects(parent, OEO.has_terms_of_use)
         ]
         sources = [
             self.parse_source(graph, s) for s in graph.objects(parent, DCTERMS.source)

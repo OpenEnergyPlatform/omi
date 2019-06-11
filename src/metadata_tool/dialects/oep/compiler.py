@@ -75,7 +75,8 @@ class JSONCompiler(Compiler):
         return OrderedDict(
             instruction=self.visit(terms_of_use.instruction),
             attribution=self.visit(terms_of_use.attribution),
-            **self.visit(terms_of_use.license))
+            **self.visit(terms_of_use.license)
+        )
 
     def visit_resource(self, resource: structure.Resource):
         return OrderedDict(
@@ -120,7 +121,8 @@ class JSONCompiler(Compiler):
             return OrderedDict(
                 fields=source_fields,
                 reference=OrderedDict(
-                    resource=self.visit(target_resource), fields=self.visit(target_fields)
+                    resource=self.visit(target_resource),
+                    fields=self.visit(target_fields),
                 ),
             )
         else:

@@ -94,10 +94,11 @@ class JSONParser_1_3(JSONParser):
                     name=old_license.get("name"),
                     path=old_license.get("url"),
                     other_references=[],
-                    text=None
+                    text=None,
                 ),
                 instruction=old_license.get("instruction"),
-                attribution=old_license.get("copyright"),)
+                attribution=old_license.get("copyright"),
+            )
         ]
 
         # filling the contributers section
@@ -229,7 +230,7 @@ class JSONParser_1_4(JSONParser):
                     identifier=old_source.get("license"),
                     other_references=[],
                     path=None,
-                    text=None
+                    text=None,
                 ),
                 source_copyright=old_source.get("copyright"),
             )
@@ -244,10 +245,11 @@ class JSONParser_1_4(JSONParser):
                     name=old_license.get("title"),
                     path=old_license.get("path"),
                     other_references=[],
-                    text=None
+                    text=None,
                 ),
                 instruction=old_license.get("instruction"),
-                attribution=old_license.get("attribution"))
+                attribution=old_license.get("attribution"),
+            )
             for old_license in json_old.get("licenses")
         ]
 
@@ -255,7 +257,8 @@ class JSONParser_1_4(JSONParser):
         contributors = [
             structure.Contributor(
                 contributor=structure.Person(
-                    name=old_contributor.get("title"), email=old_contributor.get("email")
+                    name=old_contributor.get("title"),
+                    email=old_contributor.get("email"),
                 ),
                 date=parse_date(old_contributor.get("date")),
                 obj=old_contributor.get("object"),
@@ -267,7 +270,7 @@ class JSONParser_1_4(JSONParser):
         # extending with script-user information
 
         resources = []
-        for resource in json_old.get("resources",[]):
+        for resource in json_old.get("resources", []):
             fields = [
                 structure.Field(
                     name=field.get("name"),
@@ -275,12 +278,14 @@ class JSONParser_1_4(JSONParser):
                     field_type=field.get("type"),
                     unit=field.get("unit"),
                 )
-                for field in resource["schema"].get("fields",[])
+                for field in resource["schema"].get("fields", [])
             ]
             field_dict = {field.name: field for field in fields}
             foreign_keys = []
             for fk in resource["schema"].get("foreignKeys"):
-                source_fields = [field_dict[field_name] for field_name in fk.get("fields", [])]
+                source_fields = [
+                    field_dict[field_name] for field_name in fk.get("fields", [])
+                ]
                 referenced_fields = [
                     structure.Field(
                         name=fk_field, unit=None, field_type=None, description=None
@@ -328,7 +333,9 @@ class JSONParser_1_4(JSONParser):
             )
 
         inp_review = json_old["review"]
-        review = structure.Review(path=inp_review.get("path"), badge=inp_review.get("badge"))
+        review = structure.Review(
+            path=inp_review.get("path"), badge=inp_review.get("badge")
+        )
 
         inp_comment = json_old["_comment"]
         comment = structure.MetaComment(
