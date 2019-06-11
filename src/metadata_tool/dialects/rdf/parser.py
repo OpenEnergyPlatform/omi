@@ -1,4 +1,5 @@
 from typing import Dict
+from typing import Iterable
 from typing import Tuple
 
 from dateutil.parser import parse as parse_date
@@ -176,12 +177,18 @@ class RDFParser(Parser):
                 path=_one_str_or_none(graph.objects(parent, DCAT.accessURL)),
                 profile=_one_str_or_none(graph.objects(parent, OEO.profile)),
                 resource_format=_one_str_or_none(graph.objects(parent, OEO.has_format)),
-                schema=self.parse_schema(graph, parent),
+                schema=None,
             )
             resources[rname] = r, {f.name: f for f in r.schema.fields}
+            r.schema = self.parse_schema(graph, parent, resources=resources)
             return r
 
-    def parse_schema(self, graph: Graph, parent: Node) -> struc.Schema:
+    def parse_schema(
+        self,
+        graph: Graph,
+        parent: Node,
+        resources: Dict[str, Tuple[Node, Iterable[Node]]] = None,
+    ) -> struc.Schema:
         return struc.Schema(
             fields=[
                 self.parse_field(graph, f) for f in graph.objects(parent, OEO.field)
@@ -191,7 +198,7 @@ class RDFParser(Parser):
                 for f in graph.objects(parent, OEO.primaryKey)
             ],
             foreign_keys=[
-                self.parse_foreign_key(graph, f)
+                self.parse_foreign_key(graph, f, resources=resources)
                 for f in graph.objects(parent, OEO.has_foreignKey)
             ],
         )
@@ -215,7 +222,12 @@ class RDFParser(Parser):
             description=_one_str_or_none(graph.objects(parent, DCTERMS.description)),
         )
 
-    def parse_foreign_key(self, graph: Graph, parent: Node) -> struc.ForeignKey:
+    def parse_foreign_key(
+        self,
+        graph: Graph,
+        parent: Node,
+        resources: Dict[str, Tuple[Node, Iterable[Node]]] = None,
+    ) -> struc.ForeignKey:
         return struc.ForeignKey(
             references=[
                 self.parse_reference(graph, r)
@@ -223,7 +235,12 @@ class RDFParser(Parser):
             ]
         )
 
-    def parse_reference(self, graph: Graph, parent: Node) -> struc.Reference:
+    def parse_reference(
+        self,
+        graph: Graph,
+        parent: Node,
+        resources: Dict[str, Tuple[Node, Iterable[Node]]] = None,
+    ) -> struc.Reference:
         target_node = _only(graph.objects(parent, OEO.has_target))
         target_field = self.parse_field(graph, target_node)
         target_resource = self.parse_resource(

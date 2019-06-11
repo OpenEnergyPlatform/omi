@@ -1,4 +1,5 @@
 from typing import Dict
+from typing import Tuple
 
 from rdflib import BNode
 from rdflib import Graph
@@ -146,7 +147,13 @@ class RDFCompiler(Compiler):
             self._add_literal_or_None(li, SPDX.name, lic.name)
         return li
 
-    def visit_resource(self, resource: structure.Resource, *args, **kwargs):
+    def visit_resource(
+        self,
+        resource: structure.Resource,
+        *args,
+        resource_dict: Dict[str, Tuple[Node, Dict[str, Node]]] = None,
+        **kwargs
+    ):
         s = BNode()
         self.graph.add((s, RDF.type, DCAT.Distribution))
         self._add_literal_or_None(s, DCTERMS.title, resource.name)
@@ -154,8 +161,9 @@ class RDFCompiler(Compiler):
         self._add_literal_or_None(s, OEO.has_format, resource.format)  # dct:format ?
         self._add_literal_or_None(s, OEO.profile, resource.profile)
         self._add_literal_or_None(s, OEO.encoding, resource.encoding)
-        self.graph.add((s, OEO.has_dialect, self.visit(resource.dialect)))
-        fields, pks, fks = self.visit(resource.schema)
+        if resource.dialect is not None:
+            self.graph.add((s, OEO.has_dialect, self.visit(resource.dialect)))
+        fields, pks, fks = self.visit(resource.schema, s, resource_dict=resource_dict)
         for f in fields:
             self.graph.add((s, OEO.field, f))
         for pk in pks:
@@ -164,24 +172,34 @@ class RDFCompiler(Compiler):
             self.graph.add((s, OEO.has_foreignKey, fk))
         return s
 
-    def visit_schema(self, schema: structure.Schema, *args, **kwargs):
+    def visit_schema(
+        self,
+        schema: structure.Schema,
+        *args,
+        resource_dict: Dict[str, Tuple[Node, Dict[str, Node]]] = None,
+        **kwargs
+    ):
+        resource_node = args[0]
         field_dict = dict()
         fields = []
+        resource_dict = resource_dict or dict()
         for field in schema.fields:
             fnode = self.visit(field, *args, **kwargs)
             fields.append(fnode)
             field_dict[field.name] = fnode
 
-        pks = [field_dict[pk] for pk in schema.primary_key]
+        pks = [field_dict[pk] for pk in schema.primary_key or []]
 
-        if schema.fields:
-            resource_dict = {schema.fields[0].resource.name: field_dict}
+        resource_name = schema.fields[0].resource.name
+
+        if resource_name in resource_dict:
+            resource_dict[resource_name][1].update(field_dict)
         else:
-            resource_dict = {}
+            resource_dict[resource_name] = (resource_node, field_dict)
 
         fks = [
-            self.visit(fk, *args, resouce_dict=resource_dict, **kwargs)
-            for fk in schema.foreign_keys
+            self.visit(fk, *args, resource_dict=resource_dict, **kwargs)
+            for fk in schema.foreign_keys or []
         ]
 
         return fields, pks, fks
@@ -202,7 +220,7 @@ class RDFCompiler(Compiler):
         return field_uri
 
     def visit_foreign_key(
-        self, foreign_key: structure.ForeignKey, *args, resouce_dict=None, **kwargs
+        self, foreign_key: structure.ForeignKey, *args, resource_dict=None, **kwargs
     ):
         fk_node = BNode()
         for r in foreign_key.references:
@@ -210,27 +228,26 @@ class RDFCompiler(Compiler):
                 (
                     fk_node,
                     OEO.has_reference,
-                    self.visit(r, *args, resouce_dict=resouce_dict, **kwargs),
+                    self.visit(r, *args, resource_dict=resource_dict, **kwargs),
                 )
             )
         return fk_node
 
     def visit_reference(
-        self, reference: structure.Reference, *args, resouce_dict=None, **kwargs
+        self,
+        reference: structure.Reference,
+        *args,
+        resource_dict: Dict[str, Tuple[Node, Dict[str, Node]]] = None,
+        **kwargs
     ):
         r_node = BNode()
         self.graph.add(
-            (r_node, OEO.has_source, self._get_field(reference.source, resouce_dict))
+            (r_node, OEO.has_source, self._get_field(reference.source, resource_dict))
         )
-        self.graph.add(
-            (
-                r_node,
-                OEO.has_target,
-                self._get_or_create_field(
-                    reference.target, resouce_dict, *args, **kwargs
-                ),
-            )
+        target = self._get_or_create_field(
+            reference.target, resource_dict, *args, **kwargs
         )
+        self.graph.add((r_node, OEO.has_target, target))
         return r_node
 
     def visit_review(self, review: structure.Review, *args, **kwargs):
@@ -313,26 +330,30 @@ class RDFCompiler(Compiler):
     def _get_or_create_field(
         self,
         field: structure.Field,
-        resource_dict: Dict[str, Dict[str, Node]],
+        resource_dict: Dict[str, Tuple[Node, Dict[str, Node]]],
         *args,
         **kwargs
     ):
         try:
             if field.resource.name not in resource_dict:
-                resource_dict[field.resource.name] = {}
+                self.visit_resource(field.resource, resource_dict=resource_dict)
             return self._get_field(field, resource_dict)
         except FieldNotFoundError:
             f = self.visit_field(field, *args, **kwargs)
-            resource_dict[field.resource.name][field.name] = f
+            res_node, field_dict = resource_dict[field.resource.name]
+            self.graph.add((res_node, OEO.field, f))
+            field_dict[field.name] = f
             return f
 
     def _get_field(
-        self, field: structure.Field, resource_dict: Dict[str, Dict[str, Node]]
+        self,
+        field: structure.Field,
+        resource_dict: Dict[str, Tuple[Node, Dict[str, Node]]],
     ):
         res = resource_dict.get(field.resource.name)
         if res is None:
             raise ResourceNotFoundError(field.resource.name)
-        node = resource_dict[field.resource.name].get(field.name)
+        node = res[1].get(field.name)
         if node is None:
             raise FieldNotFoundError(field.name)
         return node
