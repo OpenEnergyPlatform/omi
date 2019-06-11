@@ -8,7 +8,7 @@ from metadata_tool.dialects.base.compiler import Compiler
 class JSONCompiler(Compiler):
     __METADATA_VERSION = "OEP-1.4"
 
-    def visit_context(self, context: structure.Context):
+    def visit_context(self, context: structure.Context, *args, **kwargs):
         return OrderedDict(
             homepage=self.visit(context.homepage),
             documentation=self.visit(context.documentation),
@@ -17,7 +17,7 @@ class JSONCompiler(Compiler):
             grantNo=self.visit(context.grant_number),
         )
 
-    def visit_contributor(self, contributor: structure.Contributor):
+    def visit_contributor(self, contributor: structure.Contributor, *args, **kwargs):
         return OrderedDict(
             title=self.visit(contributor.contributor.name),
             email=self.visit(contributor.contributor.email),
@@ -26,17 +26,19 @@ class JSONCompiler(Compiler):
             comment=self.visit(contributor.comment),
         )
 
-    def visit_language(self, language: structure.Language):
+    def visit_language(self, language: structure.Language, *args, **kwargs):
         return str(language)
 
-    def visit_spatial(self, spatial: structure.Spatial):
+    def visit_spatial(self, spatial: structure.Spatial, *args, **kwargs):
         return OrderedDict(
             location=self.visit(spatial.location),
             extent=self.visit(spatial.extent),
             resolution=self.visit(spatial.resolution),
         )
 
-    def visit_timestamp_orientation(self, tso: structure.TimestampOrientation):
+    def visit_timestamp_orientation(
+        self, tso: structure.TimestampOrientation, *args, **kwargs
+    ):
         if tso == structure.TimestampOrientation.left:
             return "left"
         elif tso == structure.TimestampOrientation.middle:
@@ -46,7 +48,7 @@ class JSONCompiler(Compiler):
         else:
             raise NotImplementedError
 
-    def visit_temporal(self, temporal: structure.Temporal):
+    def visit_temporal(self, temporal: structure.Temporal, *args, **kwargs):
         return OrderedDict(
             referenceDate=temporal.reference_date.strftime("%Y-%m-%d"),
             start=temporal.ts_start.strftime("%Y-%m-%dT%H:%M%z")[:-2],
@@ -55,7 +57,7 @@ class JSONCompiler(Compiler):
             timestamp=self.visit(temporal.ts_orientation),
         )
 
-    def visit_source(self, source: structure.Source):
+    def visit_source(self, source: structure.Source, *args, **kwargs):
         return OrderedDict(
             title=self.visit(source.title),
             description=self.visit(source.description),
@@ -64,7 +66,7 @@ class JSONCompiler(Compiler):
             copyright=self.visit(source.copyright),
         )
 
-    def visit_license(self, lic: structure.License):
+    def visit_license(self, lic: structure.License, *args, **kwargs):
         return OrderedDict(
             name=self.visit(lic.identifier),
             title=self.visit(lic.name),
@@ -78,7 +80,7 @@ class JSONCompiler(Compiler):
             **self.visit(terms_of_use.license)
         )
 
-    def visit_resource(self, resource: structure.Resource):
+    def visit_resource(self, resource: structure.Resource, *args, **kwargs):
         return OrderedDict(
             profile=self.visit(resource.profile),
             name=self.visit(resource.name),
@@ -89,7 +91,7 @@ class JSONCompiler(Compiler):
             dialect=self.visit(resource.dialect),
         )
 
-    def visit_field(self, field: structure.Field):
+    def visit_field(self, field: structure.Field, *args, **kwargs):
         return OrderedDict(
             name=field.name,
             description=field.description,
@@ -97,20 +99,20 @@ class JSONCompiler(Compiler):
             unit=field.unit,
         )
 
-    def visit_schema(self, schema: structure.Schema):
+    def visit_schema(self, schema: structure.Schema, *args, **kwargs):
         return OrderedDict(
             fields=list(map(self.visit, schema.fields)),
             primaryKey=self.visit(schema.primary_key),
             foreignKeys=list(map(self.visit, schema.foreign_keys)),
         )
 
-    def visit_dialect(self, dialect: structure.Dialect):
+    def visit_dialect(self, dialect: structure.Dialect, *args, **kwargs):
         return OrderedDict(
             delimiter=self.visit(dialect.delimiter),
             decimalSeparator=self.visit(dialect.decimal_separator),
         )
 
-    def visit_foreign_key(self, foreign_key: structure.ForeignKey):
+    def visit_foreign_key(self, foreign_key: structure.ForeignKey, *args, **kwargs):
         if foreign_key.references:
             source_fields, target_fields, target_resources = zip(
                 *map(self.visit, foreign_key.references)
@@ -128,17 +130,17 @@ class JSONCompiler(Compiler):
         else:
             raise Exception("Missing reference in foreign key")
 
-    def visit_reference(self, reference: structure.Reference):
+    def visit_reference(self, reference: structure.Reference, *args, **kwargs):
         return (
             reference.source.name,
             reference.target.name,
             reference.target.resource.name,
         )
 
-    def visit_review(self, review: structure.Review):
+    def visit_review(self, review: structure.Review, *args, **kwargs):
         return OrderedDict(path=review.path, badge=review.badge)
 
-    def visit_meta_comment(self, comment: structure.MetaComment):
+    def visit_meta_comment(self, comment: structure.MetaComment, *args, **kwargs):
         return OrderedDict(
             metadata=comment.metadata_info,
             dates=comment.dates,
@@ -149,7 +151,7 @@ class JSONCompiler(Compiler):
             none=comment.none,
         )
 
-    def visit_metadata(self, metadata: structure.OEPMetadata):
+    def visit_metadata(self, metadata: structure.OEPMetadata, *args, **kwargs):
         return OrderedDict(
             name=metadata.name,
             title=metadata.title,
