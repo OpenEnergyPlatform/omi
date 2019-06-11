@@ -96,7 +96,9 @@ class License(Compilable):
 
     @staticmethod
     def instance_name_from_id(identifier: str):
-        return "L_" + identifier.replace("-", "_").replace(".", "_").replace("+","_plus")
+        return "L_" + identifier.replace("-", "_").replace(".", "_").replace(
+            "+", "_plus"
+        )
 
 
 class TermsOfUse(Compilable):
