@@ -8,6 +8,7 @@ from rdflib.graph import Node
 from rdflib.graph import URIRef
 from rdflib.namespace import DCTERMS
 from rdflib.namespace import FOAF
+from rdflib.namespace import RDF
 from rdflib.namespace import RDFS
 
 import metadata_tool.structure as struc
@@ -49,7 +50,8 @@ class RDFParser(Parser):
         g = Graph()
         g.parse(data=inp, format="ttl")
         for dataset in {s for s, _, _ in g}.difference({o for _, _, o in g}):
-            return self.parse_metadata(g, dataset)
+            if dataset in g.subjects(RDF.type, DCAT.Dataset):
+                return self.parse_metadata(g, dataset)
 
     def parse_date(self, node: Node):
         return parse_date(node)
