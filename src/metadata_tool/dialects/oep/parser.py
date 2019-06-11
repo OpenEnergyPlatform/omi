@@ -59,7 +59,7 @@ class JSONParser_1_3(JSONParser):
         # filling the spatial section
         old_spatial = json_old.get("spatial")
         spatial = structure.Spatial(
-            location="",
+            location=None,
             extent=old_spatial.get("extent"),
             resolution=old_spatial.get("resolution"),
         )
@@ -107,7 +107,7 @@ class JSONParser_1_3(JSONParser):
                     name=old_contributor.get("name"), email=old_contributor.get("email")
                 ),
                 date=parse_date(old_contributor.get("date")),
-                obj="",
+                obj=None,
                 comment=old_contributor.get("comment"),
             )
             for old_contributor in json_old.get("contributors")
