@@ -73,7 +73,9 @@ class RDFCompiler(Compiler):
                 self.visit(contributor.contributor, *args, **kwargs),
             )
         )
-        self._add_literal_or_None(c, OEO.date, contributor.date.strftime("%Y-%m-%d"), datatype=XSD.date)
+        self._add_literal_or_None(
+            c, OEO.date, contributor.date.strftime("%Y-%m-%d"), datatype=XSD.date
+        )
         self._add_literal_or_None(c, OEO.comment, contributor.comment)
         self._add_literal_or_None(c, OEO.object, contributor.object)
         return c
@@ -266,7 +268,9 @@ class RDFCompiler(Compiler):
             (
                 datasetURI,
                 OEO.publicationDate,
-                Literal(metadata.publication_date.strftime("%Y-%m-%d"), datatype=XSD.date),
+                Literal(
+                    metadata.publication_date.strftime("%Y-%m-%d"), datatype=XSD.date
+                ),
             )
         )
 
