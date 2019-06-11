@@ -6,7 +6,7 @@ from metadata_tool.dialects.oep.parser import JSONParser_1_3
 
 
 def metadata_conversion(old_sql, new_sql, user, user_email):
-    """ Conversion of an existing metadata file to a newer version by using the above functions.
+    """ Conversion of an existing metadata file to a newer version
 
     Parameters
     ----------
