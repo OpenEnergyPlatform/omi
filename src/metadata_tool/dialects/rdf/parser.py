@@ -224,13 +224,17 @@ class RDFParser(Parser):
         )
 
     def parse_reference(self, graph: Graph, parent: Node) -> struc.Reference:
+        target_node = _only(graph.objects(parent, OEO.has_target))
+        target_field = self.parse_field(graph, target_node)
+        target_resource = self.parse_resource(
+            _only(graph.subjects(OEO.has_field, target_node))
+        )
+        target_field.resource = target_resource
         return struc.Reference(
             source=self.parse_field(
                 graph, _only(graph.objects(parent, OEO.has_source))
             ),
-            target=self.parse_field(
-                graph, _only(graph.objects(parent, OEO.has_target))
-            ),
+            target=target_field,
         )
 
     def parse_review(self, graph: Graph, parent: Node) -> struc.Review:
