@@ -23,17 +23,17 @@ Overview
     :alt: Travis-CI Build Status
     :target: https://travis-ci.org/MGlauer/omi
 
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/MGlauer/omi?branch=master&svg=true
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/OpenEnergyPlatform/omi?branch=master&svg=true
     :alt: AppVeyor Build Status
     :target: https://ci.appveyor.com/project/MGlauer/omi
 
-.. |requires| image:: https://requires.io/github/MGlauer/omi/requirements.svg?branch=master
+.. |requires| image:: https://requires.io/github/OpenEnergyPlatform/omi/requirements.svg?branch=master
     :alt: Requirements Status
-    :target: https://requires.io/github/MGlauer/omi/requirements/?branch=master
+    :target: https://requires.io/github/OpenEnergyPlatform/omi/requirements/?branch=master
 
-.. |codecov| image:: https://codecov.io/github/MGlauer/omi/coverage.svg?branch=master
+.. |codecov| image:: https://codecov.io/github/OpenEnergyPlatform/omi/coverage.svg?branch=master
     :alt: Coverage Status
-    :target: https://codecov.io/github/MGlauer/omi
+    :target: https://codecov.io/github/OpenEnergyPlatform/omi
 
 .. |version| image:: https://img.shields.io/pypi/v/omi.svg
     :alt: PyPI Package latest release

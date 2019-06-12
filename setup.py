@@ -25,7 +25,7 @@ def read(*names, **kwargs):
 setup(
     name="omi",
     version="0.0.0",
-    license="BSD 2-Clause License",
+    license="AGPL-3.0",
     description="A library to process and translate open energy metadata.",
     long_description="%s\n%s"
     % (
@@ -73,7 +73,7 @@ setup(
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
-    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
+    python_requires=">=3.5",
     install_requires=[
         "click",
         "rdfLib",
