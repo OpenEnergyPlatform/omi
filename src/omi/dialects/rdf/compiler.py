@@ -11,16 +11,16 @@ from rdflib.namespace import FOAF
 from rdflib.namespace import RDF
 from rdflib.namespace import XSD
 
-from metadata_tool import structure
-from metadata_tool.dialects.base.compiler import Compiler
-from metadata_tool.dialects.rdf.licenses import LICENSE_DICT
-from metadata_tool.dialects.rdf.namespace import ADMS
-from metadata_tool.dialects.rdf.namespace import DCAT
-from metadata_tool.dialects.rdf.namespace import DCATDE
-from metadata_tool.dialects.rdf.namespace import OEO
-from metadata_tool.dialects.rdf.namespace import SCHEMA
-from metadata_tool.dialects.rdf.namespace import SKOS
-from metadata_tool.dialects.rdf.namespace import SPDX
+from omi import structure
+from omi.dialects.base.compiler import Compiler
+from omi.dialects.rdf.licenses import LICENSE_DICT
+from omi.dialects.rdf.namespace import ADMS
+from omi.dialects.rdf.namespace import DCAT
+from omi.dialects.rdf.namespace import DCATDE
+from omi.dialects.rdf.namespace import OEO
+from omi.dialects.rdf.namespace import SCHEMA
+from omi.dialects.rdf.namespace import SKOS
+from omi.dialects.rdf.namespace import SPDX
 
 LANG_DICT = {
     "eng": "http://publications.europa.eu/resource/authority/language/ENG",

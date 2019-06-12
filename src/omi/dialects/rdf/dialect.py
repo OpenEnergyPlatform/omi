@@ -1,9 +1,9 @@
-from metadata_tool.dialects.base.dialect import Dialect
-from metadata_tool.dialects.base.register import register
-from metadata_tool.dialects.rdf.compiler import RDFCompiler
-from metadata_tool.dialects.rdf.parser import RDFParser
-from metadata_tool.dialects.rdf.renderer import GraphRenderer
-from metadata_tool.structure import OEPMetadata
+from omi.dialects.base.dialect import Dialect
+from omi.dialects.base.register import register
+from omi.dialects.rdf.compiler import RDFCompiler
+from omi.dialects.rdf.parser import RDFParser
+from omi.dialects.rdf.renderer import GraphRenderer
+from omi.structure import OEPMetadata
 
 
 @register("oep-rdf-v1.4")

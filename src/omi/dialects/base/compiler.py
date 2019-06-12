@@ -1,4 +1,4 @@
-from metadata_tool import structure
+from omi import structure
 
 
 class Compiler:

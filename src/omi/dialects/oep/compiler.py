@@ -1,8 +1,8 @@
 import json
 from collections import OrderedDict
 
-from metadata_tool import structure
-from metadata_tool.dialects.base.compiler import Compiler
+from omi import structure
+from omi.dialects.base.compiler import Compiler
 
 
 class JSONCompiler(Compiler):

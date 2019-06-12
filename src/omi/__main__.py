@@ -1,5 +1,5 @@
 """
-Entrypoint module, in case you use `python -mmetadata_tool`.
+Entrypoint module, in case you use `python -momi`.
 
 
 Why does this file exist, and why __main__? For more info, read:
@@ -10,7 +10,7 @@ Why does this file exist, and why __main__? For more info, read:
 """
 import sys
 
-from metadata_tool.cli import main
+from omi.cli import main
 
 if __name__ == "__main__":
     sys.exit(main())

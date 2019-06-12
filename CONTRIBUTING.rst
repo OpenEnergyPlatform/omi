@@ -8,7 +8,7 @@ little bit helps, and credit will always be given.
 Bug reports
 ===========
 
-When `reporting a bug <https://github.com/MGlauer/metadata_tool/issues>`_ please include:
+When `reporting a bug <https://github.com/MGlauer/omi/issues>`_ please include:
 
     * Your operating system name and version.
     * Any details about your local setup that might be helpful in troubleshooting.
@@ -17,14 +17,14 @@ When `reporting a bug <https://github.com/MGlauer/metadata_tool/issues>`_ please
 Documentation improvements
 ==========================
 
-metadata_tool could always use more documentation, whether as part of the
-official metadata_tool docs, in docstrings, or even on the web in blog posts,
+omi could always use more documentation, whether as part of the
+official omi docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Feature requests and feedback
 =============================
 
-The best way to send feedback is to file an issue at https://github.com/MGlauer/metadata_tool/issues.
+The best way to send feedback is to file an issue at https://github.com/MGlauer/omi/issues.
 
 If you are proposing a feature:
 
@@ -35,13 +35,13 @@ If you are proposing a feature:
 Development
 ===========
 
-To set up `metadata_tool` for local development:
+To set up `omi` for local development:
 
-1. Fork `metadata_tool <https://github.com/MGlauer/metadata_tool>`_
+1. Fork `omi <https://github.com/MGlauer/omi>`_
    (look for the "Fork" button).
 2. Clone your fork locally::
 
-    git clone git@github.com:your_name_here/metadata_tool.git
+    git clone git@github.com:your_name_here/omi.git
 
 3. Create a branch for local development::
 
@@ -74,7 +74,7 @@ For merging, you should:
 4. Add yourself to ``AUTHORS.rst``.
 
 .. [1] If you don't have all the necessary python versions available locally you can rely on Travis - it will
-       `run the tests <https://travis-ci.org/MGlauer/metadata_tool/pull_requests>`_ for each change you add in the pull request.
+       `run the tests <https://travis-ci.org/MGlauer/omi/pull_requests>`_ for each change you add in the pull request.
 
        It will be slower though ...
 

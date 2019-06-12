@@ -36,7 +36,7 @@ setup(
     ),
     author="Martin Glauer",
     author_email="martinglauer89@gmail.com",
-    url="https://github.com/MGlauer/metadata_tool",
+    url="https://github.com/MGlauer/omi",
     packages=find_packages("src"),
     package_dir={"": "src"},
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
@@ -66,9 +66,9 @@ setup(
         "Topic :: Utilities",
     ],
     project_urls={
-        "Documentation": "https://metadata_tool.readthedocs.io/",
-        "Changelog": "https://metadata_tool.readthedocs.io/en/latest/changelog.html",
-        "Issue Tracker": "https://github.com/MGlauer/metadata_tool/issues",
+        "Documentation": "https://omi.readthedocs.io/",
+        "Changelog": "https://omi.readthedocs.io/en/latest/changelog.html",
+        "Issue Tracker": "https://github.com/MGlauer/omi/issues",
     },
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',
@@ -84,5 +84,5 @@ setup(
         #   'rst': ['docutils>=0.11'],
         #   ':python_version=="2.6"': ['argparse'],
     },
-    entry_points={"console_scripts": ["metadata-tool = metadata_tool.cli:main"]},
+    entry_points={"console_scripts": ["metadata-tool = omi.cli:main"]},
 )

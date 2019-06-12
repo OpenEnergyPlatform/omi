@@ -1,4 +1,4 @@
-from metadata_tool.dialects.base.dialect import Dialect
+from omi.dialects.base.dialect import Dialect
 
 DIALECT_DICT = {}
 

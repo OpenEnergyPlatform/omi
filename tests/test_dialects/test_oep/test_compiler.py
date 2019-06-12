@@ -1,6 +1,6 @@
 import json
 
-from metadata_tool.dialects.oep.compiler import JSONCompiler
+from omi.dialects.oep.compiler import JSONCompiler
 from ..internal_structures import metadata_v_1_4
 
 

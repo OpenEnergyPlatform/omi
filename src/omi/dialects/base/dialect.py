@@ -1,7 +1,7 @@
-from metadata_tool.dialects.base.compiler import Compiler
-from metadata_tool.dialects.base.parser import Parser
-from metadata_tool.dialects.base.renderer import Renderer
-from metadata_tool.structure import OEPMetadata
+from omi.dialects.base.compiler import Compiler
+from omi.dialects.base.parser import Parser
+from omi.dialects.base.renderer import Renderer
+from omi.structure import OEPMetadata
 
 
 class Dialect:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from metadata_tool.dialects.oep.parser import JSONParser_1_3, JSONParser_1_4
+from omi.dialects.oep.parser import JSONParser_1_3, JSONParser_1_4
 from ..internal_structures import metadata_v_1_3, metadata_v_1_4
 from ..base.parser import _test_generic_parsing
 

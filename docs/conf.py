@@ -22,7 +22,7 @@ if os.getenv('SPELLCHECK'):
 
 source_suffix = '.rst'
 master_doc = 'index'
-project = 'metadata_tool'
+project = 'omi'
 year = '2019'
 author = 'Martin Glauer'
 copyright = '{0}, {1}'.format(year, author)
@@ -31,8 +31,8 @@ version = release = '0.0.0'
 pygments_style = 'trac'
 templates_path = ['.']
 extlinks = {
-    'issue': ('https://github.com/MGlauer/metadata_tool/issues/%structure', '#'),
-    'pr': ('https://github.com/MGlauer/metadata_tool/pull/%structure', 'PR #'),
+    'issue': ('https://github.com/MGlauer/omi/issues/%structure', '#'),
+    'pr': ('https://github.com/MGlauer/omi/pull/%structure', 'PR #'),
 }
 # on_rtd is whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'

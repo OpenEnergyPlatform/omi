@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from metadata_tool.dialects.rdf.parser import RDFParser
+from omi.dialects.rdf.parser import RDFParser
 from ..internal_structures import metadata_v_1_4
 from ..base.parser import _test_generic_parsing
 

@@ -11,15 +11,15 @@ from rdflib.namespace import FOAF
 from rdflib.namespace import RDF
 from rdflib.namespace import RDFS
 
-import metadata_tool.structure as struc
-from metadata_tool.dialects.base.parser import Parser
-from metadata_tool.dialects.rdf.namespace import ADMS
-from metadata_tool.dialects.rdf.namespace import DCAT
-from metadata_tool.dialects.rdf.namespace import DCATDE
-from metadata_tool.dialects.rdf.namespace import OEO
-from metadata_tool.dialects.rdf.namespace import SCHEMA
-from metadata_tool.dialects.rdf.namespace import SKOS
-from metadata_tool.dialects.rdf.namespace import SPDX
+import omi.structure as struc
+from omi.dialects.base.parser import Parser
+from omi.dialects.rdf.namespace import ADMS
+from omi.dialects.rdf.namespace import DCAT
+from omi.dialects.rdf.namespace import DCATDE
+from omi.dialects.rdf.namespace import OEO
+from omi.dialects.rdf.namespace import SCHEMA
+from omi.dialects.rdf.namespace import SKOS
+from omi.dialects.rdf.namespace import SPDX
 
 
 def _only(gen):

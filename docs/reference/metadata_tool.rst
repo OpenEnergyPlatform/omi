@@ -1,9 +1,9 @@
-metadata_tool
+omi
 =============
 
 .. testsetup::
 
-    from metadata_tool import *
+    from omi import *
 
-.. automodule:: metadata_tool
+.. automodule:: omi
     :members:

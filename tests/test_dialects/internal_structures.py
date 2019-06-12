@@ -1,4 +1,4 @@
-from metadata_tool import structure as s
+from omi import structure as s
 import datetime
 
 _source_year = s.Field(

@@ -4,4 +4,4 @@ Reference
 .. toctree::
     :glob:
 
-    metadata_tool*
+    omi*

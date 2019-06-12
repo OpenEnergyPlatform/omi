@@ -1,4 +1,4 @@
-from metadata_tool.dialects.rdf.compiler import RDFCompiler
+from omi.dialects.rdf.compiler import RDFCompiler
 from ..internal_structures import metadata_v_1_4
 from rdflib import Graph, BNode
 from rdflib.compare import graph_diff, to_isomorphic, isomorphic, similar, _squashed_graphs_triples

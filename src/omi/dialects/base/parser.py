@@ -1,6 +1,6 @@
 from typing import TypeVar
 
-from metadata_tool.structure import OEPMetadata
+from omi.structure import OEPMetadata
 
 T = TypeVar("T")
 

@@ -2,6 +2,6 @@
 Usage
 =====
 
-To use metadata_tool in a project::
+To use omi in a project::
 
-	import metadata_tool
+	import omi

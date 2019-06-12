@@ -1,7 +1,7 @@
 import json
 from collections import OrderedDict
 
-from metadata_tool.dialects.base.renderer import Renderer
+from omi.dialects.base.renderer import Renderer
 
 
 class JSONRenderer(json.JSONEncoder, Renderer):

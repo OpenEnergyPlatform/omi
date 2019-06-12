@@ -1,9 +1,9 @@
 import json
 
-from metadata_tool.dialects.oep.compiler import JSONCompiler
-from metadata_tool.dialects.oep.parser import JSONParser_1_4
-from metadata_tool.dialects.rdf.compiler import RDFCompiler
-from metadata_tool.dialects.rdf.parser import RDFParser
+from omi.dialects.oep.compiler import JSONCompiler
+from omi.dialects.oep.parser import JSONParser_1_4
+from omi.dialects.rdf.compiler import RDFCompiler
+from omi.dialects.rdf.parser import RDFParser
 from .test_compiler import assert_equal
 
 

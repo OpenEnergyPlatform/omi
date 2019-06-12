@@ -1,7 +1,7 @@
 import datetime
 import unittest
 
-from metadata_tool.structure import Compilable, Field
+from omi.structure import Compilable, Field
 
 
 def _test_generic_parsing(parser, inp, expected, **kwargs):

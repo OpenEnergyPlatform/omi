@@ -5,8 +5,8 @@ import json
 
 from dateutil.parser import parse as parse_date
 
-from metadata_tool import structure
-from metadata_tool.dialects.base.parser import Parser
+from omi import structure
+from omi.dialects.base.parser import Parser
 
 
 class JSONParser(Parser):
