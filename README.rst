@@ -21,11 +21,11 @@ Overview
 
 .. |travis| image:: https://travis-ci.org/MGlauer/omi.svg?branch=master
     :alt: Travis-CI Build Status
-    :target: https://travis-ci.org/MGlauer/omi
+    :target: https://travis-ci.org/OpenEnergyPlatform/omi
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/OpenEnergyPlatform/omi?branch=master&svg=true
     :alt: AppVeyor Build Status
-    :target: https://ci.appveyor.com/project/MGlauer/omi
+    :target: https://ci.appveyor.com/project/OpenEnergyPlatform/omi
 
 .. |requires| image:: https://requires.io/github/OpenEnergyPlatform/omi/requirements.svg?branch=master
     :alt: Requirements Status
