@@ -31,8 +31,8 @@ version = release = '0.0.1'
 pygments_style = 'trac'
 templates_path = ['.']
 extlinks = {
-    'issue': ('https://github.com/MGlauer/omi/issues/%structure', '#'),
-    'pr': ('https://github.com/MGlauer/omi/pull/%structure', 'PR #'),
+    'issue': ('https://github.com/OpenEnergyPlatform/omi/issues/%structure', '#'),
+    'pr': ('https://github.com/OpenEnergyPlatform/omi/pull/%structure', 'PR #'),
 }
 # on_rtd is whether we are on readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
