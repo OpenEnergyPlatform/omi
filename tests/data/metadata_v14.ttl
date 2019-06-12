@@ -22,95 +22,94 @@
             oeo:units_info "Use a space between numbers and units (100 m)" ] ;
     oeo:documentation "https://github.com/OpenEnergyPlatform/organisation/wiki/metadata" ;
     oeo:grantNo "03ET4057" ;
-    oeo:has_contribution [ oeo:comment "Add license to source" ;
-            oeo:date "2017-03-16T00:00:00"^^xsd:date ;
+    oeo:has_contribution [ oeo:comment "Add datapackage compatibility" ;
+            oeo:date "2018-10-18"^^xsd:date ;
+            oeo:object "metadata" ;
+            dct:contributor [ a foaf:Person ;
+                    foaf:name "christian-rli" ] ],
+        [ oeo:comment "Update header and license" ;
+            oeo:date "2016-11-22"^^xsd:date ;
+            oeo:object "metadata" ;
+            dct:contributor [ a foaf:Person ;
+                    foaf:name "Ludee" ] ],
+        [ oeo:comment "Update metadata" ;
+            oeo:date "2016-11-22"^^xsd:date ;
             oeo:object "metadata" ;
             dct:contributor [ a foaf:Person ;
                     foaf:name "Ludee" ] ],
         [ oeo:comment "Start metadata version 1.4" ;
-            oeo:date "2018-07-19T00:00:00"^^xsd:date ;
-            oeo:object "metadata" ;
-            dct:contributor [ a foaf:Person ;
-                    foaf:name "Ludee" ] ],
-        [ oeo:comment "Move referenceDate into temporal and remove array" ;
-            oeo:date "2017-06-26T00:00:00"^^xsd:date ;
-            oeo:object "metadata" ;
-            dct:contributor [ a foaf:Person ;
-                    foaf:name "Ludee" ] ],
-        [ oeo:comment "Add contribution object" ;
-            oeo:date "2018-10-18T00:00:00"^^xsd:date ;
-            oeo:object "metadata" ;
-            dct:contributor [ a foaf:Person ;
-                    foaf:name "Ludee" ] ],
-        [ oeo:comment "Release metadata version 1.3" ;
-            oeo:date "2017-05-30T00:00:00"^^xsd:date ;
-            oeo:object "metadata" ;
-            dct:contributor [ a foaf:Person ;
-                    foaf:name "Ludee" ] ],
-        [ oeo:comment "Create metadata" ;
-            oeo:date "2016-06-16T00:00:00"^^xsd:date ;
+            oeo:date "2018-07-19"^^xsd:date ;
             oeo:object "metadata" ;
             dct:contributor [ a foaf:Person ;
                     foaf:name "Ludee" ] ],
         [ oeo:comment "Rename table and files" ;
-            oeo:date "2018-07-26T00:00:00"^^xsd:date ;
+            oeo:date "2018-07-26"^^xsd:date ;
             oeo:object "data" ;
             dct:contributor [ a foaf:Person ;
                     foaf:name "Ludee" ] ],
-        [ oeo:comment "Update metadata" ;
-            oeo:date "2016-11-22T00:00:00"^^xsd:date ;
+        [ oeo:comment "Move referenceDate into temporal and remove array" ;
+            oeo:date "2017-06-26"^^xsd:date ;
             oeo:object "metadata" ;
             dct:contributor [ a foaf:Person ;
                     foaf:name "Ludee" ] ],
-        [ oeo:comment "Add datapackage compatibility" ;
-            oeo:date "2018-10-18T00:00:00"^^xsd:date ;
+        [ oeo:comment "Add contribution object" ;
+            oeo:date "2018-10-18"^^xsd:date ;
             oeo:object "metadata" ;
             dct:contributor [ a foaf:Person ;
-                    foaf:name "christian-rli" ] ],
+                    foaf:name "Ludee" ] ],
+        [ oeo:comment "Create metadata" ;
+            oeo:date "2016-06-16"^^xsd:date ;
+            oeo:object "metadata" ;
+            dct:contributor [ a foaf:Person ;
+                    foaf:name "Ludee" ] ],
         [ oeo:comment "Hotfix foreignKeys" ;
-            oeo:date "2019-03-22T00:00:00"^^xsd:date ;
+            oeo:date "2019-03-22"^^xsd:date ;
             oeo:object "metadata" ;
             dct:contributor [ a foaf:Person ;
                     foaf:name "Ludee" ] ],
-        [ oeo:comment "Update header and license" ;
-            oeo:date "2016-11-22T00:00:00"^^xsd:date ;
-            oeo:object "metadata" ;
-            dct:contributor [ a foaf:Person ;
-                    foaf:name "Ludee" ] ],
-        [ oeo:comment "Apply template structure to example." ;
-            oeo:date "2019-02-05T00:00:00"^^xsd:date ;
-            oeo:object "metadata" ;
-            dct:contributor [ a foaf:Person ;
-                    foaf:name "christian-rli" ] ],
-        [ oeo:comment "Add copyright to source and license" ;
-            oeo:date "2017-03-28T00:00:00"^^xsd:date ;
+        [ oeo:comment "Add license to source" ;
+            oeo:date "2017-03-16"^^xsd:date ;
             oeo:object "metadata" ;
             dct:contributor [ a foaf:Person ;
                     foaf:name "Ludee" ] ],
         [ oeo:comment "Release metadata version 1.4" ;
-            oeo:date "2018-11-02T00:00:00"^^xsd:date ;
+            oeo:date "2018-11-02"^^xsd:date ;
+            oeo:object "metadata" ;
+            dct:contributor [ a foaf:Person ;
+                    foaf:name "Ludee" ] ],
+        [ oeo:comment "Apply template structure to example." ;
+            oeo:date "2019-02-05"^^xsd:date ;
+            oeo:object "metadata" ;
+            dct:contributor [ a foaf:Person ;
+                    foaf:name "christian-rli" ] ],
+        [ oeo:comment "Add copyright to source and license" ;
+            oeo:date "2017-03-28"^^xsd:date ;
+            oeo:object "metadata" ;
+            dct:contributor [ a foaf:Person ;
+                    foaf:name "Ludee" ] ],
+        [ oeo:comment "Release metadata version 1.3" ;
+            oeo:date "2017-05-30"^^xsd:date ;
             oeo:object "metadata" ;
             dct:contributor [ a foaf:Person ;
                     foaf:name "Ludee" ] ] ;
     oeo:has_resource [ a dcat:Distribution ;
             oeo:encoding "UTF-8" ;
-            oeo:field _:N3391ffd3c22740b489c07c4c58e6f69f,
+            oeo:field _:N6d1fcbe69a154f9283bd5a0aadc815a5,
                 [ a oeo:DatabaseField ;
                     oeo:type "double precision" ;
                     oeo:unit "MW" ;
                     dct:description "Example value" ;
                     dct:title "value" ],
-                _:N640b6b818c6741ac912c3740c4380a20,
                 [ a oeo:DatabaseField ;
                     oeo:type "geometry(Point, 4326)" ;
                     dct:description "Geometry" ;
-                    dct:title "geom" ] ;
+                    dct:title "geom" ],
+                _:Nfe3d1d343c024a7a9a22bd5bced82242 ;
             oeo:has_dialect [ oeo:decimalSeparator "." ] ;
-            oeo:has_foreignKey [ oeo:has_reference [ oeo:has_source _:N3391ffd3c22740b489c07c4c58e6f69f ;
-                            oeo:has_target [ a oeo:DatabaseField ;
-                                    dct:title "year" ] ] ] ;
+            oeo:has_foreignKey [ oeo:has_reference [ oeo:has_source _:N6d1fcbe69a154f9283bd5a0aadc815a5 ;
+                            oeo:has_target _:Nace2ec79248d4e8baca5a082a3cdb26a ] ] ;
             oeo:has_format "PostgreSQL" ;
-            oeo:primaryKey _:N640b6b818c6741ac912c3740c4380a20 ;
+            oeo:primaryKey _:Nfe3d1d343c024a7a9a22bd5bced82242 ;
             oeo:profile "tabular-data-resource" ;
             dct:title "model_draft.oep_metadata_table_example_v14" ;
             dcat:accessURL "http://openenergyplatform.org/dataedit/view/model_draft/oep_metadata_table_example_v14" ] ;
@@ -123,25 +122,25 @@
                     spdx:name "Open Data Commons Open Database License 1.0" ;
                     foaf:page "https://opendatacommons.org/licenses/odbl/1.0/" ] ] ;
     oeo:metadataLicense <https://creativecommons.org/publicdomain/zero/1.0/legalcode> ;
-    oeo:publicationDate "2018-06-12T00:00:00"^^xsd:date ;
+    oeo:publicationDate "2018-06-12"^^xsd:date ;
     oeo:sourceCode "https://github.com/OpenEnergyPlatform/examples/tree/master/metadata" ;
     dct:description "example metadata for example data" ;
     dct:language "de-DE",
         "en-GB",
         "en-US",
         "fr-FR" ;
-    dct:source [ dct:description "A collaborative project to create a free editable map of the world" ;
-            dct:license [ a dcat:LicenseDocument ;
-                    spdx:licenseId "ODbL-1.0" ] ;
-            dct:rights "© OpenStreetMap contributors" ;
-            dct:title "OpenStreetMap" ;
-            foaf:page "https://www.openstreetmap.org/" ],
-        [ dct:description "Metadata description" ;
+    dct:source [ dct:description "Metadata description" ;
             dct:license [ a dcat:LicenseDocument ;
                     spdx:licenseId "CC0-1.0" ] ;
             dct:rights "© Reiner Lemoine Institut" ;
             dct:title "OpenEnergyPlatform Metadata Example" ;
-            foaf:page "https://github.com/OpenEnergyPlatform" ] ;
+            foaf:page "https://github.com/OpenEnergyPlatform" ],
+        [ dct:description "A collaborative project to create a free editable map of the world" ;
+            dct:license [ a dcat:LicenseDocument ;
+                    spdx:licenseId "ODbL-1.0" ] ;
+            dct:rights "© OpenStreetMap contributors" ;
+            dct:title "OpenStreetMap" ;
+            foaf:page "https://www.openstreetmap.org/" ] ;
     dct:spatial [ oeo:has_spatial_resolution "100 m" ;
             skos:prefLabel "europe" ] ;
     dct:temporal [ a dct:PeriodOfTime ;
@@ -158,12 +157,19 @@
         "test" ;
     foaf:homepage "https://reiner-lemoine-institut.de/szenariendb/" .
 
-_:N3391ffd3c22740b489c07c4c58e6f69f a oeo:DatabaseField ;
+[] a dcat:Distribution ;
+    oeo:field _:Nace2ec79248d4e8baca5a082a3cdb26a ;
+    dct:title "schema.table" .
+
+_:N6d1fcbe69a154f9283bd5a0aadc815a5 a oeo:DatabaseField ;
     oeo:type "integer" ;
     dct:description "Reference year" ;
     dct:title "year" .
 
-_:N640b6b818c6741ac912c3740c4380a20 a oeo:DatabaseField ;
+_:Nace2ec79248d4e8baca5a082a3cdb26a a oeo:DatabaseField ;
+    dct:title "year" .
+
+_:Nfe3d1d343c024a7a9a22bd5bced82242 a oeo:DatabaseField ;
     oeo:type "serial" ;
     dct:description "Unique identifier" ;
     dct:title "id" .

@@ -168,10 +168,10 @@ class RDFParser(Parser):
         if resources and rname in resources:
             return resources[rname][0]
         else:
+            dialect_node = _one_or_none(graph.objects(parent, OEO.has_dialect))
+            dialect = self.parse_dialect(graph, dialect_node) if dialect_node else None
             r = struc.Resource(
-                dialect=self.parse_dialect(
-                    graph, _only(graph.objects(parent, OEO.has_dialect))
-                ),
+                dialect=dialect,
                 encoding=_one_str_or_none(graph.objects(parent, OEO.encoding)),
                 name=rname,
                 path=_one_str_or_none(graph.objects(parent, DCAT.accessURL)),
@@ -182,7 +182,7 @@ class RDFParser(Parser):
             r_fields = {}
             resources[rname] = r, r_fields
             schema = self.parse_schema(graph, parent, resources=resources)
-            r.schema = (schema,)
+            r.schema = schema
             for f in schema.fields:
                 if f.name not in r_fields:
                     r_fields[f.name] = f
@@ -249,7 +249,7 @@ class RDFParser(Parser):
         target_node = _only(graph.objects(parent, OEO.has_target))
         target_field = self.parse_field(graph, target_node)
         target_resource = self.parse_resource(
-            _only(graph.subjects(OEO.has_field, target_node))
+            graph, _only(graph.subjects(OEO.field, target_node))
         )
         target_field.resource = target_resource
         return struc.Reference(
