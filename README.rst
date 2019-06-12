@@ -35,25 +35,25 @@ Overview
     :alt: Coverage Status
     :target: https://codecov.io/github/MGlauer/omi
 
-.. |version| image:: https://img.shields.io/pypi/v/metadata-tool.svg
+.. |version| image:: https://img.shields.io/pypi/v/omi.svg
     :alt: PyPI Package latest release
-    :target: https://pypi.org/project/metadata-tool
+    :target: https://pypi.org/project/omi
 
 .. |commits-since| image:: https://img.shields.io/github/commits-since/MGlauer/omi/v0.0.0.svg
     :alt: Commits since latest release
     :target: https://github.com/MGlauer/omi/compare/v0.0.0...master
 
-.. |wheel| image:: https://img.shields.io/pypi/wheel/metadata-tool.svg
+.. |wheel| image:: https://img.shields.io/pypi/wheel/omi.svg
     :alt: PyPI Wheel
-    :target: https://pypi.org/project/metadata-tool
+    :target: https://pypi.org/project/omi
 
-.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/metadata-tool.svg
+.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/omi.svg
     :alt: Supported versions
-    :target: https://pypi.org/project/metadata-tool
+    :target: https://pypi.org/project/omi
 
-.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/metadata-tool.svg
+.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/omi.svg
     :alt: Supported implementations
-    :target: https://pypi.org/project/metadata-tool
+    :target: https://pypi.org/project/omi
 
 
 .. end-badges
@@ -67,7 +67,7 @@ Installation
 
 ::
 
-    pip install metadata-tool
+    pip install omi
 
 Documentation
 =============

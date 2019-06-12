@@ -23,7 +23,7 @@ def read(*names, **kwargs):
         return fh.read()
 
 setup(
-    name="metadata-tool",
+    name="omi",
     version="0.0.0",
     license="BSD 2-Clause License",
     description="A library to process and translate open energy metadata.",
@@ -84,5 +84,5 @@ setup(
         #   'rst': ['docutils>=0.11'],
         #   ':python_version=="2.6"': ['argparse'],
     },
-    entry_points={"console_scripts": ["metadata-tool = omi.cli:main"]},
+    entry_points={"console_scripts": ["omi = omi.cli:main"]},
 )
