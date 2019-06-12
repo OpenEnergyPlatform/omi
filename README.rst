@@ -39,9 +39,9 @@ Overview
     :alt: PyPI Package latest release
     :target: https://pypi.org/project/omi
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/MGlauer/omi/v0.0.0.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/MGlauer/omi/v0.0.1.svg
     :alt: Commits since latest release
-    :target: https://github.com/MGlauer/omi/compare/v0.0.0...master
+    :target: https://github.com/MGlauer/omi/compare/v0.0.1...master
 
 .. |wheel| image:: https://img.shields.io/pypi/wheel/omi.svg
     :alt: PyPI Wheel
