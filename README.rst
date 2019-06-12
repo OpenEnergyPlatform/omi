@@ -60,7 +60,7 @@ Overview
 
 A library to process and translate open energy metadata.
 
-* Free software: BSD 2-Clause License
+* Free software: AGPL-3.0
 
 Installation
 ============
