@@ -11,7 +11,7 @@ class JSONRenderer(json.JSONEncoder, Renderer):
     """
 
     def __init__(self, *args, **kwargs):
-        super(MyJSONEncoder, self).__init__(*args, **kwargs)
+        super(JSONRenderer, self).__init__(*args, **kwargs)
         self.current_indent = 0
         self.current_indent_str = ""
 
