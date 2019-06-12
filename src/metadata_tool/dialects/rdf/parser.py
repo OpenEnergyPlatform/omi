@@ -46,12 +46,15 @@ def _one_or_none(gen):
 
 
 class RDFParser(Parser):
-    def parse(self, inp: str, *args, **kwargs):
+    def load_string(self, string: str, *args, **kwargs):
         g = Graph()
-        g.parse(data=inp, format="ttl")
-        for dataset in {s for s, _, _ in g}.difference({o for _, _, o in g}):
-            if dataset in g.subjects(RDF.type, DCAT.Dataset):
-                return self.parse_metadata(g, dataset)
+        g.parse(data=string, format="ttl")
+        return g
+
+    def parse(self, graph, *args, **kwargs):
+        for dataset in {s for s, _, _ in graph}.difference({o for _, _, o in graph}):
+            if dataset in graph.subjects(RDF.type, DCAT.Dataset):
+                return self.parse_metadata(graph, dataset)
 
     def parse_date(self, node: Node):
         return parse_date(node)

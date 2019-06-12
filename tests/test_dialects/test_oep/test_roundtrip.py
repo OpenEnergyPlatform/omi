@@ -16,12 +16,11 @@ def test_roundtrip():
         input_string = _input_file.read()
         expected_json = json.loads(input_string)
         # Step 1: Parse JSON to internal structure
-        internal_metadata = json_parser.parse(input_string)
+        internal_metadata = json_parser.parse_from_string(input_string)
         # Step 2: Translate to rdf
         _ = rdf_compiler.visit(internal_metadata)
-        rdf_string = rdf_compiler.graph.serialize(format="ttl")
         # Step 3: Parse rdf string
-        internal_metadata2 = rdf_p.parse(rdf_string)
+        internal_metadata2 = rdf_p.parse(rdf_compiler.graph)
         # Step 4: Translate to JSON
         result_json = json_compiler.visit(internal_metadata2)
         # Final step: Compare

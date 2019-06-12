@@ -19,11 +19,11 @@ def test_roundtrip():
         expected_graph = Graph()
         expected_graph.parse(data=input_string, format="ttl")
         # Step 1: Parse Turtle to internal structure
-        internal_metadata = rdf_p.parse(input_string)
+        internal_metadata = rdf_p.parse_from_string(input_string)
         # Step 2: Translate to json string
         json_metadata = json_renderer.render(json_compiler.visit(internal_metadata))
         # Step 3: Parse json string
-        internal_metadata2 = json_parser.parse(json_metadata)
+        internal_metadata2 = json_parser.parse_from_string(json_metadata)
         # Step 4: Translate to Turtle
         _ = rdf_compiler.visit(internal_metadata2)
         # Final step: Compare

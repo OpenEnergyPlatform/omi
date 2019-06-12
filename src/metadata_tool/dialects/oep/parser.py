@@ -10,6 +10,9 @@ from metadata_tool.dialects.base.parser import Parser
 
 
 class JSONParser(Parser):
+    def load_string(self, string: str, *args, **kwargs):
+        return json.loads(string)
+
     def is_valid(self, inp: str):
         """Checks the validity of a JSON string
 
@@ -42,11 +45,7 @@ class JSONParser_1_3(JSONParser):
         else:
             return True
 
-    def parse(self, inp: str):
-        json_old = json.loads(inp)
-
-        # In the following a new structure is set. The yet implemented version is for metadata v1.2 to v1.3.
-
+    def parse(self, json_old, *args, **kwargs):
         # context section
         context = structure.Context(
             homepage=None,
@@ -184,11 +183,7 @@ class JSONParser_1_4(JSONParser):
         else:
             return True
 
-    def parse(self, inp: str):
-        json_old = json.loads(inp)
-
-        # In the following a new structure is set. The yet implemented version is for metadata v1.2 to v1.3.
-
+    def parse(self, json_old):
         # context section
         inp_context = json_old.get("context")
         context = structure.Context(
