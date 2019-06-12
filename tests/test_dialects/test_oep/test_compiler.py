@@ -1,6 +1,7 @@
+import json
+
 from metadata_tool.dialects.oep.compiler import JSONCompiler
 from ..internal_structures import metadata_v_1_4
-import json
 
 
 def test_compiler_v1_4():
@@ -25,18 +26,45 @@ def assert_equal(first, second, nulls=frozenset(["none"]), **kwargs):
 def assert_dict_equal(first, second, **kwargs):
     for key in first.keys():
         if key not in second:
-            raise Exception("Key \"{}\" missing in {}".format(key, second))
+            raise Exception('Key "{}" missing in {}'.format(key, second))
         assert_equal(first[key], second[key], **kwargs)
 
 
-def assert_list_equal(first, second, **kwargs):
+def assert_list_equal(first, second, disregard_ordering=False, **kwargs):
     assert len(first) == len(second), "Length mismatch ({}!={}) for {} and {}".format(
         len(first), len(second), first, second
     )
 
-    for i, (l, r) in enumerate(zip(first, second)):
-        try:
-            assert_equal(l, r, **kwargs)
-        except:
-            print("Mismatch in element {}: {}!={}".format(i, l,r))
-            raise
+    if disregard_ordering:
+        remaining = list(second)
+        for expected in first:
+            to_remove = None
+            for i, result in enumerate(remaining):
+                try:
+                    assert_equal(
+                        expected,
+                        result,
+                        disregard_ordering=disregard_ordering,
+                        **kwargs
+                    )
+                except:
+                    pass
+                else:
+                    to_remove = i
+            if to_remove is not None:
+                del remaining[to_remove]
+            else:
+                raise AssertionError(
+                    "Element not found: {} in {}".format(expected, second)
+                )
+        if remaining:
+            raise AssertionError(
+                "Elements not found: {} in {}".format(remaining, first)
+            )
+    else:
+        for i, (l, r) in enumerate(zip(first, second)):
+            try:
+                assert_equal(l, r, **kwargs)
+            except:
+                print("Mismatch in element {}: {}!={}".format(i, l, r))
+                raise
