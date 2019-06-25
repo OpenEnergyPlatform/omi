@@ -14,43 +14,36 @@ Why does this file exist, and why not put this in __main__?
 
   Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
 """
-import sys
-import os
-import metadata_version_to_1_4
-import metadata_rdfttl
+import click
+
+from metadata_tool.dialects import get_dialect
 
 
+@click.group()
+def grp():
+    pass
 
-def main(argv=sys.argv):
-    """
-    Args:
-        argv (list): List of arguments
 
-    Returns:
-        int: A return code
+@grp.command("translate")
+@click.option("-f", help="Dialect of the input")
+@click.option("-t", default="oep-v1.4", help="Dialect to translate to")
+@click.option("-o", default=None, help="Output file")
+@click.argument("file_path")
+def translate(f, t, o, file_path):
+    with open(file_path, "r") as infile:
+        from_dialect = get_dialect(f)()
+        obj = from_dialect.parse(infile.read())
+        to_dialect = get_dialect(t)()
+        s = to_dialect.compile_and_render(obj)
+        if o:
+            with open(o, "w") as outfile:
+                outfile.write(s.decode("utf-8"))
+        else:
+            print(s)
 
-    Does stuff.
-    """
-    print(argv)
 
-    if(len(argv) < 2):
-        print("usage: ")
-        exit()
-    path = sys.argv[1]
-    filename, file_extension = os.path.splitext(path)
-    outputfile = filename + "_converted" + file_extension
-    if(len(sys.argv) >= 3):
-        outputfile = sys.argv[2]
-    try:
-        with open(path, "r") as read_file:
-            print("Converting " + read_file.name + " ...")
-            if(file_extension == '.json'):
-                metadata_version_to_1_4.metadata_conversion(path, outputfile, "converter_script", "")
-                metadata_rdfttl.jsonToTtl(read_file)
-            else:
-                print("json file please")
-    except Exception as e:
-        print(e)
-    print("Done")
+cli = click.CommandCollection(sources=[grp])
 
-    return 0
+
+def main():
+    cli()
