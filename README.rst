@@ -39,9 +39,9 @@ Overview
     :alt: PyPI Package latest release
     :target: https://pypi.org/project/omi
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/OpenEnergyPlatform/omi/v0.0.1.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/OpenEnergyPlatform/omi/v0.0.2.svg
     :alt: Commits since latest release
-    :target: https://github.com/OpenEnergyPlatform/omi/compare/v0.0.1...master
+    :target: https://github.com/OpenEnergyPlatform/omi/compare/v0.0.2...master
 
 .. |wheel| image:: https://img.shields.io/pypi/wheel/omi.svg
     :alt: PyPI Wheel
