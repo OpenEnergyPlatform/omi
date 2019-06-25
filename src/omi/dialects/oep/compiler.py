@@ -49,10 +49,16 @@ class JSONCompiler(Compiler):
             raise NotImplementedError
 
     def visit_temporal(self, temporal: structure.Temporal, *args, **kwargs):
+        start = None
+        end = None
+        if temporal.ts_start is not None:
+            start = temporal.ts_start.strftime("%Y-%m-%dT%H:%M%z")[:-2]
+        if temporal.ts_end is not None:
+            end = temporal.ts_end.strftime("%Y-%m-%dT%H:%M%z")[:-2]
         return OrderedDict(
             referenceDate=temporal.reference_date.strftime("%Y-%m-%d"),
-            start=temporal.ts_start.strftime("%Y-%m-%dT%H:%M%z")[:-2],
-            end=temporal.ts_end.strftime("%Y-%m-%dT%H:%M%z")[:-2],
+            start=start,
+            end=end,
             resolution=self.visit(temporal.ts_resolution),
             timestamp=self.visit(temporal.ts_orientation),
         )
@@ -62,7 +68,7 @@ class JSONCompiler(Compiler):
             title=self.visit(source.title),
             description=self.visit(source.description),
             path=self.visit(source.path),
-            license=self.visit(source.license.identifier),
+            license=self.visit(source.license.identifier) if source.license else None,
             copyright=self.visit(source.copyright),
         )
 
@@ -152,6 +158,9 @@ class JSONCompiler(Compiler):
         )
 
     def visit_metadata(self, metadata: structure.OEPMetadata, *args, **kwargs):
+        publication_date = None
+        if metadata.publication_date is not None:
+            publication_date = metadata.publication_date.strftime("%Y-%m-%d")
         return OrderedDict(
             name=metadata.name,
             title=metadata.title,
@@ -159,7 +168,7 @@ class JSONCompiler(Compiler):
             description=metadata.description,
             language=list(map(self.visit, metadata.languages)),
             keywords=metadata.keywords,
-            publicationDate=metadata.publication_date.strftime("%Y-%m-%d"),
+            publicationDate=publication_date,
             context=self.visit(metadata.context),
             spatial=self.visit(metadata.spatial),
             temporal=self.visit(metadata.temporal),
