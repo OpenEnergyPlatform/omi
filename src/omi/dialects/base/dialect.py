@@ -15,7 +15,7 @@ class Dialect:
 
     def parse(self, string: str, *args, **kwargs) -> OEPMetadata:
         p = self._parser()
-        return p.parse(string, *args, **kwargs)
+        return p.parse_from_string(string, *args, **kwargs)
 
     def render(self, structure, *args, **kwargs) -> str:
         r = self._renderer()
