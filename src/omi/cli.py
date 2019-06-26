@@ -37,7 +37,7 @@ def translate(f, t, o, file_path):
         s = to_dialect.compile_and_render(obj)
         if o:
             with open(o, "w") as outfile:
-                outfile.write(s.decode("utf-8"))
+                outfile.write(s)
         else:
             print(s)
 
