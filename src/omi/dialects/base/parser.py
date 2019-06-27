@@ -5,6 +5,10 @@ from omi.structure import OEPMetadata
 T = TypeVar("T")
 
 
+class ParserException(Exception):
+    pass
+
+
 class Parser:
     def parse(self, structure: T, *args, **kwargs) -> OEPMetadata:
         """
