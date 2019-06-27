@@ -25,7 +25,7 @@ metadata_v_1_3 = s.OEPMetadata(
     identifier=None,
     description="An imaginary table that provides many features, offering a suitable source for metadata template entries",
     languages=["eng"],
-    keywords=[],
+    keywords=None,
     publication_date=None,
     context=s.Context(
         homepage=None,
@@ -64,7 +64,7 @@ metadata_v_1_3 = s.OEPMetadata(
                 identifier="ODbL-1.0",
                 name="Open Data Commons Open Database License 1.0",
                 path="https://opendatacommons.org/licenses/odbl/1.0/",
-                other_references=[],
+                other_references=None,
                 text=None,
             ),
             instruction="You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
@@ -121,7 +121,7 @@ metadata_v_1_3 = s.OEPMetadata(
                     ),
                 ],
                 primary_key=None,
-                foreign_keys=[],
+                foreign_keys=None,
             ),
             path=None,
             profile=None,
@@ -129,7 +129,7 @@ metadata_v_1_3 = s.OEPMetadata(
             dialect=None,
         )
     ],
-    review=s.Review(path=None, badge=None),
+    review=None,
     comment=s.MetaComment(
         metadata_info="Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
         dates="Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
@@ -177,7 +177,7 @@ metadata_v_1_4 = s.OEPMetadata(
                 name=None,
                 identifier="CC0-1.0",
                 path=None,
-                other_references=[],
+                other_references=None,
                 text=None,
             ),
             source_copyright="© Reiner Lemoine Institut",
@@ -190,7 +190,7 @@ metadata_v_1_4 = s.OEPMetadata(
                 name=None,
                 identifier="ODbL-1.0",
                 path=None,
-                other_references=[],
+                other_references=None,
                 text=None,
             ),
             source_copyright="© OpenStreetMap contributors",
@@ -202,7 +202,7 @@ metadata_v_1_4 = s.OEPMetadata(
                 identifier="ODbL-1.0",
                 name="Open Data Commons Open Database License 1.0",
                 path="https://opendatacommons.org/licenses/odbl/1.0/",
-                other_references=[],
+                other_references=None,
                 text=None,
             ),
             instruction="You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
@@ -350,3 +350,5 @@ metadata_v_1_4 = s.OEPMetadata(
         none="If not applicable use (none)",
     ),
 )
+
+metadata_v_1_4_minimal = s.OEPMetadata(identifier="id")
