@@ -5,6 +5,8 @@ from typing import Iterable
 
 class Compilable:
     __compiler_name__ = None
+    __required__ = None
+    __optional__ = None
 
     def __repr__(self):
         return "{}({})".format(
@@ -23,6 +25,16 @@ class Compilable:
             elif s > o:
                 return False
         return False
+
+    def get_missing_fields(self):
+        for key in sorted(self.__dict__):
+            if key in self.__required__:
+                if s is None:
+                    yield key
+                v = getattr(self, key)
+                if isinstance(v, Compilable):
+                    for x in v.get_missing_fields():
+                        yield key + "." + x
 
 
 class Language(Compilable):
@@ -296,7 +308,8 @@ class Review(Compilable):
 
 class OEPMetadata(Compilable):
     __compiler_name__ = "metadata"
-
+    __required__ = ["id"]
+    
     def __init__(
         self,
         name: str = None,
