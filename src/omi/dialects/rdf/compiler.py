@@ -138,8 +138,9 @@ class RDFCompiler(Compiler):
         else:
             li = BNode()
             self.graph.add((li, RDF.type, DCAT.LicenseDocument))
-            for ref in lic.other_references:
-                self._add_literal_or_None(li, SPDX.seeAlso, ref)
+            if lic.other_references:
+                for ref in lic.other_references:
+                    self._add_literal_or_None(li, SPDX.seeAlso, ref)
             self._add_literal_or_None(li, FOAF.page, lic.path)
             self._add_literal_or_None(li, SPDX.licenseId, lic.identifier)
             if lic.text:

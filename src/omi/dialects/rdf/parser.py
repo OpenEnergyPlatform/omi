@@ -151,11 +151,12 @@ class RDFParser(Parser):
         kw = dict()
         for c in graph.objects(parent, RDFS.comment):
             kw["comment"] = _one_str_or_none(c)
+        refs = list(graph.objects(parent, RDFS.seeAlso))
         return struc.License(
             name=_one_str_or_none(graph.objects(parent, SPDX.name)),
             identifier=_one_str_or_none(graph.objects(parent, SPDX.licenseId)),
             path=_one_str_or_none(graph.objects(parent, FOAF.page)),
-            other_references=[n for n in graph.objects(parent, RDFS.seeAlso)],
+            other_references=refs if refs else None,
             text=_one_str_or_none(graph.objects(parent, SPDX.licenseText)),
             **kw
         )
