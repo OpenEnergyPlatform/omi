@@ -12,6 +12,7 @@ Contents
    contributing
    authors
    changelog
+   library
 
 Indices and tables
 ==================
