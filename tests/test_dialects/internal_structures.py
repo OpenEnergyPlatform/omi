@@ -27,13 +27,7 @@ metadata_v_1_3 = s.OEPMetadata(
     languages=["eng"],
     keywords=None,
     publication_date=None,
-    context=s.Context(
-        homepage=None,
-        documentation=None,
-        source_code=None,
-        contact=None,
-        grant_number=None,
-    ),
+    context=None,
     spatial=s.Spatial(location=None, extent="Berlin", resolution="1 m"),
     temporal=s.Temporal(
         reference_date=datetime.datetime(2018, 11, 13),
@@ -130,15 +124,7 @@ metadata_v_1_3 = s.OEPMetadata(
         )
     ],
     review=None,
-    comment=s.MetaComment(
-        metadata_info="Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
-        dates="Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
-        units="Use a space between numbers and units (100 m)",
-        languages="Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
-        licenses="License name must follow the SPDX License List (https://spdx.org/licenses/",
-        review="Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
-        none="If not applicable use (none)",
-    ),
+    comment=None,
 )
 
 metadata_v_1_4 = s.OEPMetadata(
@@ -350,5 +336,7 @@ metadata_v_1_4 = s.OEPMetadata(
         none="If not applicable use (none)",
     ),
 )
+
+metadata_v_1_3_minimal = s.OEPMetadata()
 
 metadata_v_1_4_minimal = s.OEPMetadata(identifier="id")
