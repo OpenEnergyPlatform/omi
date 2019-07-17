@@ -1,5 +1,6 @@
 from rdflib import Graph
-from rdflib.compare import isomorphic, _squashed_graphs_triples
+from rdflib.compare import _squashed_graphs_triples
+from rdflib.compare import isomorphic
 
 from omi.dialects.oep.compiler import JSONCompiler
 from omi.dialects.oep.parser import JSONParser_1_4

@@ -1,5 +1,6 @@
-from omi import structure as s
 import datetime
+
+from omi import structure as s
 
 _source_year = s.Field(
     name="year", description="Reference year", field_type="integer", unit=None
