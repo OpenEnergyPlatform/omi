@@ -14,7 +14,7 @@ def assert_compileable_equal(expected, got, nulls=None, exclude=None):
     exclude = exclude or []
     nulls = nulls or [None]
     assert isinstance(expected, (Compilable, dict)), type(expected)
-    assert isinstance(got, (Compilable, dict)), expected
+    assert isinstance(got, (Compilable, dict)), type(got)
     for key in (set(expected.__dict__.keys()).union(set(got.__dict__.keys()))):
         if key not in exclude:
             l = getattr(expected, key)

@@ -55,7 +55,7 @@ class JSONParser_1_3(JSONParser):
 
     def parse(self, json_old, *args, **kwargs):
         # context section
-        context = structure.Context()
+        context = None
 
         # filling the spatial section
         if "spatial" in json_old:
@@ -159,20 +159,13 @@ class JSONParser_1_3(JSONParser):
 
         review = None
 
-        comment = structure.MetaComment(
-            metadata_info="Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
-            dates="Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
-            units="Use a space between numbers and units (100 m)",
-            languages="Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
-            licenses="License name must follow the SPDX License List (https://spdx.org/licenses/",
-            review="Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
-            none="If not applicable use (none)",
-        )
+        comment = None
 
         metadata = structure.OEPMetadata(
             title=json_old.get("title"),
             description=json_old.get("description"),
             languages=json_old.get("language"),
+            identifier=None,
             context=context,
             spatial=spatial,
             temporal=temporal,
