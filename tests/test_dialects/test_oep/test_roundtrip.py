@@ -4,6 +4,7 @@ from omi.dialects.oep.compiler import JSONCompiler
 from omi.dialects.oep.parser import JSONParser_1_4
 from omi.dialects.rdf.compiler import RDFCompiler
 from omi.dialects.rdf.parser import RDFParser
+
 from .test_compiler import assert_equal
 
 

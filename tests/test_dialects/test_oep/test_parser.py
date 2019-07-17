@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from omi.dialects.oep.parser import JSONParser_1_3, JSONParser_1_4
-from ..internal_structures import metadata_v_1_3, metadata_v_1_4, metadata_v_1_4_minimal, metadata_v_1_3_minimal
+from omi.dialects.oep.parser import JSONParser_1_3
+from omi.dialects.oep.parser import JSONParser_1_4
+
 from ..base.parser import _test_generic_parsing
+from ..internal_structures import metadata_v_1_3
+from ..internal_structures import metadata_v_1_3_minimal
+from ..internal_structures import metadata_v_1_4
+from ..internal_structures import metadata_v_1_4_minimal
 
 
 def test_parser_v1_3():

@@ -1,7 +1,14 @@
+from rdflib import BNode
+from rdflib import Graph
+from rdflib.compare import _squashed_graphs_triples
+from rdflib.compare import graph_diff
+from rdflib.compare import isomorphic
+from rdflib.compare import similar
+from rdflib.compare import to_isomorphic
+
 from omi.dialects.rdf.compiler import RDFCompiler
+
 from ..internal_structures import metadata_v_1_4
-from rdflib import Graph, BNode
-from rdflib.compare import graph_diff, to_isomorphic, isomorphic, similar, _squashed_graphs_triples
 
 
 def test_compiler_v1_4():
