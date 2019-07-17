@@ -22,7 +22,9 @@ class JSONCompiler(Compiler):
             title=self.visit(contribution.contributor.name),
             email=self.visit(contribution.contributor.email),
             object=self.visit(contribution.object),
-            date=contribution.date.strftime("%Y-%m-%d"),
+            date=contribution.date.strftime("%Y-%m-%d")
+            if contribution.date is not None
+            else None,
             comment=self.visit(contribution.comment),
         )
 
@@ -80,10 +82,13 @@ class JSONCompiler(Compiler):
         )
 
     def visit_terms_of_use(self, terms_of_use: structure.TermsOfUse):
+        license_kwargs = (
+            self.visit(terms_of_use.license) if terms_of_use.license else {}
+        )
         return OrderedDict(
             instruction=self.visit(terms_of_use.instruction),
             attribution=self.visit(terms_of_use.attribution),
-            **self.visit(terms_of_use.license)
+            **license_kwargs
         )
 
     def visit_resource(self, resource: structure.Resource, *args, **kwargs):
@@ -109,7 +114,9 @@ class JSONCompiler(Compiler):
         return OrderedDict(
             fields=list(map(self.visit, schema.fields)),
             primaryKey=self.visit(schema.primary_key),
-            foreignKeys=list(map(self.visit, schema.foreign_keys)),
+            foreignKeys=list(map(self.visit, schema.foreign_keys))
+            if schema.foreign_keys
+            else None,
         )
 
     def visit_dialect(self, dialect: structure.Dialect, *args, **kwargs):
@@ -166,16 +173,26 @@ class JSONCompiler(Compiler):
             title=metadata.title,
             id=metadata.identifier,
             description=metadata.description,
-            language=list(map(self.visit, metadata.languages)),
+            language=list(map(self.visit, metadata.languages))
+            if metadata.languages is not None
+            else None,
             keywords=metadata.keywords,
             publicationDate=publication_date,
             context=self.visit(metadata.context),
             spatial=self.visit(metadata.spatial),
             temporal=self.visit(metadata.temporal),
-            sources=list(map(self.visit, metadata.sources)),
-            licenses=list(map(self.visit, metadata.license)),
-            contributors=list(map(self.visit, metadata.contributions)),
-            resources=list(map(self.visit, metadata.resources)),
+            sources=list(map(self.visit, metadata.sources))
+            if metadata.sources is not None
+            else None,
+            licenses=list(map(self.visit, metadata.license))
+            if metadata.license is not None
+            else None,
+            contributors=list(map(self.visit, metadata.contributions))
+            if metadata.contributions is not None
+            else None,
+            resources=list(map(self.visit, metadata.resources))
+            if metadata.resources is not None
+            else None,
             review=self.visit(metadata.review),
             metaMetadata=OrderedDict(
                 metadataVersion=self.__METADATA_VERSION,

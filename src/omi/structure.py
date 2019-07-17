@@ -309,7 +309,7 @@ class Review(Compilable):
 class OEPMetadata(Compilable):
     __compiler_name__ = "metadata"
     __required__ = ["id"]
-    
+
     def __init__(
         self,
         name: str = None,
