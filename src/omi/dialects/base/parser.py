@@ -10,6 +10,10 @@ class ParserException(Exception):
 
 
 class Parser:
+    """
+    A parser is used to transform to read a specific metadata format and
+    transform it into the internal metadata representation.
+    """
     def parse(self, structure: T, *args, **kwargs) -> OEPMetadata:
         """
         Transforms the input structure into metadata as used by the
@@ -32,13 +36,12 @@ class Parser:
         Load a string into the structure represented by the dialect
         Parameters
         ----------
-        string
-        args
-        kwargs
+        string: str
 
         Returns
         -------
-
+            Translates the passed string into the format used as input for
+            this parser
         """
         raise NotImplementedError
 
@@ -51,12 +54,11 @@ class Parser:
         parse_kwargs=None,
     ) -> OEPMetadata:
         """
-        Parse a string into OEPMetadata
+        Parse a string into :class:`~omi.structure.OEPMetadata`
+
         Parameters
         ----------
         string
-        args
-        kwargs
 
         Returns
         -------
@@ -69,7 +71,7 @@ class Parser:
         )
 
     @staticmethod
-    def __unpack_file(*args, **kwargs):
+    def __unpack_file(file, **kwargs):
         """
 
         Parameters
@@ -79,7 +81,7 @@ class Parser:
         -------
 
         """
-        with open(*args, **kwargs) as inp:
+        with open(file, **kwargs) as inp:
             return inp.read()
 
     def parse_from_file(self, file_path, *args, **kwargs):
@@ -87,7 +89,7 @@ class Parser:
 
     def is_valid(self, inp: str) -> bool:
         """
-        Verify if `inp` is a sting representation that is parsable by this
+        Verify whether `inp` is a sting representation that is parsable by this
         parser
 
         Parameters
@@ -103,5 +105,22 @@ class Parser:
         """
         raise NotImplementedError
 
-    def is_file_valid(self, *args, **kwargs):
-        return self.is_valid(self.__unpack_file(*args, **kwargs))
+    def is_file_valid(self, file: str, **kwargs):
+        """
+        Verify whether the contents of the file under `file` is parsable by this
+        parser
+
+        Parameters
+        ----------
+        file: str
+            Path to the file to validate
+
+        **kwargs:
+
+        Returns
+        -------
+        bool:
+            Returns `True` iff the file's content is parsable
+
+        """
+        return self.is_valid(self.__unpack_file(file, **kwargs))

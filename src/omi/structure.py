@@ -4,7 +4,13 @@ from typing import Iterable
 
 
 class Compilable:
+    """
+    An abstract class for all metadata components.
+    """
+
     __compiler_name__ = None
+    """Used to identify the appropriate compiler function for this structure"""
+
     __required__ = None
     __optional__ = None
 

@@ -12,7 +12,8 @@ Contents
    contributing
    authors
    changelog
-   library
+   internal_structure
+   dialect
 
 Indices and tables
 ==================
