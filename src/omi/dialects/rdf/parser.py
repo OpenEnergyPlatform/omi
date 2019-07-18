@@ -65,13 +65,13 @@ class RDFParser(Parser):
         if fa is not None:
             kwargs["funding_agency"] = struc.Agency(
                 name=_one_str_or_none(graph.objects(fa, DCTERMS.title)),
-                logo=_one_str_or_none(graph.objects(fa, OEO.has_logo))
+                logo=_one_str_or_none(graph.objects(fa, OEO.has_logo)),
             )
         pa = _only(graph.objects(parent, OEO.has_publisher))
         if pa is not None:
             kwargs["publisher"] = struc.Agency(
                 name=_one_str_or_none(graph.objects(pa, DCTERMS.title)),
-                logo=_one_str_or_none(graph.objects(pa, OEO.has_logo))
+                logo=_one_str_or_none(graph.objects(pa, OEO.has_logo)),
             )
         return struc.Context(
             contact=_one_str_or_none(graph.objects(parent, DCAT.contactpoint)),
@@ -139,8 +139,10 @@ class RDFParser(Parser):
             title=_one_str_or_none(graph.objects(parent, DCTERMS.title)),
             description=_one_str_or_none(graph.objects(parent, DCTERMS.description)),
             path=_one_str_or_none(graph.objects(parent, FOAF.page)),
-            licenses=[self.parse_terms_of_use(graph, tos)
-              for tos in graph.objects(parent, OEO.has_terms_of_use)],
+            licenses=[
+                self.parse_terms_of_use(graph, tos)
+                for tos in graph.objects(parent, OEO.has_terms_of_use)
+            ],
         )
 
     def parse_terms_of_use(self, graph: Graph, parent: Node) -> struc.TermsOfUse:

@@ -89,7 +89,7 @@ class JSONParser_1_3(JSONParser):
                     title=old_source.get("name"),
                     description=old_source.get("description"),
                     path=old_source.get("url"),
-                    #source_copyright=old_source.get("copyright"),
+                    # source_copyright=old_source.get("copyright"),
                 )
                 for old_source in old_sources
             ]
@@ -190,7 +190,7 @@ class JSONParser_1_4(JSONParser):
         else:
             return True
 
-    def parse_term_of_use(self, old_license:dict):
+    def parse_term_of_use(self, old_license: dict):
         return structure.TermsOfUse(
             lic=structure.License(
                 identifier=old_license.get("name"),
@@ -215,7 +215,7 @@ class JSONParser_1_4(JSONParser):
             if "fundingAgency" in inp_context:
                 funding_agency = structure.Agency(
                     name=inp_context.get("fundingAgency"),
-                    logo=inp_context.get("fundingAgencyLogo")
+                    logo=inp_context.get("fundingAgencyLogo"),
                 )
 
             context = structure.Context(
@@ -225,7 +225,9 @@ class JSONParser_1_4(JSONParser):
                 contact=inp_context.get("contact"),
                 grant_number=inp_context.get("grantNo"),
                 funding_agency=funding_agency,
-                publisher=structure.Agency(logo=inp_context.get("publisherLogo")) if "publisherLogo" in inp_context else None
+                publisher=structure.Agency(logo=inp_context.get("publisherLogo"))
+                if "publisherLogo" in inp_context
+                else None,
             )
 
         # filling the spatial section
@@ -256,11 +258,10 @@ class JSONParser_1_4(JSONParser):
                     )
                     if "alignment" in inp_timeseries
                     else None,
-                    aggregation=inp_timeseries.get("aggregationType")
+                    aggregation=inp_timeseries.get("aggregationType"),
                 )
             temporal = structure.Temporal(
                 reference_date=parse_date_or_none(inp_temporal.get("referenceDate")),
-
                 **timeseries
             )
 
@@ -274,7 +275,10 @@ class JSONParser_1_4(JSONParser):
                     title=old_source.get("title"),
                     description=old_source.get("description"),
                     path=old_source.get("path"),
-                    licenses=[self.parse_term_of_use(l) for l in old_source.get("licenses", [])],
+                    licenses=[
+                        self.parse_term_of_use(l)
+                        for l in old_source.get("licenses", [])
+                    ],
                 )
                 for old_source in old_sources
             ]
@@ -285,8 +289,7 @@ class JSONParser_1_4(JSONParser):
             licenses = None
         else:
             licenses = [
-                self.parse_term_of_use(old_license)
-                for old_license in old_licenses
+                self.parse_term_of_use(old_license) for old_license in old_licenses
             ]
 
         # filling the contributers section

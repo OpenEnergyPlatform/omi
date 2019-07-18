@@ -80,7 +80,7 @@ class Temporal(Compilable):
         end: datetime = None,
         resolution: str = None,
         ts_orientation: TimestampOrientation = None,
-        aggregation: str = None
+        aggregation: str = None,
     ):  # TODO: This should not be a string... maybe
         # we should use datetime instead?
         self.reference_date = reference_date
@@ -215,7 +215,7 @@ class Context(Compilable):
         contact: str = None,
         grant_number: str = None,
         funding_agency: Agency = None,
-        publisher: Agency = None
+        publisher: Agency = None,
     ):
         self.homepage = homepage
         self.documentation = documentation

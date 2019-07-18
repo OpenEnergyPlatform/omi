@@ -72,8 +72,8 @@ class JSONCompiler(Compiler):
                 end=end,
                 resolution=self.visit(temporal.ts_resolution),
                 alignment=self.visit(temporal.ts_orientation),
-                aggregationType=self.visit(temporal.aggregation)
-            )
+                aggregationType=self.visit(temporal.aggregation),
+            ),
         )
 
     def visit_source(self, source: structure.Source, *args, **kwargs):
@@ -81,7 +81,9 @@ class JSONCompiler(Compiler):
             title=self.visit(source.title),
             description=self.visit(source.description),
             path=self.visit(source.path),
-            licenses=[self.visit(l) for l in source.licenses] if source.licenses is not None else None,
+            licenses=[self.visit(l) for l in source.licenses]
+            if source.licenses is not None
+            else None,
         )
 
     def visit_license(self, lic: structure.License, *args, **kwargs):
