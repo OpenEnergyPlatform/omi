@@ -34,7 +34,7 @@ def test_translation_1_3_to_1_4():
     "resources": null,
     "review": null,
     "metaMetadata": {
-        "metadataVersion": "OEP-1.4",
+        "metadataVersion": "OEP-1.4.0",
         "metadataLicense": {
             "name": "CC0-1.0",
             "title": "Creative Commons Zero v1.0 Universal",
