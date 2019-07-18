@@ -6,16 +6,24 @@ from omi.dialects.base.compiler import Compiler
 
 
 class JSONCompiler(Compiler):
-    __METADATA_VERSION = "OEP-1.4"
+    __METADATA_VERSION = "OEP-1.4.0"
 
     def visit_context(self, context: structure.Context, *args, **kwargs):
-        return OrderedDict(
+        result = OrderedDict(
             homepage=self.visit(context.homepage),
             documentation=self.visit(context.documentation),
             sourceCode=self.visit(context.source_code),
             contact=self.visit(context.contact),
             grantNo=self.visit(context.grant_number),
         )
+        if context.funding_agency is not None:
+            if context.funding_agency.name is not None:
+                result["fundingAgency"] = context.funding_agency.name
+            if context.funding_agency.logo is not None:
+                result["fundingAgencyLogo"] = context.funding_agency.logo
+        if context.publisher is not None:
+            result["publisherLogo"] = context.publisher.logo
+        return result
 
     def visit_contribution(self, contribution: structure.Contribution, *args, **kwargs):
         return OrderedDict(
@@ -59,10 +67,13 @@ class JSONCompiler(Compiler):
             end = temporal.ts_end.strftime("%Y-%m-%dT%H:%M%z")[:-2]
         return OrderedDict(
             referenceDate=temporal.reference_date.strftime("%Y-%m-%d"),
-            start=start,
-            end=end,
-            resolution=self.visit(temporal.ts_resolution),
-            timestamp=self.visit(temporal.ts_orientation),
+            timeseries=OrderedDict(
+                start=start,
+                end=end,
+                resolution=self.visit(temporal.ts_resolution),
+                alignment=self.visit(temporal.ts_orientation),
+                aggregationType=self.visit(temporal.aggregation)
+            )
         )
 
     def visit_source(self, source: structure.Source, *args, **kwargs):
@@ -70,8 +81,7 @@ class JSONCompiler(Compiler):
             title=self.visit(source.title),
             description=self.visit(source.description),
             path=self.visit(source.path),
-            license=self.visit(source.license.identifier) if source.license else None,
-            copyright=self.visit(source.copyright),
+            licenses=[self.visit(l) for l in source.licenses] if source.licenses is not None else None,
         )
 
     def visit_license(self, lic: structure.License, *args, **kwargs):
@@ -161,7 +171,7 @@ class JSONCompiler(Compiler):
             languages=comment.languages,
             licenses=comment.licenses,
             review=comment.review,
-            none=comment.none,
+            null=comment.none,
         )
 
     def visit_metadata(self, metadata: structure.OEPMetadata, *args, **kwargs):
