@@ -40,8 +40,7 @@ class Parser:
 
         Returns
         -------
-            Translates the passed string into the format used as input for
-            this parser
+            Translates the passed string into the format used as input for this parser
         """
         raise NotImplementedError
 
