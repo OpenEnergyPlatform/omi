@@ -118,8 +118,9 @@ class RDFCompiler(Compiler):
         self._add_literal_or_None(node, DCTERMS.title, source.title)
         self._add_literal_or_None(node, DCTERMS.description, source.description)
         self._add_literal_or_None(node, FOAF.page, source.path)
-        li = self.visit(source.license)
-        self.graph.add((node, DCTERMS.license, li))
+        for l in source.licenses:
+            li = self.visit(l)
+            self.graph.add((node, DCTERMS.license, li))
         self._add_literal_or_None(node, DCTERMS.rights, source.copyright)
         return node
 
