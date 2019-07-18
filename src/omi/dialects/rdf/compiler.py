@@ -63,7 +63,7 @@ class RDFCompiler(Compiler):
             Literal(context.source_code),
             Literal(context.grant_number),
             self.visit(context.funding_agency),
-            self.visit(context.publisher)
+            self.visit(context.publisher),
         )
 
     def visit_person(self, person: structure.Person, *args, **kwargs):
@@ -107,9 +107,10 @@ class RDFCompiler(Compiler):
         self._add_literal_or_None(node, SCHEMA.endDate, temporal.ts_end)
         self._add_literal_or_None(node, OEO.has_time_resolution, temporal.ts_resolution)
         self._add_literal_or_None(node, OEO.referenceDate, temporal.reference_date)
-        self.graph.add((node, OEO.has_timestamp_alignment, self.visit(temporal.ts_orientation)))
-        self._add_literal_or_None(node, OEO.uses_aggregation,
-                                  temporal.aggregation)
+        self.graph.add(
+            (node, OEO.has_timestamp_alignment, self.visit(temporal.ts_orientation))
+        )
+        self._add_literal_or_None(node, OEO.uses_aggregation, temporal.aggregation)
         return node
 
     def visit_timestamp_orientation(
@@ -329,9 +330,17 @@ class RDFCompiler(Compiler):
         self.graph.add((datasetURI, DCTERMS.spatial, self.visit(metadata.spatial)))
         self.graph.add((datasetURI, DCTERMS.temporal, self.visit(metadata.temporal)))
         for s in metadata.sources:
-            self.graph.add((datasetURI, DCTERMS.source, self.visit(s, license_dict=license_dict)))
+            self.graph.add(
+                (datasetURI, DCTERMS.source, self.visit(s, license_dict=license_dict))
+            )
         for l in metadata.license:
-            self.graph.add((datasetURI, OEO.has_terms_of_use, self.visit(l, license_dict=license_dict)))
+            self.graph.add(
+                (
+                    datasetURI,
+                    OEO.has_terms_of_use,
+                    self.visit(l, license_dict=license_dict),
+                )
+            )
 
         for c in metadata.contributions:
             self.graph.add((datasetURI, OEO.has_contribution, self.visit(c)))
