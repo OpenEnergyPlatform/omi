@@ -25,8 +25,8 @@ def grp():
 
 
 @grp.command("translate")
-@click.option("-f", help="Dialect of the input")
-@click.option("-t", default="oep-v1.4", help="Dialect to translate to")
+@click.option("-f", help="Dialect identifier of the input")
+@click.option("-t", default="oep-v1.4", help="Dialect identifier to translate to")
 @click.option("-o", default=None, help="Output file")
 @click.argument("file_path")
 def translate(f, t, o, file_path):
