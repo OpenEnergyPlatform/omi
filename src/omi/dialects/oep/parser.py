@@ -7,6 +7,14 @@ from dateutil.parser import parse as parse_date
 
 from omi import structure
 from omi.dialects.base.parser import Parser
+from omi.dialects.base.parser import ParserException
+
+
+def parse_date_or_none(x, *args, **kwargs):
+    if x is None:
+        return None
+    else:
+        return parse_date(x, *args, **kwargs)
 
 
 class JSONParser(Parser):
@@ -47,118 +55,117 @@ class JSONParser_1_3(JSONParser):
 
     def parse(self, json_old, *args, **kwargs):
         # context section
-        context = structure.Context(
-            homepage=None,
-            documentation=None,
-            source_code=None,
-            contact=None,
-            grant_number=None,
-        )
+        context = None
 
         # filling the spatial section
-        old_spatial = json_old.get("spatial")
-        spatial = structure.Spatial(
-            location=None,
-            extent=old_spatial.get("extent"),
-            resolution=old_spatial.get("resolution"),
-        )
+        if "spatial" in json_old:
+            old_spatial = json_old.get("spatial")
+            spatial = structure.Spatial(
+                extent=old_spatial.get("extent"),
+                resolution=old_spatial.get("resolution"),
+            )
+        else:
+            spatial = None
 
         # filling the temporal section
-        temporal = structure.Temporal(
-            reference_date=parse_date(json_old["temporal"].get("reference_date")),
-            start=None,
-            end=None,
-            resolution=None,
-            ts_orientation=None,
-        )
+        old_temporal = json_old.get("temporal")
+        if old_temporal is None:
+            temporal = None
+        else:
+            temporal = structure.Temporal(
+                reference_date=parse_date_or_none(old_temporal.get("reference_date"))
+            )
 
         # filling the source section
-        sources = [
-            structure.Source(
-                title=old_source.get("name"),
-                description=old_source.get("description"),
-                path=old_source.get("url"),
-                source_license=None,
-                source_copyright=old_source.get("copyright"),
-            )
-            for old_source in json_old.get("sources")
-        ]
+        # For future reference: There is an important semantic difference between `source = None` and `sources = []`
+        # The former means that there is no information regarding sources the latter means that there are no sources.
+        # This is holds for all lists around here
+        old_sources = json_old.get("sources")
+        if old_sources is None:
+            sources = None
+        else:
+            sources = [
+                structure.Source(
+                    title=old_source.get("name"),
+                    description=old_source.get("description"),
+                    path=old_source.get("url"),
+                    source_copyright=old_source.get("copyright"),
+                )
+                for old_source in old_sources
+            ]
 
         # filling the license section
         old_license = json_old.get("license")
-        licenses = [
-            structure.TermsOfUse(
-                lic=structure.License(
-                    identifier=old_license.get("id"),
-                    name=old_license.get("name"),
-                    path=old_license.get("url"),
-                    other_references=[],
-                    text=None,
-                ),
-                instruction=old_license.get("instruction"),
-                attribution=old_license.get("copyright"),
-            )
-        ]
+        if old_license is None:
+            licenses = None  # not []! (see sources)
+        else:
+            licenses = [
+                structure.TermsOfUse(
+                    lic=structure.License(
+                        identifier=old_license.get("id"),
+                        name=old_license.get("name"),
+                        path=old_license.get("url"),
+                    ),
+                    instruction=old_license.get("instruction"),
+                    attribution=old_license.get("copyright"),
+                )
+            ]
 
         # filling the contributers section
-        contributions = [
-            structure.Contribution(
-                contributor=structure.Person(
-                    name=old_contributor.get("name"), email=old_contributor.get("email")
-                ),
-                date=parse_date(old_contributor.get("date")),
-                obj=None,
-                comment=old_contributor.get("comment"),
-            )
-            for old_contributor in json_old.get("contributors")
-        ]
+        old_contributors = json_old.get("contributors")
+        if old_contributors is None:
+            contributions = None
+        else:
+            contributions = [
+                structure.Contribution(
+                    contributor=structure.Person(
+                        name=old_contributor.get("name"),
+                        email=old_contributor.get("email"),
+                    ),
+                    date=parse_date_or_none(old_contributor.get("date")),
+                    comment=old_contributor.get("comment"),
+                )
+                for old_contributor in old_contributors
+            ]
 
         # extending with script-user information
 
-        resources = []
-        for resource in json_old.get("resources"):
-            fields = [
-                structure.Field(
-                    name=field.get("name"),
-                    description=field.get("description"),
-                    field_type=None,
-                    unit=field.get("unit"),
+        old_resources = json_old.get("resources")
+        if old_resources is None:
+            resources = None
+        else:
+            resources = []
+            for resource in old_resources:
+                old_fields = resource.get("fields")
+                if old_fields is None:
+                    fields = None
+                else:
+                    fields = [
+                        structure.Field(
+                            name=field.get("name"),
+                            description=field.get("description"),
+                            unit=field.get("unit"),
+                        )
+                        for field in old_fields
+                    ]
+                schema = structure.Schema(fields=fields)
+                resources.append(
+                    structure.Resource(
+                        name=resource.get("name"),
+                        resource_format="PostgreSQL",
+                        schema=schema,
+                    )
                 )
-                for field in resource.get("fields", [])
-            ]
-            schema = structure.Schema(fields=fields, primary_key=None, foreign_keys=[])
-            resources.append(
-                structure.Resource(
-                    profile=None,
-                    name=resource.get("name"),
-                    path=None,
-                    resource_format="PostgreSQL",
-                    encoding=None,
-                    dialect=None,
-                    schema=schema,
-                )
-            )
 
-        review = structure.Review(path=None, badge=None)
+        review = None
 
-        comment = structure.MetaComment(
-            metadata_info="Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
-            dates="Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
-            units="Use a space between numbers and units (100 m)",
-            languages="Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
-            licenses="License name must follow the SPDX License List (https://spdx.org/licenses/",
-            review="Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
-            none="If not applicable use (none)",
-        )
+        comment = None
 
         metadata = structure.OEPMetadata(
-            name=None,
             title=json_old.get("title"),
-            identifier=None,
             description=json_old.get("description"),
             languages=json_old.get("language"),
-            keywords=[],
-            publication_date=None,
+            identifier=None,
             context=context,
             spatial=spatial,
             temporal=temporal,
@@ -183,174 +190,213 @@ class JSONParser_1_4(JSONParser):
         else:
             return True
 
-    def parse(self, json_old):
+    def parse(self, json_old: dict, *args, **kwargs):
         # context section
+        if "id" not in json_old:
+            raise ParserException("metadata string does not contain an id")
         inp_context = json_old.get("context")
-        context = structure.Context(
-            homepage=inp_context.get("homepage"),
-            documentation=inp_context.get("documentation"),
-            source_code=inp_context.get("sourceCode"),
-            contact=inp_context.get("contact"),
-            grant_number=inp_context.get("grantNo"),
-        )
+        if inp_context is None:
+            context = None
+        else:
+            context = structure.Context(
+                homepage=inp_context.get("homepage"),
+                documentation=inp_context.get("documentation"),
+                source_code=inp_context.get("sourceCode"),
+                contact=inp_context.get("contact"),
+                grant_number=inp_context.get("grantNo"),
+            )
 
         # filling the spatial section
         old_spatial = json_old.get("spatial")
-        spatial = structure.Spatial(
-            location=old_spatial.get("location"),
-            extent=old_spatial.get("extent"),
-            resolution=old_spatial.get("resolution"),
-        )
+        if old_spatial is None:
+            spatial = None
+        else:
+            spatial = structure.Spatial(
+                location=old_spatial.get("location"),
+                extent=old_spatial.get("extent"),
+                resolution=old_spatial.get("resolution"),
+            )
 
         # filling the temporal section
-        inp_temporal = json_old["temporal"]
-        temporal = structure.Temporal(
-            reference_date=parse_date(inp_temporal.get("referenceDate")),
-            start=parse_date(inp_temporal.get("start")),
-            end=parse_date(inp_temporal.get("end")),
-            resolution=inp_temporal.get("resolution"),
-            ts_orientation=structure.TimestampOrientation.create(
-                inp_temporal.get("timestamp")
-            ),
-        )
+        inp_temporal = json_old.get("temporal")
+        if inp_temporal is None:
+            temporal = None
+        else:
+            temporal = structure.Temporal(
+                reference_date=parse_date_or_none(inp_temporal.get("referenceDate")),
+                start=parse_date_or_none(inp_temporal.get("start")),
+                end=parse_date_or_none(inp_temporal.get("end")),
+                resolution=inp_temporal.get("resolution"),
+                ts_orientation=structure.TimestampOrientation.create(
+                    inp_temporal.get("timestamp")
+                )
+                if "timestamp" in inp_temporal
+                else None,
+            )
 
         # filling the source section
-        sources = [
-            structure.Source(
-                title=old_source.get("title"),
-                description=old_source.get("description"),
-                path=old_source.get("path"),
-                source_license=structure.License(
-                    name=None,
-                    identifier=old_source.get("license"),
-                    other_references=[],
-                    path=None,
-                    text=None,
-                ),
-                source_copyright=old_source.get("copyright"),
-            )
-            for old_source in json_old.get("sources", [])
-        ]
+        old_sources = json_old.get("sources")
+        if old_sources is None:
+            sources = None
+        else:
+            sources = [
+                structure.Source(
+                    title=old_source.get("title"),
+                    description=old_source.get("description"),
+                    path=old_source.get("path"),
+                    source_license=structure.License(
+                        identifier=old_source.get("license")
+                    ),
+                    source_copyright=old_source.get("copyright"),
+                )
+                for old_source in old_sources
+            ]
 
         # filling the license section
-        licenses = [
-            structure.TermsOfUse(
-                lic=structure.License(
-                    identifier=old_license.get("name"),
-                    name=old_license.get("title"),
-                    path=old_license.get("path"),
-                    other_references=[],
-                    text=None,
-                ),
-                instruction=old_license.get("instruction"),
-                attribution=old_license.get("attribution"),
-            )
-            for old_license in json_old.get("licenses")
-        ]
+        old_licenses = json_old.get("licenses")
+        if old_licenses is None:
+            licenses = None
+        else:
+            licenses = [
+                structure.TermsOfUse(
+                    lic=structure.License(
+                        identifier=old_license.get("name"),
+                        name=old_license.get("title"),
+                        path=old_license.get("path"),
+                    ),
+                    instruction=old_license.get("instruction"),
+                    attribution=old_license.get("attribution"),
+                )
+                for old_license in old_licenses
+            ]
 
         # filling the contributers section
-        contributors = [
-            structure.Contribution(
-                contributor=structure.Person(
-                    name=old_contributor.get("title"),
-                    email=old_contributor.get("email"),
-                ),
-                date=parse_date(old_contributor.get("date")),
-                obj=old_contributor.get("object"),
-                comment=old_contributor.get("comment"),
-            )
-            for old_contributor in json_old.get("contributors")
-        ]
+        old_contributors = json_old.get("contributors")
+        if old_contributors is None:
+            contributors = None
+        else:
+            contributors = [
+                structure.Contribution(
+                    contributor=structure.Person(
+                        name=old_contributor.get("title"),
+                        email=old_contributor.get("email"),
+                    ),
+                    date=parse_date_or_none(old_contributor.get("date")),
+                    obj=old_contributor.get("object"),
+                    comment=old_contributor.get("comment"),
+                )
+                for old_contributor in old_contributors
+            ]
 
         # extending with script-user information
-
-        resources = []
-        for resource in json_old.get("resources", []):
-            fields = [
-                structure.Field(
-                    name=field.get("name"),
-                    description=field.get("description"),
-                    field_type=field.get("type"),
-                    unit=field.get("unit"),
-                )
-                for field in resource["schema"].get("fields", [])
-            ]
-            field_dict = {field.name: field for field in fields}
-            foreign_keys = []
-            for fk in resource["schema"].get("foreignKeys"):
-                source_fields = [
-                    field_dict[field_name] for field_name in fk.get("fields", [])
-                ]
-                referenced_fields = [
-                    structure.Field(
-                        name=fk_field, unit=None, field_type=None, description=None
+        old_resources = json_old.get("resources")
+        if old_resources is None:
+            resources = None
+        else:
+            resources = []
+            for resource in old_resources:
+                old_schema = resource.get("schema")
+                if old_schema is None:
+                    schema = None
+                else:
+                    old_fields = old_schema.get("fields")
+                    if old_fields is None:
+                        fields = None
+                    else:
+                        fields = [
+                            structure.Field(
+                                name=field.get("name"),
+                                description=field.get("description"),
+                                field_type=field.get("type"),
+                                unit=field.get("unit"),
+                            )
+                            for field in old_fields
+                        ]
+                    field_dict = {field.name: field for field in fields or []}
+                    old_foreign_keys = old_schema.get("foreignKeys")
+                    foreign_keys = []
+                    for fk in old_foreign_keys:
+                        old_reference = fk.get("reference")
+                        if old_reference is None:
+                            raise ParserException("Foreign key without reference:", fk)
+                        source_fields = [
+                            field_dict[field_name]
+                            for field_name in fk.get("fields", [])
+                        ]
+                        old_referenced_fields = old_reference.get("fields")
+                        if old_referenced_fields is None:
+                            referenced_fields = None
+                        else:
+                            referenced_fields = [
+                                structure.Field(name=fk_field)
+                                for fk_field in old_referenced_fields
+                            ]
+                        referenced_resource = structure.Resource(
+                            name=old_reference.get("resource"),
+                            schema=structure.Schema(fields=referenced_fields),
+                        )
+                        for rf in referenced_fields:
+                            rf.resource = referenced_resource
+                        references = [
+                            structure.Reference(s, t)
+                            for s, t in zip(source_fields, referenced_fields)
+                        ]
+                        foreign_keys.append(structure.ForeignKey(references=references))
+                    schema = structure.Schema(
+                        fields=fields,
+                        primary_key=resource["schema"].get("primaryKey"),
+                        foreign_keys=foreign_keys,
                     )
-                    for fk_field in fk["reference"].get("fields")
-                ]
-                referenced_resource = structure.Resource(
-                    name=fk["reference"].get("resource"),
-                    schema=structure.Schema(
-                        fields=referenced_fields, foreign_keys=None, primary_key=None
-                    ),
-                    dialect=None,
-                    encoding=None,
-                    path=None,
-                    profile=None,
-                    resource_format=None,
+                old_dialect = resource.get("dialect")
+                if old_dialect is None:
+                    dialect = None
+                else:
+                    dialect = structure.Dialect(
+                        delimiter=resource["dialect"].get("delimiter"),
+                        decimal_separator=resource["dialect"].get("decimalSeparator"),
+                    )
+                resources.append(
+                    structure.Resource(
+                        profile=resource.get("profile"),
+                        name=resource.get("name"),
+                        path=resource.get("path"),
+                        resource_format=resource.get("format"),
+                        encoding=resource.get("encoding"),
+                        schema=schema,
+                        dialect=dialect,
+                    )
                 )
-                l = list()
-                print(l)
-                references = [
-                    structure.Reference(s, t)
-                    for s, t in zip(source_fields, referenced_fields)
-                ]
-                foreign_keys.append(structure.ForeignKey(references=references))
-            schema = structure.Schema(
-                fields=fields,
-                primary_key=resource["schema"].get("primaryKey"),
-                foreign_keys=foreign_keys,
+
+        inp_review = json_old.get("review")
+        if inp_review is None:
+            review = None
+        else:
+            review = structure.Review(
+                path=inp_review.get("path"), badge=inp_review.get("badge")
             )
 
-            dialect = structure.Dialect(
-                delimiter=resource["dialect"].get("delimiter"),
-                decimal_separator=resource["dialect"].get("decimalSeparator"),
+        inp_comment = json_old.get("_comment")
+        if inp_comment is None:
+            comment = None
+        else:
+            comment = structure.MetaComment(
+                metadata_info=inp_comment.get("metadata"),
+                dates=inp_comment.get("dates"),
+                units=inp_comment.get("units"),
+                languages=inp_comment.get("languages"),
+                licenses=inp_comment.get("licenses"),
+                review=inp_comment.get("review"),
+                none=inp_comment.get("none"),
             )
-            resources.append(
-                structure.Resource(
-                    profile=resource.get("profile"),
-                    name=resource.get("name"),
-                    path=resource.get("path"),
-                    resource_format=resource.get("format"),
-                    encoding=resource.get("encoding"),
-                    schema=schema,
-                    dialect=dialect,
-                )
-            )
-
-        inp_review = json_old["review"]
-        review = structure.Review(
-            path=inp_review.get("path"), badge=inp_review.get("badge")
-        )
-
-        inp_comment = json_old["_comment"]
-        comment = structure.MetaComment(
-            metadata_info=inp_comment.get("metadata"),
-            dates=inp_comment.get("dates"),
-            units=inp_comment.get("units"),
-            languages=inp_comment.get("languages"),
-            licenses=inp_comment.get("licenses"),
-            review=inp_comment.get("review"),
-            none=inp_comment.get("none"),
-        )
 
         metadata = structure.OEPMetadata(
             name=json_old.get("name"),
             title=json_old.get("title"),
-            identifier=json_old.get("id"),
+            identifier=json_old["id"],
             description=json_old.get("description"),
             languages=json_old.get("language"),
             keywords=json_old.get("keywords"),
-            publication_date=parse_date(json_old.get("publicationDate")),
+            publication_date=parse_date_or_none(json_old.get("publicationDate")),
             context=context,
             spatial=spatial,
             temporal=temporal,
