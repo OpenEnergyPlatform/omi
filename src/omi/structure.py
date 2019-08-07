@@ -80,6 +80,7 @@ class Temporal(Compilable):
         end: datetime = None,
         resolution: str = None,
         ts_orientation: TimestampOrientation = None,
+        aggregation: str = None,
     ):  # TODO: This should not be a string... maybe
         # we should use datetime instead?
         self.reference_date = reference_date
@@ -87,6 +88,7 @@ class Temporal(Compilable):
         self.ts_end = end
         self.ts_resolution = resolution
         self.ts_orientation = ts_orientation
+        self.aggregation = aggregation
 
 
 class License(Compilable):
@@ -134,14 +136,12 @@ class Source(Compilable):
         title: str = None,
         description: str = None,
         path: str = None,
-        source_license: License = None,
-        source_copyright: str = None,
+        licenses: Iterable[TermsOfUse] = None,
     ):
         self.title = title
         self.description = description
         self.path = path
-        self.license = source_license
-        self.copyright = source_copyright
+        self.licenses = licenses
 
 
 class Person(Compilable):
@@ -196,6 +196,14 @@ class Field(Compilable):
         )
 
 
+class Agency(Compilable):
+    __compiler_name__ = "agency"
+
+    def __init__(self, name: str = None, logo: str = None):
+        self.name = name
+        self.logo = logo
+
+
 class Context(Compilable):
     __compiler_name__ = "context"
 
@@ -206,12 +214,16 @@ class Context(Compilable):
         source_code: str = None,
         contact: str = None,
         grant_number: str = None,
+        funding_agency: Agency = None,
+        publisher: Agency = None,
     ):
         self.homepage = homepage
         self.documentation = documentation
         self.source_code = source_code
         self.contact = contact
         self.grant_number = grant_number
+        self.funding_agency = funding_agency
+        self.publisher = publisher
 
 
 class Reference(Compilable):

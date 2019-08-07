@@ -89,7 +89,7 @@ class JSONParser_1_3(JSONParser):
                     title=old_source.get("name"),
                     description=old_source.get("description"),
                     path=old_source.get("url"),
-                    source_copyright=old_source.get("copyright"),
+                    # source_copyright=old_source.get("copyright"),
                 )
                 for old_source in old_sources
             ]
@@ -190,20 +190,44 @@ class JSONParser_1_4(JSONParser):
         else:
             return True
 
+    def parse_term_of_use(self, old_license: dict):
+        return structure.TermsOfUse(
+            lic=structure.License(
+                identifier=old_license.get("name"),
+                name=old_license.get("title"),
+                path=old_license.get("path"),
+            ),
+            instruction=old_license.get("instruction"),
+            attribution=old_license.get("attribution"),
+        )
+
     def parse(self, json_old: dict, *args, **kwargs):
         # context section
         if "id" not in json_old:
             raise ParserException("metadata string does not contain an id")
+
         inp_context = json_old.get("context")
         if inp_context is None:
             context = None
         else:
+
+            funding_agency = None
+            if "fundingAgency" in inp_context:
+                funding_agency = structure.Agency(
+                    name=inp_context.get("fundingAgency"),
+                    logo=inp_context.get("fundingAgencyLogo"),
+                )
+
             context = structure.Context(
                 homepage=inp_context.get("homepage"),
                 documentation=inp_context.get("documentation"),
                 source_code=inp_context.get("sourceCode"),
                 contact=inp_context.get("contact"),
                 grant_number=inp_context.get("grantNo"),
+                funding_agency=funding_agency,
+                publisher=structure.Agency(logo=inp_context.get("publisherLogo"))
+                if "publisherLogo" in inp_context
+                else None,
             )
 
         # filling the spatial section
@@ -222,16 +246,23 @@ class JSONParser_1_4(JSONParser):
         if inp_temporal is None:
             temporal = None
         else:
+            inp_timeseries = inp_temporal.get("timeseries")
+            timeseries = {}
+            if inp_timeseries is not None:
+                timeseries = dict(
+                    start=parse_date_or_none(inp_timeseries.get("start")),
+                    end=parse_date_or_none(inp_timeseries.get("end")),
+                    resolution=inp_timeseries.get("resolution"),
+                    ts_orientation=structure.TimestampOrientation.create(
+                        inp_timeseries.get("alignment")
+                    )
+                    if "alignment" in inp_timeseries
+                    else None,
+                    aggregation=inp_timeseries.get("aggregationType"),
+                )
             temporal = structure.Temporal(
                 reference_date=parse_date_or_none(inp_temporal.get("referenceDate")),
-                start=parse_date_or_none(inp_temporal.get("start")),
-                end=parse_date_or_none(inp_temporal.get("end")),
-                resolution=inp_temporal.get("resolution"),
-                ts_orientation=structure.TimestampOrientation.create(
-                    inp_temporal.get("timestamp")
-                )
-                if "timestamp" in inp_temporal
-                else None,
+                **timeseries
             )
 
         # filling the source section
@@ -244,10 +275,10 @@ class JSONParser_1_4(JSONParser):
                     title=old_source.get("title"),
                     description=old_source.get("description"),
                     path=old_source.get("path"),
-                    source_license=structure.License(
-                        identifier=old_source.get("license")
-                    ),
-                    source_copyright=old_source.get("copyright"),
+                    licenses=[
+                        self.parse_term_of_use(l)
+                        for l in old_source.get("licenses", [])
+                    ],
                 )
                 for old_source in old_sources
             ]
@@ -258,16 +289,7 @@ class JSONParser_1_4(JSONParser):
             licenses = None
         else:
             licenses = [
-                structure.TermsOfUse(
-                    lic=structure.License(
-                        identifier=old_license.get("name"),
-                        name=old_license.get("title"),
-                        path=old_license.get("path"),
-                    ),
-                    instruction=old_license.get("instruction"),
-                    attribution=old_license.get("attribution"),
-                )
-                for old_license in old_licenses
+                self.parse_term_of_use(old_license) for old_license in old_licenses
             ]
 
         # filling the contributers section
@@ -386,7 +408,7 @@ class JSONParser_1_4(JSONParser):
                 languages=inp_comment.get("languages"),
                 licenses=inp_comment.get("licenses"),
                 review=inp_comment.get("review"),
-                none=inp_comment.get("none"),
+                none=inp_comment.get("null"),
             )
 
         metadata = structure.OEPMetadata(

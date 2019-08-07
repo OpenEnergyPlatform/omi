@@ -60,12 +60,26 @@ class RDFParser(Parser):
         return parse_date(node)
 
     def parse_context(self, graph: Graph, parent: Node) -> struc.Context:
+        fa = _only(graph.objects(parent, OEO.has_funding_agency))
+        kwargs = {}
+        if fa is not None:
+            kwargs["funding_agency"] = struc.Agency(
+                name=_one_str_or_none(graph.objects(fa, DCTERMS.title)),
+                logo=_one_str_or_none(graph.objects(fa, OEO.has_logo)),
+            )
+        pa = _only(graph.objects(parent, OEO.has_publisher))
+        if pa is not None:
+            kwargs["publisher"] = struc.Agency(
+                name=_one_str_or_none(graph.objects(pa, DCTERMS.title)),
+                logo=_one_str_or_none(graph.objects(pa, OEO.has_logo)),
+            )
         return struc.Context(
             contact=_one_str_or_none(graph.objects(parent, DCAT.contactpoint)),
             documentation=_one_str_or_none(graph.objects(parent, OEO.documentation)),
             grant_number=_one_str_or_none(graph.objects(parent, OEO.grantNo)),
             homepage=_one_str_or_none(graph.objects(parent, FOAF.homepage)),
             source_code=_one_str_or_none(graph.objects(parent, OEO.sourceCode)),
+            **kwargs
         )
 
     def parse_contributor(self, graph: Graph, parent: Node) -> struc.Contribution:
@@ -96,7 +110,7 @@ class RDFParser(Parser):
     def parse_temporal(self, graph: Graph, parent: Node) -> struc.Temporal:
 
         orientation = self.parse_timestamp_orientation(
-            _only(graph.objects(parent, OEO.has_orientation))
+            _only(graph.objects(parent, OEO.has_timestamp_alignment))
         )
 
         return struc.Temporal(
@@ -107,6 +121,7 @@ class RDFParser(Parser):
                 _only(graph.objects(parent, OEO.referenceDate))
             ),
             resolution=_one_str_or_none(graph.objects(parent, OEO.has_time_resolution)),
+            aggregation=_one_str_or_none(graph.objects(parent, OEO.uses_aggregation)),
         )
 
     def parse_timestamp_orientation(self, node):
@@ -124,10 +139,10 @@ class RDFParser(Parser):
             title=_one_str_or_none(graph.objects(parent, DCTERMS.title)),
             description=_one_str_or_none(graph.objects(parent, DCTERMS.description)),
             path=_one_str_or_none(graph.objects(parent, FOAF.page)),
-            source_license=self.parse_license(
-                graph, _only(graph.objects(parent, DCTERMS.license))
-            ),
-            source_copyright=_one_str_or_none(graph.objects(parent, DCTERMS.rights)),
+            licenses=[
+                self.parse_terms_of_use(graph, tos)
+                for tos in graph.objects(parent, OEO.has_terms_of_use)
+            ],
         )
 
     def parse_terms_of_use(self, graph: Graph, parent: Node) -> struc.TermsOfUse:
