@@ -79,6 +79,10 @@ https://omi.readthedocs.io/
 Development
 ===========
 
+To install all dev dependencies::
+
+    pip install -r requirements/dev.txt
+
 To run the all tests run::
 
     tox
