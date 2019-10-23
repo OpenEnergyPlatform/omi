@@ -23,11 +23,13 @@ def test_parser_v1_4():
     expected_result = metadata_v_1_4
     _test_generic_parsing(parser, _input_file, expected_result)
 
+
 def test_parser_v1_3_minimal():
     parser = JSONParser_1_3()
     _input_file = "tests/data/metadata_v13_minimal.json"
     expected_result = metadata_v_1_3_minimal
     _test_generic_parsing(parser, _input_file, expected_result)
+
 
 def test_parser_v1_4_minimal():
     parser = JSONParser_1_4()

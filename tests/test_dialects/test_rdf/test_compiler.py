@@ -5,12 +5,13 @@ from rdflib.compare import graph_diff
 from rdflib.compare import isomorphic
 from rdflib.compare import similar
 from rdflib.compare import to_isomorphic
+from rdflib.namespace import DCTERMS
 
 from omi.dialects.rdf.compiler import RDFCompiler
+from omi.dialects.rdf.namespace import OEO
 
 from ..internal_structures import metadata_v_1_4
-from omi.dialects.rdf.namespace import OEO
-from rdflib.namespace import DCTERMS
+
 
 def test_compiler_v1_4():
     compiler = RDFCompiler()
