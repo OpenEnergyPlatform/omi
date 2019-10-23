@@ -83,6 +83,14 @@ To run the all tests run::
 
     tox
 
+Code formatting. After code changes always run isort and black (in this order). You can also use following script::
+
+    bash format_code.sh
+
+    OR
+    
+    ./format_code.sh
+
 Note, to combine the coverage data from all the tox environments run:
 
 .. list-table::
