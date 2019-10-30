@@ -148,7 +148,7 @@ METADATA_SCHEMA_v1_4_0 = {
         "keywords": {
             "description": "An array of string keywords to assist users searching for the package in catalogs. Example: [example, template, test]",
             "type": "array",
-            "items": {"keywords": {"description": "", "type": "string"}},
+            "items": {"keywords": {"description": "TBD", "type": "string"}},
         },
         "publicationDate": {
             "description": "Date of publishing. Date Format is ISO 8601 (YYYY-MM-DD). Example: 2019-02-06",
