@@ -1,4 +1,122 @@
-import json
+METADATA_SCHEMA_v1_3_0 = {
+    "description": "",
+    "type": "object",
+    "properties": {
+        "title": {"description": "", "type": "string"},
+        "description": {"description": "", "type": "string"},
+        "language": {
+            "description": "",
+            "type": "array",
+            "items": {"language": {"description": "", "type": "string"}},
+        },
+        "spatial": {
+            "description": "",
+            "type": "object",
+            "properties": {
+                "location": {"description": "", "type": "string"},
+                "extent": {"description": "", "type": "string"},
+                "resolution": {"description": "", "type": "string"},
+            },
+        },
+        "temporal": {
+            "description": "",
+            "type": "object",
+            "properties": {
+                "reference_date": {"description": "", "type": "string"},
+                "start": {"description": "", "type": "string"},
+                "end": {"description": "", "type": "string"},
+                "resolution": {"description": "", "type": "string"},
+            },
+        },
+        "sources": {
+            "description": "",
+            "type": "array",
+            "items": {
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "name": {"description": "", "type": "string"},
+                    "description": {"description": "", "type": "string"},
+                    "url": {"description": "", "type": "string"},
+                    "license": {"description": "", "type": "string"},
+                    "copyright": {"description": "", "type": "string"},
+                },
+            },
+        },
+        "license": {
+            "description": "",
+            "type": "object",
+            "properties": {
+                "id": {"description": "", "type": "string"},
+                "name": {"description": "", "type": "string"},
+                "version": {"description": "", "type": "string"},
+                "url": {"description": "", "type": "string"},
+                "instruction": {"description": "", "type": "string"},
+                "copyright": {"description": "", "type": "string"},
+            },
+        },
+        "contributors": {
+            "description": "",
+            "type": "array",
+            "items": {
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "name": {"description": "", "type": "string"},
+                    "email": {"description": "", "type": "string"},
+                    "date": {"description": "", "type": "string"},
+                    "comment": {"description": "", "type": "string"},
+                },
+            },
+        },
+        "resources": {
+            "description": "",
+            "type": "array",
+            "items": {
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "name": {"description": "", "type": "string"},
+                    "format": {"description": "", "type": "string"},
+                    "fields": {
+                        "description": "",
+                        "type": "array",
+                        "items": {
+                            "description": "",
+                            "type": "object",
+                            "properties": {
+                                "name": {"description": "", "type": "string"},
+                                "description": {"description": "", "type": "string"},
+                                "unit": {"description": "", "type": "string"},
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        "metadata_version": {"description": "", "type": "string"},
+        "_comment": {
+            "description": "",
+            "type": "object",
+            "properties": {
+                "_url": {"description": "", "type": "string"},
+                "_copyright": {"description": "", "type": "string"},
+                "_metadata_license": {"description": "", "type": "string"},
+                "_metadata_license_url": {"description": "", "type": "string"},
+                "_contains": {"description": "", "type": "string"},
+                "_additional_information": {
+                    "description": "",
+                    "type": "object",
+                    "properties": {
+                        "_dates": {"description": "", "type": "string"},
+                        "_units": {"description": "", "type": "string"},
+                        "_none": {"description": "", "type": "string"},
+                    },
+                },
+            },
+        },
+    },
+}
 
 METADATA_SCHEMA_v1_4_0 = {
     "$schema": "TBD, e.g.: http://json-schema.org/draft-07/schema#",
