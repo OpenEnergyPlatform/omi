@@ -1,5 +1,5 @@
 ========
-Open Energy Family - Open Metadata Integration
+Open Energy Family - Open Metadata Integration OMI
 ========
 
 Overview
