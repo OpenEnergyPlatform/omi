@@ -1,6 +1,9 @@
 ========
-Overview
+Open Energy Family - Open Metadata Integration
 ========
+
+Overview
+=========
 
 .. start-badges
 
