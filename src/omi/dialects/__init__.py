@@ -1,3 +1,2 @@
-import omi.dialects.oep.dialect
-import omi.dialects.rdf.dialect
-from omi.dialects.base.register import get_dialect
+
+from omi.dialects.oep.dialect import OEP_V_1_3_Dialect, OEP_V_1_4_Dialect
