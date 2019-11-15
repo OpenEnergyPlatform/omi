@@ -1,4 +1,7 @@
-========
+==================================================
+Open Energy Family - Open Metadata Integration OMI
+==================================================
+
 Overview
 ========
 
@@ -78,6 +81,15 @@ https://omi.readthedocs.io/
 
 Development
 ===========
+
+To install additional dependencies for development::
+
+    pip install -e .[dev]
+
+We encourage the use of pre-commit-hooks in this project. Those enforce some
+formatting conventions (e.g. the use of `isort` and `black`). To enable hooks::
+
+    pre-commit install
 
 To run the all tests run::
 
