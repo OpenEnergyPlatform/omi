@@ -26,6 +26,7 @@ before_install:
   - python --version
   - uname -a
   - lsb_release -a
+  - git submodule update --init --recursive
 install:
   - pip install tox
   - virtualenv --version
