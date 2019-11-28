@@ -3,7 +3,10 @@
 
 import json
 
+import pkg_resources
 from dateutil.parser import parse as parse_date
+from jsonschema import ValidationError
+from jsonschema import validate
 
 from omi import structure
 from omi.dialects.base.parser import Parser
@@ -18,8 +21,35 @@ def parse_date_or_none(x, *args, **kwargs):
 
 
 class JSONParser(Parser):
+    _schema_file = None
+
+    def __init__(self, **kwargs):
+        resource_package = __name__
+        # Do not use os.path.join()
+        resource_path = self._schema_file
+        self.schema = json.loads(
+            pkg_resources.resource_string(resource_package, resource_path)
+        )
+
     def load_string(self, string: str, *args, **kwargs):
         return json.loads(string)
+
+    def validate(self, jsn: dict):
+        """
+        Check whether the given dictionary adheres to the the json-schema
+        specification
+
+        Parameters
+        ----------
+        jsn
+          The dictionary to validate
+
+        Returns
+        -------
+          Nothing
+
+        """
+        validate(jsn, self.schema)
 
     def is_valid(self, inp: str):
         """Checks the validity of a JSON string
@@ -34,26 +64,26 @@ class JSONParser(Parser):
         bool
             True if valid JSON, False otherwise.
         """
-
         try:
-            json.loads(inp)
+            jsn = json.loads(inp)
         except ValueError:
             return False
-        return True
+        else:
+            try:
+                self.validate(jsn)
+            except ValidationError:
+                return False
+            else:
+                return True
 
 
 class JSONParser_1_3(JSONParser):
-    def is_valid(self, inp: str):
-        if not super(self, JSONParser_1_3).is_valid(inp):
-            return False
-        try:
-            self.assert_1_3_metastring(inp)
-        except:
-            return False
-        else:
-            return True
+    _schema_file = "spec/metadata/v130/schema.json"
 
     def parse(self, json_old, *args, **kwargs):
+
+        self.validate(json_old)
+
         # context section
         context = None
 
@@ -180,15 +210,7 @@ class JSONParser_1_3(JSONParser):
 
 
 class JSONParser_1_4(JSONParser):
-    def is_valid(self, inp: str):
-        if not super(self, JSONParser_1_4).is_valid(inp):
-            return False
-        try:
-            self.assert_1_3_metastring(inp)
-        except:
-            return False
-        else:
-            return True
+    _schema_file = "spec/metadata/v140/schema.json"
 
     def parse_term_of_use(self, old_license: dict):
         return structure.TermsOfUse(
@@ -202,6 +224,9 @@ class JSONParser_1_4(JSONParser):
         )
 
     def parse(self, json_old: dict, *args, **kwargs):
+
+        self.validate(json_old)
+
         # context section
         if "id" not in json_old:
             raise ParserException("metadata string does not contain an id")
@@ -430,124 +455,6 @@ class JSONParser_1_4(JSONParser):
             comment=comment,
         )
         return metadata
-
-    def assert_1_3_metastring(self, json_string: str):
-        """Checks string conformity to OEP Metadata Standard Version 1.3
-
-        Parameters
-        ----------
-        json_string: str
-            The JSON string to be checked.
-
-        Returns
-        -------
-        bool
-            True if valid, Raises Exception otherwise.
-        """
-
-        keys = [
-            "title",
-            "description",
-            "language",
-            "spatial",
-            "temporal",
-            "sources",
-            "license",
-            "contributions",
-            "resources",
-            "metadata_version",
-        ]
-        subkeys_spatial = ["location", "extent", "resolution"]
-        subkeys_temporal = ["reference_date", "start", "end", "resolution"]
-        subkeys_license = ["id", "name", "version", "url", "instruction", "copyright"]
-        object_subkeys = {
-            "spatial": subkeys_spatial,
-            "temporal": subkeys_temporal,
-            "license": subkeys_license,
-        }
-        subkeys_sources = [
-            "name",
-            "description",
-            "url",
-            "license",
-            "copyright",
-        ]  # in list of objects
-        subkeys_contributors = [
-            "name",
-            "email",
-            "date",
-            "comment",
-        ]  # in list of objects
-        subkeys_resources = ["name", "format", "fields"]  # in list of objects
-        list_subkeys = {
-            "sources": subkeys_sources,
-            "contributions": subkeys_contributors,
-            "resources": subkeys_resources,
-        }
-        subkeys_resources_fields = ["name", "description", "unit"]  # in list of objects
-
-        json_dict = json.loads(json_string)
-        try:
-            # check if all top level keys are present
-            for i in keys:
-                if not i in json_dict.keys():
-                    raise Exception(
-                        'The String did not contain the key "{0}"'.format(i)
-                    )
-            # check for all keys in second level objects
-            for key in object_subkeys:
-                for subkey in object_subkeys[key]:
-                    if not subkey in json_dict[key]:
-                        raise Exception(
-                            'The "{0}" object did not contain a "{1}" key'.format(
-                                key, subkey
-                            )
-                        )
-            # check for all objects in lists if they contain all required keys
-            for key in list_subkeys:
-                for list_element in json_dict[key]:
-                    for subkey in list_subkeys[key]:
-                        if not subkey in list_element:
-                            raise Exception(
-                                'An object in "{0}" is missing a "{1}" key'.format(
-                                    key, subkey
-                                )
-                            )
-        except Exception as error:
-            print(
-                "The input String does not conform to metadatastring version 1.3 standard"
-            )
-            print(error)
-
-    # TODO make function check all subkeys as well
-    def has_rogue_keys(self, json_string):
-        """Checks all keys if they are part of the metadata specification. Gives warnings if not.
-
-        Parameters
-        ----------
-        json_string: str
-            The JSON string to be checked.
-
-        Returns
-        -------
-        """
-
-        json_dict = json.loads(json_string)
-        allowed_keys = [
-            "title",
-            "description",
-            "language",
-            "spatial",
-            "temporal",
-            "sources",
-            "license",
-            "contributions",
-            "resources",
-            "metadata_version",
-        ]
-        for j in json_dict.keys():
-            if not j in allowed_keys:
-                print('Warning: "{0}" is not among the allowed keys'.format(j))
 
     def get_table_name(self, metadata_file):
         """Provides the tablename information from the metadata_file

@@ -1,0 +1,3 @@
+[submodule "src/omi/dialects/oep/spec"]
+	path = src/omi/dialects/oep/spec
+	url = https://github.com/OpenEnergyPlatform/metadata.git
