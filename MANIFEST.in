@@ -16,4 +16,6 @@ include README.rst
 
 include tox.ini .pre-commit-config.yaml .travis.yml appveyor.yml
 
+include .gitmodules
+
 global-exclude *.py[cod] __pycache__ *.so *.dylib
