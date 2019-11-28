@@ -27,9 +27,10 @@ class JSONParser(Parser):
         resource_package = __name__
         # Do not use os.path.join()
         resource_path = self._schema_file
-        self.schema = json.loads(
-            pkg_resources.resource_string(resource_package, resource_path)
-        )
+        schema_str = pkg_resources.resource_string(resource_package, resource_path)
+        if isinstance(schema_str, bytes):
+            schema_str = schema_str.decode("utf-8")
+        self.schema = json.loads(schema_str)
 
     def load_string(self, string: str, *args, **kwargs):
         return json.loads(string)
