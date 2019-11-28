@@ -66,7 +66,7 @@ metadata_v_1_3 = s.OEPMetadata(
         s.Source(
             title="Technical review and evaluation of Issue",
             description="Study financed by Organisation describes Issue. The study is authored by Jon Doe and Erika Mustermann",
-            path="http://dx.doi.org/1.1/j.d.2000.01.001",
+            path="https://doi.org/1.1/j.d.2000.01.001",
             licenses=None,
             #source_copyright="Publisher",
         ),
