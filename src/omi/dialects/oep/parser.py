@@ -89,7 +89,9 @@ class JSONParser_1_3(JSONParser):
                     title=old_source.get("name"),
                     description=old_source.get("description"),
                     path=old_source.get("url"),
-                    # source_copyright=old_source.get("copyright"),
+                    licenses=[
+                        structure.TermsOfUse(attribution=old_source.get("copyright"))
+                    ],
                 )
                 for old_source in old_sources
             ]
