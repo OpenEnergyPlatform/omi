@@ -13,21 +13,27 @@
         "resolution": "1 m"},
     "temporal": {
         "referenceDate": "2018-11-13",
-        "start": null,
-        "end": null,
-        "resolution": null,
-        "timestamp": null},
+        "timeseries": {
+            "aggregationType": null,
+            "alignment": null,
+            "end": null,
+            "resolution": null,
+            "start": null}
+},
     "sources": [
             {"title": "Technical review and evaluation of Issue",
             "description": "Study financed by Organisation describes Issue. The study is authored by Jon Doe and Erika Mustermann",
-            "path": "http://dx.doi.org/1.1/j.d.2000.01.001",
-            "license": null,
-            "copyright": "Publisher"},
+            "path": "https://doi.org/1.1/j.d.2000.01.001",
+            "licenses": [{"attribution":  "Publisher",
+                "instruction": null}]
+            },
             {"title": "Metastudy on Issue",
             "description": "Study financed by State Actor evaluates Issue in regions. The study is authored by Jane Doe and Otto Normal",
-            "path": "http://dx.doi.org/2.2/j.d.2022.02.022",
-            "license": null,
-            "copyright": "Publisher2"}],
+            "path": "https://doi.org/2.2/j.d.2022.02.022",
+            "licenses": [{"attribution":  "Publisher2",
+                "instruction": null
+            }]
+            }],
     "licenses": [
             {"instruction": "You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
             "attribution": "Institute",
@@ -74,7 +80,7 @@
             "dialect": null}],
     "review": null,
     "metaMetadata": {
-        "metadataVersion": "OEP-1.4",
+        "metadataVersion": "OEP-1.4.0",
         "metadataLicense": {
             "name": "CC0-1.0",
             "title": "Creative Commons Zero v1.0 Universal",

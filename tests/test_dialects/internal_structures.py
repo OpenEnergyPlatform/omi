@@ -22,28 +22,24 @@ _target_year.resource = _target_resource
 
 
 cc010 = s.License(
-                name="Creative Commons Zero v1.0 Universal",
-                identifier="CC0-1.0",
-                path="https://creativecommons.org/publicdomain/zero/1.0/legalcode",
-                other_references=None,
-                text=None,
-            )
+    name="Creative Commons Zero v1.0 Universal",
+    identifier="CC0-1.0",
+    path="https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+    other_references=None,
+    text=None,
+)
 
 odbl10 = s.License(
-                identifier="ODbL-1.0",
-                name="Open Data Commons Open Database License 1.0",
-                path="https://opendatacommons.org/licenses/odbl/1.0/",
-                other_references=None,
-                text=None,
-            )
+    identifier="ODbL-1.0",
+    name="Open Data Commons Open Database License 1.0",
+    path="https://opendatacommons.org/licenses/odbl/1.0/",
+    other_references=None,
+    text=None,
+)
 
 odbl10_13 = s.License(
-                name=None,
-                identifier="ODbL-1.0",
-                path=None,
-                other_references=None,
-                text=None,
-            )
+    name=None, identifier="ODbL-1.0", path=None, other_references=None, text=None
+)
 
 metadata_v_1_3 = s.OEPMetadata(
     name=None,
@@ -67,15 +63,13 @@ metadata_v_1_3 = s.OEPMetadata(
             title="Technical review and evaluation of Issue",
             description="Study financed by Organisation describes Issue. The study is authored by Jon Doe and Erika Mustermann",
             path="https://doi.org/1.1/j.d.2000.01.001",
-            licenses=None,
-            #source_copyright="Publisher",
+            licenses=[s.TermsOfUse(attribution="Publisher")],
         ),
         s.Source(
             title="Metastudy on Issue",
             description="Study financed by State Actor evaluates Issue in regions. The study is authored by Jane Doe and Otto Normal",
-            path="http://dx.doi.org/2.2/j.d.2022.02.022",
-            licenses=None,
-            #source_copyright="Publisher2",
+            path="https://doi.org/2.2/j.d.2022.02.022",
+            licenses=[s.TermsOfUse(attribution="Publisher2")],
         ),
     ],
     terms_of_use=[
@@ -163,12 +157,11 @@ metadata_v_1_4 = s.OEPMetadata(
         grant_number="03ET4057",
         funding_agency=s.Agency(
             name="Bundesministerium für Wirtschaft und Energie",
-            logo="https://www.innovation-beratung-foerderung.de/INNO/Redaktion/DE/Bilder/Titelbilder/titel_foerderlogo_bmwi.jpg?__blob=poster&v=2"
+            logo="https://www.innovation-beratung-foerderung.de/INNO/Redaktion/DE/Bilder/Titelbilder/titel_foerderlogo_bmwi.jpg?__blob=poster&v=2",
         ),
         publisher=s.Agency(
             logo="https://reiner-lemoine-institut.de//wp-content/uploads/2015/09/rlilogo.png"
-        )
-
+        ),
     ),
     spatial=s.Spatial(location=None, extent="europe", resolution="100 m"),
     temporal=s.Temporal(
@@ -181,27 +174,32 @@ metadata_v_1_4 = s.OEPMetadata(
         ),
         resolution="1 h",
         ts_orientation=s.TimestampOrientation.left,
-        aggregation="sum"
+        aggregation="sum",
     ),
     sources=[
         s.Source(
             title="OpenEnergyPlatform Metadata Example",
             description="Metadata description",
             path="https://github.com/OpenEnergyPlatform",
-            licenses=[s.TermsOfUse(
-                lic=cc010,
-                instruction="You are free: To Share, To Create, To Adapt",
-                attribution="© Reiner Lemoine Institut"
-            )],
+            licenses=[
+                s.TermsOfUse(
+                    lic=cc010,
+                    instruction="You are free: To Share, To Create, To Adapt",
+                    attribution="© Reiner Lemoine Institut",
+                )
+            ],
         ),
         s.Source(
             title="OpenStreetMap",
             description="A collaborative project to create a free editable map of the world",
             path="https://www.openstreetmap.org/",
-            licenses=[s.TermsOfUse(
-                lic=odbl10,
-                instruction="You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
-                attribution="© OpenStreetMap contributors")],
+            licenses=[
+                s.TermsOfUse(
+                    lic=odbl10,
+                    instruction="You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
+                    attribution="© OpenStreetMap contributors",
+                )
+            ],
         ),
     ],
     terms_of_use=[
