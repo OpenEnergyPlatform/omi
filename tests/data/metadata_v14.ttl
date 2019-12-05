@@ -17,7 +17,7 @@
             oeo:languages_info "Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)" ;
             oeo:licenses_info "License name must follow the SPDX License List (https://spdx.org/licenses/)" ;
             oeo:metadata_info "Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)" ;
-            oeo:none_info "If not applicable use (none)" ;
+            oeo:none_info "If not applicable use (null)" ;
             oeo:review_info "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)" ;
             oeo:units_info "Use a space between numbers and units (100 m)" ] ;
     oeo:documentation "https://github.com/OpenEnergyPlatform/organisation/wiki/metadata" ;
@@ -77,7 +77,7 @@
             oeo:object "metadata" ;
             dct:contributor [ a foaf:Person ;
                     foaf:name "Ludee" ] ],
-        [ oeo:comment "Apply template structure to example." ;
+        [ oeo:comment "Apply template structure to example" ;
             oeo:date "2019-02-05"^^xsd:date ;
             oeo:object "metadata" ;
             dct:contributor [ a foaf:Person ;
@@ -91,7 +91,12 @@
             oeo:date "2017-05-30"^^xsd:date ;
             oeo:object "metadata" ;
             dct:contributor [ a foaf:Person ;
-                    foaf:name "Ludee" ] ] ;
+                    foaf:name "Ludee" ] ] ,
+        [ oeo:comment "Release metadata version OEP-1.3.0" ;
+            oeo:date "2019-07-09"^^xsd:date ;
+            oeo:object "metadata" ;
+            dct:contributor [ a foaf:Person ;
+                    foaf:name "Ludee" ] ];
     oeo:has_resource [ a dcat:Distribution ;
             oeo:encoding "UTF-8" ;
             oeo:field _:N6d1fcbe69a154f9283bd5a0aadc815a5,
@@ -115,12 +120,9 @@
             dcat:accessURL "http://openenergyplatform.org/dataedit/view/model_draft/oep_metadata_table_example_v14" ] ;
     oeo:has_review [ oeo:has_badge "platin" ;
             foaf:page <https://github.com/OpenEnergyPlatform/data-preprocessing/wiki> ] ;
-    oeo:has_terms_of_use [ dcatde:licenseAttributionByText "© Reiner Lemoine Institut" ;
+    oeo:has_terms_of_use [ dcatde:licenseAttributionByText "© Reiner Lemoine Institut © OpenStreetMap contributors" ;
             oeo:has_instruction "You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!" ;
-            dcat:license [ a dcat:LicenseDocument ;
-                    spdx:licenseId "ODbL-1.0" ;
-                    spdx:name "Open Data Commons Open Database License 1.0" ;
-                    foaf:page "https://opendatacommons.org/licenses/odbl/1.0/" ] ] ;
+            dcat:license _:odbl ] ;
     oeo:metadataLicense <https://creativecommons.org/publicdomain/zero/1.0/legalcode> ;
     oeo:publicationDate "2018-06-12"^^xsd:date ;
     oeo:sourceCode "https://github.com/OpenEnergyPlatform/examples/tree/master/metadata" ;
@@ -129,32 +131,47 @@
         "en-GB",
         "en-US",
         "fr-FR" ;
-    dct:source [ dct:description "Metadata description" ;
-            dct:license [ a dcat:LicenseDocument ;
-                    spdx:licenseId "CC0-1.0" ] ;
-            dct:rights "© Reiner Lemoine Institut" ;
-            dct:title "OpenEnergyPlatform Metadata Example" ;
-            foaf:page "https://github.com/OpenEnergyPlatform" ],
-        [ dct:description "A collaborative project to create a free editable map of the world" ;
-            dct:license [ a dcat:LicenseDocument ;
-                    spdx:licenseId "ODbL-1.0" ] ;
-            dct:rights "© OpenStreetMap contributors" ;
-            dct:title "OpenStreetMap" ;
-            foaf:page "https://www.openstreetmap.org/" ] ;
+    dct:source [
+        dct:description "Metadata description" ;
+        oeo:has_terms_of_use  [
+            dcat:license _:cc0;
+            oeo:has_instruction "You are free: To Share, To Create, To Adapt" ;
+            dcatde:licenseAttributionByText "© Reiner Lemoine Institut" ;
+        ];
+        dct:title "OpenEnergyPlatform Metadata Example" ;
+        foaf:page "https://github.com/OpenEnergyPlatform"
+    ],[
+        dct:description "A collaborative project to create a free editable map of the world" ;
+        dct:title "OpenStreetMap" ;
+        oeo:has_terms_of_use  [
+            dcat:license _:odbl;
+            oeo:has_instruction "You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!" ;
+            dcatde:licenseAttributionByText "© OpenStreetMap contributors" ;
+        ];
+        foaf:page "https://www.openstreetmap.org/"
+    ] ;
     dct:spatial [ oeo:has_spatial_resolution "100 m" ;
             skos:prefLabel "europe" ] ;
     dct:temporal [ a dct:PeriodOfTime ;
-            oeo:has_orientation oeo:left_orientation ;
+            oeo:has_timestamp_alignment oeo:left_orientation ;
             oeo:has_time_resolution "1 h" ;
             oeo:referenceDate "2016-01-01T00:00:00"^^xsd:dateTime ;
             schema:endDate "2017-12-31T23:00:00+01:00"^^xsd:dateTime ;
-            schema:startDate "2017-01-01T00:00:00+01:00"^^xsd:dateTime ] ;
+            schema:startDate "2017-01-01T00:00:00+01:00"^^xsd:dateTime ;
+            oeo:uses_aggregation "sum"] ;
     dct:title "Good example title" ;
     adms:Identifier "oep_metadata_table_example_v14" ;
     dcat:contactpoint "https://github.com/Ludee" ;
     dcat:keyword "example",
         "template",
         "test" ;
+    oeo:has_funding_agency [
+        dct:title "Bundesministerium für Wirtschaft und Energie";
+        oeo:has_logo "https://www.innovation-beratung-foerderung.de/INNO/Redaktion/DE/Bilder/Titelbilder/titel_foerderlogo_bmwi.jpg?__blob=poster&v=2"
+    ];
+    oeo:has_publisher [
+        oeo:has_logo "https://reiner-lemoine-institut.de//wp-content/uploads/2015/09/rlilogo.png"
+    ];
     foaf:homepage "https://reiner-lemoine-institut.de/szenariendb/" .
 
 [] a dcat:Distribution ;
@@ -173,3 +190,13 @@ _:Nfe3d1d343c024a7a9a22bd5bced82242 a oeo:DatabaseField ;
     oeo:type "serial" ;
     dct:description "Unique identifier" ;
     dct:title "id" .
+
+_:odbl  a dcat:LicenseDocument ;
+        spdx:licenseId "ODbL-1.0" ;
+        spdx:name "Open Data Commons Open Database License 1.0" ;
+        foaf:page "https://opendatacommons.org/licenses/odbl/1.0/" .
+
+_:cc0 a dcat:LicenseDocument ;
+      spdx:licenseId "CC0-1.0" ;
+      spdx:name "Creative Commons Zero v1.0 Universal" ;
+      foaf:page "https://creativecommons.org/publicdomain/zero/1.0/legalcode" .
