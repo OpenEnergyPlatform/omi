@@ -48,13 +48,22 @@ class RDFCompiler(Compiler):
         else:
             self.graph = graph
 
+    def visit_agency(self, agency: structure.Agency, *args, **kwargs):
+        node = BNode()
+        self._add_literal_or_None(node, DCTERMS.title, agency.name)
+        self._add_literal_or_None(node, OEO.has_logo, agency.logo)
+        return node
+
     def visit_context(self, context: structure.Context, *args, **kwargs):
+
         return (
             Literal(context.homepage),
             Literal(context.contact),
             Literal(context.documentation),
             Literal(context.source_code),
             Literal(context.grant_number),
+            self.visit(context.funding_agency),
+            self.visit(context.publisher),
         )
 
     def visit_person(self, person: structure.Person, *args, **kwargs):
@@ -98,7 +107,10 @@ class RDFCompiler(Compiler):
         self._add_literal_or_None(node, SCHEMA.endDate, temporal.ts_end)
         self._add_literal_or_None(node, OEO.has_time_resolution, temporal.ts_resolution)
         self._add_literal_or_None(node, OEO.referenceDate, temporal.reference_date)
-        self.graph.add((node, OEO.has_orientation, self.visit(temporal.ts_orientation)))
+        self.graph.add(
+            (node, OEO.has_timestamp_alignment, self.visit(temporal.ts_orientation))
+        )
+        self._add_literal_or_None(node, OEO.uses_aggregation, temporal.aggregation)
         return node
 
     def visit_timestamp_orientation(
@@ -118,9 +130,9 @@ class RDFCompiler(Compiler):
         self._add_literal_or_None(node, DCTERMS.title, source.title)
         self._add_literal_or_None(node, DCTERMS.description, source.description)
         self._add_literal_or_None(node, FOAF.page, source.path)
-        li = self.visit(source.license)
-        self.graph.add((node, DCTERMS.license, li))
-        self._add_literal_or_None(node, DCTERMS.rights, source.copyright)
+        for l in source.licenses:
+            li = self.visit(l, **kwargs)
+            self.graph.add((node, OEO.has_terms_of_use, li))
         return node
 
     def visit_terms_of_use(self, tou: structure.TermsOfUse, *args, **kwargs):
@@ -129,22 +141,28 @@ class RDFCompiler(Compiler):
             node, DCATDE.licenseAttributionByText, tou.attribution
         )
         self._add_literal_or_None(node, OEO.has_instruction, tou.instruction)
-        self.graph.add((node, DCAT.license, self.visit(tou.license)))
+        self.graph.add((node, DCAT.license, self.visit(tou.license, **kwargs)))
         return node
 
-    def visit_license(self, lic: structure.License, *args, **kwargs):
+    def visit_license(self, lic: structure.License, *args, license_dict=None, **kwargs):
         if False:  # lic.name in LICENSE_DICT:
             li = URIRef(LICENSE_DICT[lic.identifier])
         else:
-            li = BNode()
-            self.graph.add((li, RDF.type, DCAT.LicenseDocument))
-            for ref in lic.other_references:
-                self._add_literal_or_None(li, SPDX.seeAlso, ref)
-            self._add_literal_or_None(li, FOAF.page, lic.path)
-            self._add_literal_or_None(li, SPDX.licenseId, lic.identifier)
-            if lic.text:
-                self._add_literal_or_None(li, SPDX.licenseText, lic.text)
-            self._add_literal_or_None(li, SPDX.name, lic.name)
+            if license_dict is not None and lic.identifier in license_dict:
+                li = license_dict[lic.identifier]
+            else:
+                li = BNode()
+                self.graph.add((li, RDF.type, DCAT.LicenseDocument))
+                if lic.other_references:
+                    for ref in lic.other_references:
+                        self._add_literal_or_None(li, SPDX.seeAlso, ref)
+                self._add_literal_or_None(li, FOAF.page, lic.path)
+                self._add_literal_or_None(li, SPDX.licenseId, lic.identifier)
+                if lic.text:
+                    self._add_literal_or_None(li, SPDX.licenseText, lic.text)
+                self._add_literal_or_None(li, SPDX.name, lic.name)
+                if license_dict is not None and lic.identifier is not None:
+                    license_dict[lic.identifier] = li
         return li
 
     def visit_resource(
@@ -270,6 +288,8 @@ class RDFCompiler(Compiler):
     def visit_metadata(self, metadata: structure.OEPMetadata, *args, **kwargs):
         datasetURI = URIRef(metadata.identifier)
 
+        license_dict = kwargs.get("license_dict", {})
+
         self.graph.add((datasetURI, RDF.type, DCAT.Dataset))
         self._add_literal_or_None(datasetURI, ADMS.Identifier, metadata.name)
         self._add_literal_or_None(datasetURI, DCTERMS.title, metadata.title)
@@ -291,7 +311,7 @@ class RDFCompiler(Compiler):
             )
         )
 
-        homepage, contact, documentation, source_code, grant_number = self.visit(
+        homepage, contact, documentation, source_code, grant_number, funding_agency, publisher = self.visit(
             metadata.context
         )
 
@@ -301,12 +321,26 @@ class RDFCompiler(Compiler):
         self.graph.add((datasetURI, OEO.sourceCode, source_code))
         self.graph.add((datasetURI, OEO.grantNo, grant_number))
 
+        if funding_agency:
+            self.graph.add((datasetURI, OEO.has_funding_agency, funding_agency))
+
+        if publisher:
+            self.graph.add((datasetURI, OEO.has_publisher, publisher))
+
         self.graph.add((datasetURI, DCTERMS.spatial, self.visit(metadata.spatial)))
         self.graph.add((datasetURI, DCTERMS.temporal, self.visit(metadata.temporal)))
         for s in metadata.sources:
-            self.graph.add((datasetURI, DCTERMS.source, self.visit(s)))
+            self.graph.add(
+                (datasetURI, DCTERMS.source, self.visit(s, license_dict=license_dict))
+            )
         for l in metadata.license:
-            self.graph.add((datasetURI, OEO.has_terms_of_use, self.visit(l)))
+            self.graph.add(
+                (
+                    datasetURI,
+                    OEO.has_terms_of_use,
+                    self.visit(l, license_dict=license_dict),
+                )
+            )
 
         for c in metadata.contributions:
             self.graph.add((datasetURI, OEO.has_contribution, self.visit(c)))

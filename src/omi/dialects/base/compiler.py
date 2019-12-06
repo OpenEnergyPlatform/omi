@@ -2,7 +2,26 @@ from omi import structure
 
 
 class Compiler:
+    """
+    Compiles :class:`~omi.structure.Compilable` objects into the respective metadata
+    format. Every omi compiler should inherit from this class
+    """
     def visit(self, obj, *args, **kwargs):
+        """
+        Calls the respective compiler for :class:`~omi.structure.Compilable` objects
+        respective to :attr:`Compilable.__compiler_name__`
+
+
+        Parameters
+        ----------
+        obj
+            Object to compile
+
+        Returns
+        -------
+            Metadata representation of `obj`
+
+        """
         if isinstance(obj, structure.Compilable):
             meth = getattr(self, "visit_{name}".format(name=obj.__compiler_name__))
             return meth(obj, *args, **kwargs)

@@ -1,5 +1,6 @@
-from omi import structure as s
 import datetime
+
+from omi import structure as s
 
 _source_year = s.Field(
     name="year", description="Reference year", field_type="integer", unit=None
@@ -19,21 +20,36 @@ _target_resource = s.Resource(
 
 _target_year.resource = _target_resource
 
+
+cc010 = s.License(
+    name="Creative Commons Zero v1.0 Universal",
+    identifier="CC0-1.0",
+    path="https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+    other_references=None,
+    text=None,
+)
+
+odbl10 = s.License(
+    identifier="ODbL-1.0",
+    name="Open Data Commons Open Database License 1.0",
+    path="https://opendatacommons.org/licenses/odbl/1.0/",
+    other_references=None,
+    text=None,
+)
+
+odbl10_13 = s.License(
+    name=None, identifier="ODbL-1.0", path=None, other_references=None, text=None
+)
+
 metadata_v_1_3 = s.OEPMetadata(
     name=None,
     title="Conceived Example Table Meant for Creating an Illustrative Metadata String thereof",
     identifier=None,
     description="An imaginary table that provides many features, offering a suitable source for metadata template entries",
     languages=["eng"],
-    keywords=[],
+    keywords=None,
     publication_date=None,
-    context=s.Context(
-        homepage=None,
-        documentation=None,
-        source_code=None,
-        contact=None,
-        grant_number=None,
-    ),
+    context=None,
     spatial=s.Spatial(location=None, extent="Berlin", resolution="1 m"),
     temporal=s.Temporal(
         reference_date=datetime.datetime(2018, 11, 13),
@@ -46,27 +62,19 @@ metadata_v_1_3 = s.OEPMetadata(
         s.Source(
             title="Technical review and evaluation of Issue",
             description="Study financed by Organisation describes Issue. The study is authored by Jon Doe and Erika Mustermann",
-            path="http://dx.doi.org/1.1/j.d.2000.01.001",
-            source_license=None,
-            source_copyright="Publisher",
+            path="https://doi.org/1.1/j.d.2000.01.001",
+            licenses=[s.TermsOfUse(attribution="Publisher")],
         ),
         s.Source(
             title="Metastudy on Issue",
             description="Study financed by State Actor evaluates Issue in regions. The study is authored by Jane Doe and Otto Normal",
-            path="http://dx.doi.org/2.2/j.d.2022.02.022",
-            source_license=None,
-            source_copyright="Publisher2",
+            path="https://doi.org/2.2/j.d.2022.02.022",
+            licenses=[s.TermsOfUse(attribution="Publisher2")],
         ),
     ],
     terms_of_use=[
         s.TermsOfUse(
-            lic=s.License(
-                identifier="ODbL-1.0",
-                name="Open Data Commons Open Database License 1.0",
-                path="https://opendatacommons.org/licenses/odbl/1.0/",
-                other_references=[],
-                text=None,
-            ),
+            lic=odbl10,
             instruction="You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
             attribution="Institute",
         )
@@ -121,7 +129,7 @@ metadata_v_1_3 = s.OEPMetadata(
                     ),
                 ],
                 primary_key=None,
-                foreign_keys=[],
+                foreign_keys=None,
             ),
             path=None,
             profile=None,
@@ -129,16 +137,8 @@ metadata_v_1_3 = s.OEPMetadata(
             dialect=None,
         )
     ],
-    review=s.Review(path=None, badge=None),
-    comment=s.MetaComment(
-        metadata_info="Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
-        dates="Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
-        units="Use a space between numbers and units (100 m)",
-        languages="Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
-        licenses="License name must follow the SPDX License List (https://spdx.org/licenses/",
-        review="Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
-        none="If not applicable use (none)",
-    ),
+    review=None,
+    comment=None,
 )
 
 metadata_v_1_4 = s.OEPMetadata(
@@ -155,6 +155,13 @@ metadata_v_1_4 = s.OEPMetadata(
         source_code="https://github.com/OpenEnergyPlatform/examples/tree/master/metadata",
         contact="https://github.com/Ludee",
         grant_number="03ET4057",
+        funding_agency=s.Agency(
+            name="Bundesministerium für Wirtschaft und Energie",
+            logo="https://www.innovation-beratung-foerderung.de/INNO/Redaktion/DE/Bilder/Titelbilder/titel_foerderlogo_bmwi.jpg?__blob=poster&v=2",
+        ),
+        publisher=s.Agency(
+            logo="https://reiner-lemoine-institut.de//wp-content/uploads/2015/09/rlilogo.png"
+        ),
     ),
     spatial=s.Spatial(location=None, extent="europe", resolution="100 m"),
     temporal=s.Temporal(
@@ -167,46 +174,39 @@ metadata_v_1_4 = s.OEPMetadata(
         ),
         resolution="1 h",
         ts_orientation=s.TimestampOrientation.left,
+        aggregation="sum",
     ),
     sources=[
         s.Source(
             title="OpenEnergyPlatform Metadata Example",
             description="Metadata description",
             path="https://github.com/OpenEnergyPlatform",
-            source_license=s.License(
-                name=None,
-                identifier="CC0-1.0",
-                path=None,
-                other_references=[],
-                text=None,
-            ),
-            source_copyright="© Reiner Lemoine Institut",
+            licenses=[
+                s.TermsOfUse(
+                    lic=cc010,
+                    instruction="You are free: To Share, To Create, To Adapt",
+                    attribution="© Reiner Lemoine Institut",
+                )
+            ],
         ),
         s.Source(
             title="OpenStreetMap",
             description="A collaborative project to create a free editable map of the world",
             path="https://www.openstreetmap.org/",
-            source_license=s.License(
-                name=None,
-                identifier="ODbL-1.0",
-                path=None,
-                other_references=[],
-                text=None,
-            ),
-            source_copyright="© OpenStreetMap contributors",
+            licenses=[
+                s.TermsOfUse(
+                    lic=odbl10,
+                    instruction="You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
+                    attribution="© OpenStreetMap contributors",
+                )
+            ],
         ),
     ],
     terms_of_use=[
         s.TermsOfUse(
-            lic=s.License(
-                identifier="ODbL-1.0",
-                name="Open Data Commons Open Database License 1.0",
-                path="https://opendatacommons.org/licenses/odbl/1.0/",
-                other_references=[],
-                text=None,
-            ),
+            lic=odbl10,
             instruction="You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
-            attribution="© Reiner Lemoine Institut",
+            attribution="© Reiner Lemoine Institut © OpenStreetMap contributors",
         )
     ],
     contributions=[
@@ -286,13 +286,19 @@ metadata_v_1_4 = s.OEPMetadata(
             contributor=s.Person(name="christian-rli", email=None),
             date=datetime.datetime(2019, 2, 5),
             obj="metadata",
-            comment="Apply template structure to example.",
+            comment="Apply template structure to example",
         ),
         s.Contribution(
             contributor=s.Person(name="Ludee", email=None),
             date=datetime.datetime(2019, 3, 22),
             obj="metadata",
             comment="Hotfix foreignKeys",
+        ),
+        s.Contribution(
+            contributor=s.Person(name="Ludee", email=None),
+            date=datetime.datetime(2019, 7, 9),
+            obj="metadata",
+            comment="Release metadata version OEP-1.3.0",
         ),
     ],
     resources=[
@@ -347,6 +353,11 @@ metadata_v_1_4 = s.OEPMetadata(
         languages="Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
         licenses="License name must follow the SPDX License List (https://spdx.org/licenses/)",
         review="Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
-        none="If not applicable use (none)",
+        none="If not applicable use (null)",
     ),
 )
+
+
+metadata_v_1_3_minimal = s.OEPMetadata()
+
+metadata_v_1_4_minimal = s.OEPMetadata(identifier="id")

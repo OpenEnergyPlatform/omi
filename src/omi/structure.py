@@ -4,7 +4,15 @@ from typing import Iterable
 
 
 class Compilable:
+    """
+    An abstract class for all metadata components.
+    """
+
     __compiler_name__ = None
+    """Used to identify the appropriate compiler function for this structure"""
+
+    __required__ = None
+    __optional__ = None
 
     def __repr__(self):
         return "{}({})".format(
@@ -24,6 +32,16 @@ class Compilable:
                 return False
         return False
 
+    def get_missing_fields(self):
+        for key in sorted(self.__dict__):
+            if key in self.__required__:
+                if s is None:
+                    yield key
+                v = getattr(self, key)
+                if isinstance(v, Compilable):
+                    for x in v.get_missing_fields():
+                        yield key + "." + x
+
 
 class Language(Compilable):
     __compiler_name__ = "language"
@@ -32,7 +50,9 @@ class Language(Compilable):
 class Spatial(Compilable):
     __compiler_name__ = "spatial"
 
-    def __init__(self, location: str, extent: str, resolution: str):
+    def __init__(
+        self, location: str = None, extent: str = None, resolution: str = None
+    ):
         self.location = location
         self.extent = extent
         self.resolution = resolution
@@ -61,11 +81,12 @@ class Temporal(Compilable):
 
     def __init__(
         self,
-        reference_date: datetime,
-        start: datetime,
-        end: datetime,
-        resolution: str,
-        ts_orientation: TimestampOrientation,
+        reference_date: datetime = None,
+        start: datetime = None,
+        end: datetime = None,
+        resolution: str = None,
+        ts_orientation: TimestampOrientation = None,
+        aggregation: str = None,
     ):  # TODO: This should not be a string... maybe
         # we should use datetime instead?
         self.reference_date = reference_date
@@ -73,6 +94,7 @@ class Temporal(Compilable):
         self.ts_end = end
         self.ts_resolution = resolution
         self.ts_orientation = ts_orientation
+        self.aggregation = aggregation
 
 
 class License(Compilable):
@@ -80,11 +102,11 @@ class License(Compilable):
 
     def __init__(
         self,
-        name: str,
-        identifier: str,
-        text: str,
-        path: str,
-        other_references: Iterable[str],
+        name: str = None,
+        identifier: str = None,
+        text: str = None,
+        path: str = None,
+        other_references: Iterable[str] = None,
         comment: str = None,
     ):
         self.name = name
@@ -104,7 +126,9 @@ class License(Compilable):
 class TermsOfUse(Compilable):
     __compiler_name__ = "terms_of_use"
 
-    def __init__(self, instruction: str, attribution: str, lic: License):
+    def __init__(
+        self, instruction: str = None, attribution: str = None, lic: License = None
+    ):
         self.instruction = instruction
         self.attribution = attribution
         self.license = lic
@@ -115,23 +139,21 @@ class Source(Compilable):
 
     def __init__(
         self,
-        title: str,
-        description: str,
-        path: str,
-        source_license: License,
-        source_copyright: str,
+        title: str = None,
+        description: str = None,
+        path: str = None,
+        licenses: Iterable[TermsOfUse] = None,
     ):
         self.title = title
         self.description = description
         self.path = path
-        self.license = source_license
-        self.copyright = source_copyright
+        self.licenses = licenses
 
 
 class Person(Compilable):
     __compiler_name__ = "person"
 
-    def __init__(self, name: str, email: str):
+    def __init__(self, name: str = None, email: str = None):
         self.name = name
         self.email = email
 
@@ -139,7 +161,13 @@ class Person(Compilable):
 class Contribution(Compilable):
     __compiler_name__ = "contribution"
 
-    def __init__(self, contributor: Person, date: datetime, obj: str, comment: str):
+    def __init__(
+        self,
+        contributor: Person = None,
+        date: datetime = None,
+        obj: str = None,
+        comment: str = None,
+    ):
         self.contributor = contributor
         self.date = date
         self.object = obj
@@ -151,10 +179,10 @@ class Field(Compilable):
 
     def __init__(
         self,
-        name: str,
-        description: str,
-        field_type: str,
-        unit: str,
+        name: str = None,
+        description: str = None,
+        field_type: str = None,
+        unit: str = None,
         resource: "Resource" = None,
     ):
         self.name = name
@@ -174,28 +202,40 @@ class Field(Compilable):
         )
 
 
+class Agency(Compilable):
+    __compiler_name__ = "agency"
+
+    def __init__(self, name: str = None, logo: str = None):
+        self.name = name
+        self.logo = logo
+
+
 class Context(Compilable):
     __compiler_name__ = "context"
 
     def __init__(
         self,
-        homepage: str,
-        documentation: str,
-        source_code: str,
-        contact: str,
-        grant_number: str,
+        homepage: str = None,
+        documentation: str = None,
+        source_code: str = None,
+        contact: str = None,
+        grant_number: str = None,
+        funding_agency: Agency = None,
+        publisher: Agency = None,
     ):
         self.homepage = homepage
         self.documentation = documentation
         self.source_code = source_code
         self.contact = contact
         self.grant_number = grant_number
+        self.funding_agency = funding_agency
+        self.publisher = publisher
 
 
 class Reference(Compilable):
     __compiler_name__ = "reference"
 
-    def __init__(self, source: Field, target: Field):
+    def __init__(self, source: Field = None, target: Field = None):
         self.source = source
         self.target = target
 
@@ -203,7 +243,7 @@ class Reference(Compilable):
 class ForeignKey(Compilable):
     __compiler_name__ = "foreign_key"
 
-    def __init__(self, references: Iterable[Reference]):
+    def __init__(self, references: Iterable[Reference] = None):
         self.references = references
 
 
@@ -212,9 +252,9 @@ class Schema(Compilable):
 
     def __init__(
         self,
-        fields: Iterable[Field],
-        primary_key: Iterable[str],
-        foreign_keys: Iterable[ForeignKey],
+        fields: Iterable[Field] = None,
+        primary_key: Iterable[str] = None,
+        foreign_keys: Iterable[ForeignKey] = None,
     ):
         self.fields = fields
         self.primary_key = primary_key
@@ -224,7 +264,7 @@ class Schema(Compilable):
 class Dialect(Compilable):
     __compiler_name__ = "dialect"
 
-    def __init__(self, delimiter: str, decimal_separator: str):
+    def __init__(self, delimiter: str = None, decimal_separator: str = None):
         self.delimiter = delimiter
         self.decimal_separator = decimal_separator
 
@@ -234,13 +274,13 @@ class Resource(Compilable):
 
     def __init__(
         self,
-        name: str,
-        path: str,
-        profile: str,
-        resource_format: str,
-        encoding: str,
-        schema: Schema,
-        dialect: Dialect,
+        name: str = None,
+        path: str = None,
+        profile: str = None,
+        resource_format: str = None,
+        encoding: str = None,
+        schema: Schema = None,
+        dialect: Dialect = None,
     ):
         self.name = name
         self.path = path
@@ -259,13 +299,13 @@ class MetaComment(Compilable):
 
     def __init__(
         self,
-        metadata_info: str,
-        dates: str,
-        units: str,
-        languages: str,
-        licenses: str,
-        review: str,
-        none: str,
+        metadata_info: str = None,
+        dates: str = None,
+        units: str = None,
+        languages: str = None,
+        licenses: str = None,
+        review: str = None,
+        none: str = None,
     ):
         self.metadata_info = metadata_info
         self.dates = dates
@@ -279,32 +319,33 @@ class MetaComment(Compilable):
 class Review(Compilable):
     __compiler_name__ = "review"
 
-    def __init__(self, path: str, badge: str):
+    def __init__(self, path: str = None, badge: str = None):
         self.path = path
         self.badge = badge
 
 
 class OEPMetadata(Compilable):
     __compiler_name__ = "metadata"
+    __required__ = ["id"]
 
     def __init__(
         self,
-        name: str,
-        title: str,
-        identifier: str,
-        description: str,
-        languages: Iterable[Language],
-        keywords: Iterable[str],
-        publication_date: datetime,
-        context: Context,
-        spatial: Spatial,
-        temporal: Temporal,
-        sources: Iterable[Source],
-        terms_of_use: Iterable[TermsOfUse],
-        contributions: Iterable[Contribution],
-        resources: Iterable[Resource],
-        review: Review,
-        comment: MetaComment,
+        name: str = None,
+        title: str = None,
+        identifier: str = None,
+        description: str = None,
+        languages: Iterable[Language] = None,
+        keywords: Iterable[str] = None,
+        publication_date: datetime = None,
+        context: Context = None,
+        spatial: Spatial = None,
+        temporal: Temporal = None,
+        sources: Iterable[Source] = None,
+        terms_of_use: Iterable[TermsOfUse] = None,
+        contributions: Iterable[Contribution] = None,
+        resources: Iterable[Resource] = None,
+        review: Review = None,
+        comment: MetaComment = None,
     ):
         self.name = name
         self.title = title

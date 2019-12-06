@@ -1,0 +1,88 @@
+{
+    "name": null,
+    "title": "Conceived Example Table Meant for Creating an Illustrative Metadata String thereof",
+    "id": null,
+    "description": "An imaginary table that provides many features, offering a suitable source for metadata template entries",
+    "language": [ "eng"  ],
+    "keywords": null,
+    "publicationDate": null,
+    "context": null,
+    "spatial": {
+        "location": null,
+        "extent": "Berlin",
+        "resolution": "1 m"},
+    "temporal": {
+        "referenceDate": "2018-11-13",
+        "timeseries": {
+            "aggregationType": null,
+            "alignment": null,
+            "end": null,
+            "resolution": null,
+            "start": null}
+},
+    "sources": [
+            {"title": "Technical review and evaluation of Issue",
+            "description": "Study financed by Organisation describes Issue. The study is authored by Jon Doe and Erika Mustermann",
+            "path": "https://doi.org/1.1/j.d.2000.01.001",
+            "licenses": [{"attribution":  "Publisher",
+                "instruction": null}]
+            },
+            {"title": "Metastudy on Issue",
+            "description": "Study financed by State Actor evaluates Issue in regions. The study is authored by Jane Doe and Otto Normal",
+            "path": "https://doi.org/2.2/j.d.2022.02.022",
+            "licenses": [{"attribution":  "Publisher2",
+                "instruction": null
+            }]
+            }],
+    "licenses": [
+            {"instruction": "You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
+            "attribution": "Institute",
+            "name": "ODbL-1.0",
+            "title": "Open Data Commons Open Database License 1.0",
+            "path": "https://opendatacommons.org/licenses/odbl/1.0/"}],
+    "contributors": [
+            {"title": "Person McHuman",
+            "email": "person.mchuman@good-institute.net",
+            "object": null,
+            "date": "2011-01-11",
+            "comment": "Prepared the dataset"},
+            {"title": "Indivia Mensch",
+            "email": "indivia.mensch@gute-organisation.org",
+            "object": null,
+            "date": "2012-02-12",
+            "comment": "Fixed Metadata String and date format "}],
+    "resources": [
+            {"profile": null,
+            "name": "example.datatable",
+            "path": null,
+            "format": "PostgreSQL",
+            "encoding": null,
+            "schema": {
+          "fields": [
+                        {"name": "id",
+                        "description": "unambiguous unique numer",
+                        "type": null,
+                        "unit": "none"},
+                        {"name": "component_id",
+                        "description": "Identifying numer of component. May repeat due to several occurences of the same component.",
+                        "type": null,
+                        "unit": "none"},
+                        {"name": "measurement",
+                        "description": "Measured by Instrument",
+                        "type": null,
+                        "unit": "kWh"},
+                        {"name": "reference",
+                        "description": "Bibtex String that references the information source.",
+                        "type": null,
+                        "unit": "none"}],
+          "primaryKey": null,
+          "foreignKeys": null},
+            "dialect": null}],
+    "review": null,
+    "metaMetadata": {
+        "metadataVersion": "OEP-1.4.0",
+        "metadataLicense": {
+            "name": "CC0-1.0",
+            "title": "Creative Commons Zero v1.0 Universal",
+            "path": "https://creativecommons.org/publicdomain/zero/1.0/"}},
+    "_comment": null}

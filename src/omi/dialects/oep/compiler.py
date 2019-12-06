@@ -6,23 +6,33 @@ from omi.dialects.base.compiler import Compiler
 
 
 class JSONCompiler(Compiler):
-    __METADATA_VERSION = "OEP-1.4"
+    __METADATA_VERSION = "OEP-1.4.0"
 
     def visit_context(self, context: structure.Context, *args, **kwargs):
-        return OrderedDict(
+        result = OrderedDict(
             homepage=self.visit(context.homepage),
             documentation=self.visit(context.documentation),
             sourceCode=self.visit(context.source_code),
             contact=self.visit(context.contact),
             grantNo=self.visit(context.grant_number),
         )
+        if context.funding_agency is not None:
+            if context.funding_agency.name is not None:
+                result["fundingAgency"] = context.funding_agency.name
+            if context.funding_agency.logo is not None:
+                result["fundingAgencyLogo"] = context.funding_agency.logo
+        if context.publisher is not None:
+            result["publisherLogo"] = context.publisher.logo
+        return result
 
     def visit_contribution(self, contribution: structure.Contribution, *args, **kwargs):
         return OrderedDict(
             title=self.visit(contribution.contributor.name),
             email=self.visit(contribution.contributor.email),
             object=self.visit(contribution.object),
-            date=contribution.date.strftime("%Y-%m-%d"),
+            date=contribution.date.strftime("%Y-%m-%d")
+            if contribution.date is not None
+            else None,
             comment=self.visit(contribution.comment),
         )
 
@@ -57,10 +67,13 @@ class JSONCompiler(Compiler):
             end = temporal.ts_end.strftime("%Y-%m-%dT%H:%M%z")[:-2]
         return OrderedDict(
             referenceDate=temporal.reference_date.strftime("%Y-%m-%d"),
-            start=start,
-            end=end,
-            resolution=self.visit(temporal.ts_resolution),
-            timestamp=self.visit(temporal.ts_orientation),
+            timeseries=OrderedDict(
+                start=start,
+                end=end,
+                resolution=self.visit(temporal.ts_resolution),
+                alignment=self.visit(temporal.ts_orientation),
+                aggregationType=self.visit(temporal.aggregation),
+            ),
         )
 
     def visit_source(self, source: structure.Source, *args, **kwargs):
@@ -68,8 +81,9 @@ class JSONCompiler(Compiler):
             title=self.visit(source.title),
             description=self.visit(source.description),
             path=self.visit(source.path),
-            license=self.visit(source.license.identifier) if source.license else None,
-            copyright=self.visit(source.copyright),
+            licenses=[self.visit(l) for l in source.licenses]
+            if source.licenses is not None
+            else None,
         )
 
     def visit_license(self, lic: structure.License, *args, **kwargs):
@@ -80,10 +94,13 @@ class JSONCompiler(Compiler):
         )
 
     def visit_terms_of_use(self, terms_of_use: structure.TermsOfUse):
+        license_kwargs = (
+            self.visit(terms_of_use.license) if terms_of_use.license else {}
+        )
         return OrderedDict(
             instruction=self.visit(terms_of_use.instruction),
             attribution=self.visit(terms_of_use.attribution),
-            **self.visit(terms_of_use.license)
+            **license_kwargs
         )
 
     def visit_resource(self, resource: structure.Resource, *args, **kwargs):
@@ -109,7 +126,9 @@ class JSONCompiler(Compiler):
         return OrderedDict(
             fields=list(map(self.visit, schema.fields)),
             primaryKey=self.visit(schema.primary_key),
-            foreignKeys=list(map(self.visit, schema.foreign_keys)),
+            foreignKeys=list(map(self.visit, schema.foreign_keys))
+            if schema.foreign_keys
+            else None,
         )
 
     def visit_dialect(self, dialect: structure.Dialect, *args, **kwargs):
@@ -154,7 +173,7 @@ class JSONCompiler(Compiler):
             languages=comment.languages,
             licenses=comment.licenses,
             review=comment.review,
-            none=comment.none,
+            null=comment.none,
         )
 
     def visit_metadata(self, metadata: structure.OEPMetadata, *args, **kwargs):
@@ -166,16 +185,26 @@ class JSONCompiler(Compiler):
             title=metadata.title,
             id=metadata.identifier,
             description=metadata.description,
-            language=list(map(self.visit, metadata.languages)),
+            language=list(map(self.visit, metadata.languages))
+            if metadata.languages is not None
+            else None,
             keywords=metadata.keywords,
             publicationDate=publication_date,
             context=self.visit(metadata.context),
             spatial=self.visit(metadata.spatial),
             temporal=self.visit(metadata.temporal),
-            sources=list(map(self.visit, metadata.sources)),
-            licenses=list(map(self.visit, metadata.license)),
-            contributors=list(map(self.visit, metadata.contributions)),
-            resources=list(map(self.visit, metadata.resources)),
+            sources=list(map(self.visit, metadata.sources))
+            if metadata.sources is not None
+            else None,
+            licenses=list(map(self.visit, metadata.license))
+            if metadata.license is not None
+            else None,
+            contributors=list(map(self.visit, metadata.contributions))
+            if metadata.contributions is not None
+            else None,
+            resources=list(map(self.visit, metadata.resources))
+            if metadata.resources is not None
+            else None,
             review=self.visit(metadata.review),
             metaMetadata=OrderedDict(
                 metadataVersion=self.__METADATA_VERSION,

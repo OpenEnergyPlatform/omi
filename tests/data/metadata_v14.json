@@ -10,34 +10,47 @@
     "documentation": "https://github.com/OpenEnergyPlatform/organisation/wiki/metadata",
     "sourceCode": "https://github.com/OpenEnergyPlatform/examples/tree/master/metadata",
     "contact": "https://github.com/Ludee",
-    "grantNo": "03ET4057"},
+    "grantNo": "03ET4057",
+    "fundingAgency": "Bundesministerium für Wirtschaft und Energie",
+    "fundingAgencyLogo": "https://www.innovation-beratung-foerderung.de/INNO/Redaktion/DE/Bilder/Titelbilder/titel_foerderlogo_bmwi.jpg?__blob=poster&v=2",
+    "publisherLogo": "https://reiner-lemoine-institut.de//wp-content/uploads/2015/09/rlilogo.png"},
 "spatial":
     {"location": null,
     "extent": "europe",
     "resolution": "100 m"},
 "temporal":
     {"referenceDate": "2016-01-01",
-    "start": "2017-01-01T00:00+01",
-    "end": "2017-12-31T23:00+01",
-    "resolution": "1 h",
-    "timestamp": "left"},
+    "timeseries":
+        {"start": "2017-01-01T00:00+01",
+        "end": "2017-12-31T23:00+01",
+        "resolution": "1 h",
+        "alignment": "left",
+        "aggregationType": "sum"} },
 "sources": [
     {"title": "OpenEnergyPlatform Metadata Example",
     "description": "Metadata description",
     "path": "https://github.com/OpenEnergyPlatform",
-    "license": "CC0-1.0",
-    "copyright": "© Reiner Lemoine Institut"},
+    "licenses": [
+        {"name": "CC0-1.0",
+        "title": "Creative Commons Zero v1.0 Universal",
+        "path": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+        "instruction": "You are free: To Share, To Create, To Adapt",
+        "attribution": "© Reiner Lemoine Institut"} ] },
     {"title": "OpenStreetMap",
     "description": "A collaborative project to create a free editable map of the world",
     "path": "https://www.openstreetmap.org/",
-    "license": "ODbL-1.0",
-    "copyright": "© OpenStreetMap contributors"} ],
+    "licenses": [
+        {"name": "ODbL-1.0",
+        "title": "Open Data Commons Open Database License 1.0",
+        "path": "https://opendatacommons.org/licenses/odbl/1.0/",
+        "instruction": "You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
+        "attribution": "© OpenStreetMap contributors"} ] } ],
 "licenses": [
     {"name": "ODbL-1.0",
     "title": "Open Data Commons Open Database License 1.0",
     "path": "https://opendatacommons.org/licenses/odbl/1.0/",
     "instruction": "You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
-    "attribution": "© Reiner Lemoine Institut"}],
+    "attribution": "© Reiner Lemoine Institut © OpenStreetMap contributors"}],
 "contributors": [
     {"title": "Ludee", "email": null, "date": "2016-06-16", "object": "metadata", "comment": "Create metadata"},
     {"title": "Ludee", "email": null, "date": "2016-11-22", "object": "metadata", "comment": "Update metadata"},
@@ -51,8 +64,9 @@
     {"title": "Ludee", "email": null, "date": "2018-10-18", "object": "metadata", "comment": "Add contribution object"},
     {"title": "christian-rli", "email": null, "date": "2018-10-18", "object": "metadata", "comment": "Add datapackage compatibility"},
     {"title": "Ludee", "email": null, "date": "2018-11-02", "object": "metadata", "comment": "Release metadata version 1.4"},
-    {"title": "christian-rli", "email": null, "date": "2019-02-05", "object": "metadata", "comment": "Apply template structure to example."},
-    {"title": "Ludee", "email": null, "date": "2019-03-22", "object": "metadata", "comment": "Hotfix foreignKeys"} ],
+    {"title": "christian-rli", "email": null, "date": "2019-02-05", "object": "metadata", "comment": "Apply template structure to example"},
+    {"title": "Ludee", "email": null, "date": "2019-03-22", "object": "metadata", "comment": "Hotfix foreignKeys"},
+    {"title": "Ludee", "email": null, "date": "2019-07-09", "object": "metadata", "comment": "Release metadata version OEP-1.3.0"} ],
 "resources": [
     {"profile": "tabular-data-resource",
     "name": "model_draft.oep_metadata_table_example_v14",
@@ -78,7 +92,7 @@
     "path": "https://github.com/OpenEnergyPlatform/data-preprocessing/wiki",
     "badge": "platin"},
 "metaMetadata":
-    {"metadataVersion": "OEP-1.4",
+    {"metadataVersion": "OEP-1.4.0",
     "metadataLicense":
         {"name": "CC0-1.0",
         "title": "Creative Commons Zero v1.0 Universal",
@@ -90,4 +104,4 @@
     "languages": "Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
     "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
     "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
-    "none": "If not applicable use (none)"} }
+    "null": "If not applicable use (null)"} }

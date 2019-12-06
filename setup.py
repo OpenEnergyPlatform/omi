@@ -4,7 +4,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import io
-
 import re
 from glob import glob
 from os.path import basename
@@ -22,9 +21,10 @@ def read(*names, **kwargs):
     ) as fh:
         return fh.read()
 
+
 setup(
     name="omi",
-    version="0.0.2",
+    version="0.0.3",
     license="AGPL-3.0",
     description="A library to process and translate open energy metadata.",
     long_description="%s\n%s"
@@ -72,12 +72,10 @@ setup(
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
     python_requires=">=3.5",
-    install_requires=[
-        "click",
-        "rdfLib",
-        "python-dateutil"],
+    install_requires=["click", "rdfLib", "python-dateutil"],
     tests_require=["tox", "pytest"],
     extras_require={
+        "dev": ["black", "isort", "pre-commit"]
         # eg:
         #   'rst': ['docutils>=0.11'],
         #   ':python_version=="2.6"': ['argparse'],

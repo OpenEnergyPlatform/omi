@@ -7,7 +7,7 @@ from omi.structure import OEPMetadata
 
 
 @register("oep-rdf-v1.4")
-class OEP_V_1_3_Dialect(Dialect):
+class OEP_V_1_4_RDF_Dialect(Dialect):
     _parser = RDFParser
     _compiler = RDFCompiler
     _renderer = GraphRenderer
