@@ -337,7 +337,7 @@ class JSONParser_1_4(JSONParser):
                             for field in old_fields
                         ]
                     field_dict = {field.name: field for field in fields or []}
-                    old_foreign_keys = old_schema.get("foreignKeys")
+                    old_foreign_keys = old_schema.get("foreignKeys", [])
                     foreign_keys = []
                     for fk in old_foreign_keys:
                         old_reference = fk.get("reference")
