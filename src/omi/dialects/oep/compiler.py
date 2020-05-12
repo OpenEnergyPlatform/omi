@@ -4,9 +4,14 @@ from collections import OrderedDict
 from omi import structure
 from omi.dialects.base.compiler import Compiler
 
-
 class JSONCompiler(Compiler):
     __METADATA_VERSION = "OEP-1.4.0"
+
+    def _compile_date(self, date, format):
+        if date:
+            return date.strftime(format)
+        else:
+            return None
 
     def visit_context(self, context: structure.Context, *args, **kwargs):
         result = OrderedDict(
@@ -30,7 +35,7 @@ class JSONCompiler(Compiler):
             title=self.visit(contribution.contributor.name),
             email=self.visit(contribution.contributor.email),
             object=self.visit(contribution.object),
-            date=contribution.date.strftime("%Y-%m-%d")
+            date=self._compile_date(contribution.date, "%Y-%m-%d")
             if contribution.date is not None
             else None,
             comment=self.visit(contribution.comment),
@@ -62,11 +67,11 @@ class JSONCompiler(Compiler):
         start = None
         end = None
         if temporal.ts_start is not None:
-            start = temporal.ts_start.strftime("%Y-%m-%dT%H:%M%z")[:-2]
+            start =self._compile_date( temporal.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
         if temporal.ts_end is not None:
-            end = temporal.ts_end.strftime("%Y-%m-%dT%H:%M%z")[:-2]
+            end =self._compile_date( temporal.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
         return OrderedDict(
-            referenceDate=temporal.reference_date.strftime("%Y-%m-%d"),
+            referenceDate=self._compile_date(temporal.reference_date, "%Y-%m-%d"),
             timeseries=OrderedDict(
                 start=start,
                 end=end,
@@ -179,7 +184,7 @@ class JSONCompiler(Compiler):
     def visit_metadata(self, metadata: structure.OEPMetadata, *args, **kwargs):
         publication_date = None
         if metadata.publication_date is not None:
-            publication_date = metadata.publication_date.strftime("%Y-%m-%d")
+            publication_date =self._compile_date( metadata.publication_date, "%Y-%m-%d")
         return OrderedDict(
             name=metadata.name,
             title=metadata.title,
