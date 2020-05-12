@@ -24,7 +24,7 @@ def read(*names, **kwargs):
 
 setup(
     name="omi",
-    version="0.0.4",
+    version="0.0.5",
     license="AGPL-3.0",
     description="A library to process and translate open energy metadata.",
     long_description="%s\n%s"
