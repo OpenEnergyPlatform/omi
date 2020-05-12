@@ -4,6 +4,7 @@ from collections import OrderedDict
 from omi import structure
 from omi.dialects.base.compiler import Compiler
 
+
 class JSONCompiler(Compiler):
     __METADATA_VERSION = "OEP-1.4.0"
 
