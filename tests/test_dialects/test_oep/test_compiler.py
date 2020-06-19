@@ -25,6 +25,7 @@ def assert_equal(first, second, nulls=frozenset(["none"]), **kwargs):
 
 
 def assert_dict_equal(first, second, **kwargs):
+    assert_list_equal(list(first.keys()), list(second.keys()), disregard_ordering=True)
     for key in first.keys():
         if key not in second:
             raise Exception('Key "{}" missing in {}'.format(key, second))
