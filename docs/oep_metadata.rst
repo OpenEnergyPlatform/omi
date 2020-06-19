@@ -51,4 +51,4 @@ new metadata format by using the respective dialect
 
     >>> dialect1_4 = OEP_V_1_4_Dialect()
     >>> dialect1_4.compile(parsed)
-    OrderedDict([('name', None), ('title', None), ('id', 'unique_id'), ('description', None), ('language', None), ('keywords', None), ('publicationDate', None), ('context', None), ('spatial', None), ('temporal', None), ('sources', None), ('licenses', None), ('contributors', None), ('resources', None), ('review', None), ('metaMetadata', OrderedDict([('metadataVersion', 'OEP-1.4.0'), ('metadataLicense', OrderedDict([('name', 'CC0-1.0'), ('title', 'Creative Commons Zero v1.0 Universal'), ('path', 'https://creativecommons.org/publicdomain/zero/1.0/')]))])), ('_comment', None)])
+    {'id': 'unique_id', 'metaMetadata': {'metadataVersion': 'OEP-1.4.0', 'metadataLicense': {'name': 'CC0-1.0', 'title': 'Creative Commons Zero v1.0 Universal', 'path': 'https://creativecommons.org/publicdomain/zero/1.0/'}}}
