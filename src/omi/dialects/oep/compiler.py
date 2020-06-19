@@ -15,6 +15,19 @@ class JSONCompiler(Compiler):
             return None
 
     def _construct_dict(self, *args, omit_none=True, **kwargs):
+        """
+        Accepts a list of arguments of shape (name: str, field: Compileable) and returns a dictionary that maps
+        name -> self.visit(field). If `omit_none` is true, fields that are `None` are ignored.
+        Parameters
+        ----------
+        args
+        omit_none
+        kwargs
+
+        Returns
+        -------
+
+        """
         d = {field_name: self.visit(field) for field_name, field in args if (not omit_none) or (field is not None)}
         d.update(**kwargs)
         return d
