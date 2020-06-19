@@ -18,27 +18,11 @@ def test_translation_1_3_to_1_4():
         result_json = compiler.visit(internal_metadata)
 
         expected_json = OrderedDict(json.loads('''{
-    "name": null,
-    "title": null,
-    "id": null,
-    "description": null,
-    "language": null,
-    "keywords": null,
-    "publicationDate": null,
-    "context": null,
-    "spatial": null,
-    "temporal": null,
-    "sources": null,
-    "licenses": null,
-    "contributors": null,
-    "resources": null,
-    "review": null,
     "metaMetadata": {
         "metadataVersion": "OEP-1.4.0",
         "metadataLicense": {
             "name": "CC0-1.0",
             "title": "Creative Commons Zero v1.0 Universal",
-            "path": "https://creativecommons.org/publicdomain/zero/1.0/"}},
-    "_comment": null}'''))
+            "path": "https://creativecommons.org/publicdomain/zero/1.0/"}}}'''))
 
         assert_equal(expected_json, result_json)
