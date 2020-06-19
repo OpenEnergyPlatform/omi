@@ -258,7 +258,7 @@ class JSONParser_1_4(JSONParser):
                     ts_orientation=structure.TimestampOrientation.create(
                         inp_timeseries.get("alignment")
                     )
-                    if "alignment" in inp_timeseries
+                    if "alignment" in inp_timeseries and inp_timeseries["alignment"] is not None
                     else None,
                     aggregation=inp_timeseries.get("aggregationType"),
                 )

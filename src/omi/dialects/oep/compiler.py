@@ -14,13 +14,31 @@ class JSONCompiler(Compiler):
         else:
             return None
 
+    def _construct_dict(self, *args, omit_none=True, **kwargs):
+        """
+        Accepts a list of arguments of shape (name: str, field: Compileable) and returns a dictionary that maps
+        name -> self.visit(field). If `omit_none` is true, fields that are `None` are ignored.
+        Parameters
+        ----------
+        args
+        omit_none
+        kwargs
+
+        Returns
+        -------
+
+        """
+        d = {field_name: self.visit(field) for field_name, field in args if (not omit_none) or (field is not None)}
+        d.update(**kwargs)
+        return d
+
     def visit_context(self, context: structure.Context, *args, **kwargs):
-        result = OrderedDict(
-            homepage=self.visit(context.homepage),
-            documentation=self.visit(context.documentation),
-            sourceCode=self.visit(context.source_code),
-            contact=self.visit(context.contact),
-            grantNo=self.visit(context.grant_number),
+        result = self._construct_dict(
+            ("homepage",  context.homepage),
+            ("documentation",  context.documentation),
+            ("sourceCode",  context.source_code),
+            ("contact",  context.contact),
+            ("grantNo",  context.grant_number),
         )
         if context.funding_agency is not None:
             if context.funding_agency.name is not None:
@@ -32,24 +50,22 @@ class JSONCompiler(Compiler):
         return result
 
     def visit_contribution(self, contribution: structure.Contribution, *args, **kwargs):
-        return OrderedDict(
-            title=self.visit(contribution.contributor.name),
-            email=self.visit(contribution.contributor.email),
-            object=self.visit(contribution.object),
-            date=self._compile_date(contribution.date, "%Y-%m-%d")
-            if contribution.date is not None
-            else None,
-            comment=self.visit(contribution.comment),
+        return self._construct_dict(
+            ("title",  contribution.contributor.name),
+            ("email",  contribution.contributor.email),
+            ("object",  contribution.object),
+            ("comment", contribution.comment),
+            ("date", self._compile_date(contribution.date, "%Y-%m-%d"))
         )
 
     def visit_language(self, language: structure.Language, *args, **kwargs):
         return str(language)
 
     def visit_spatial(self, spatial: structure.Spatial, *args, **kwargs):
-        return OrderedDict(
-            location=self.visit(spatial.location),
-            extent=self.visit(spatial.extent),
-            resolution=self.visit(spatial.resolution),
+        return self._construct_dict(
+            ("location",  spatial.location),
+            ("extent",  spatial.extent),
+            ("resolution",  spatial.resolution),
         )
 
     def visit_timestamp_orientation(
@@ -71,76 +87,72 @@ class JSONCompiler(Compiler):
             start =self._compile_date( temporal.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
         if temporal.ts_end is not None:
             end =self._compile_date( temporal.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
-        return OrderedDict(
-            referenceDate=self._compile_date(temporal.reference_date, "%Y-%m-%d"),
-            timeseries=OrderedDict(
-                start=start,
-                end=end,
-                resolution=self.visit(temporal.ts_resolution),
-                alignment=self.visit(temporal.ts_orientation),
-                aggregationType=self.visit(temporal.aggregation),
+        return self._construct_dict(
+            ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d")),
+            timeseries=self._construct_dict(
+                ("start",  start),
+                ("end",  end),
+                ("resolution",  temporal.ts_resolution),
+                ("alignment",  temporal.ts_orientation),
+                ("aggregationType",  temporal.aggregation),
             ),
         )
 
     def visit_source(self, source: structure.Source, *args, **kwargs):
-        return OrderedDict(
-            title=self.visit(source.title),
-            description=self.visit(source.description),
-            path=self.visit(source.path),
-            licenses=[self.visit(l) for l in source.licenses]
-            if source.licenses is not None
-            else None,
+        return self._construct_dict(
+            ("title",  source.title),
+            ("description",  source.description),
+            ("path",  source.path),
+            ("licenses", source.licenses)
         )
 
     def visit_license(self, lic: structure.License, *args, **kwargs):
-        return OrderedDict(
-            name=self.visit(lic.identifier),
-            title=self.visit(lic.name),
-            path=self.visit(lic.path),
+        return self._construct_dict(
+            ("name",  lic.identifier),
+            ("title",  lic.name),
+            ("path",  lic.path),
         )
 
     def visit_terms_of_use(self, terms_of_use: structure.TermsOfUse):
         license_kwargs = (
             self.visit(terms_of_use.license) if terms_of_use.license else {}
         )
-        return OrderedDict(
-            instruction=self.visit(terms_of_use.instruction),
-            attribution=self.visit(terms_of_use.attribution),
+        return self._construct_dict(
+            ("instruction",  terms_of_use.instruction),
+            ("attribution",  terms_of_use.attribution),
             **license_kwargs
         )
 
     def visit_resource(self, resource: structure.Resource, *args, **kwargs):
-        return OrderedDict(
-            profile=self.visit(resource.profile),
-            name=self.visit(resource.name),
-            path=self.visit(resource.path),
-            format=self.visit(resource.format),
-            encoding=self.visit(resource.encoding),
-            schema=self.visit(resource.schema),
-            dialect=self.visit(resource.dialect),
+        return self._construct_dict(
+            ("profile",  resource.profile),
+            ("name",  resource.name),
+            ("path",  resource.path),
+            ("format",  resource.format),
+            ("encoding",  resource.encoding),
+            ("schema",  resource.schema),
+            ("dialect",  resource.dialect),
         )
 
     def visit_field(self, field: structure.Field, *args, **kwargs):
-        return OrderedDict(
-            name=field.name,
-            description=field.description,
-            type=field.type,
-            unit=field.unit,
+        return self._construct_dict(
+            ("name",  field.name),
+            ("description",  field.description),
+            ("type",  field.type),
+            ("unit",  field.unit),
         )
 
     def visit_schema(self, schema: structure.Schema, *args, **kwargs):
-        return OrderedDict(
-            fields=list(map(self.visit, schema.fields)),
-            primaryKey=self.visit(schema.primary_key),
-            foreignKeys=list(map(self.visit, schema.foreign_keys))
-            if schema.foreign_keys
-            else None,
+        return self._construct_dict(
+            ("primaryKey",  schema.primary_key),
+            ("foreignKeys", schema.foreign_keys),
+            ("fields", schema.fields),
         )
 
     def visit_dialect(self, dialect: structure.Dialect, *args, **kwargs):
-        return OrderedDict(
-            delimiter=self.visit(dialect.delimiter),
-            decimalSeparator=self.visit(dialect.decimal_separator),
+        return self._construct_dict(
+            ("delimiter",  dialect.delimiter),
+            ("decimalSeparator",  dialect.decimal_separator),
         )
 
     def visit_foreign_key(self, foreign_key: structure.ForeignKey, *args, **kwargs):
@@ -148,14 +160,13 @@ class JSONCompiler(Compiler):
             source_fields, target_fields, target_resources = zip(
                 *map(self.visit, foreign_key.references)
             )
-
             target_resource = target_resources[0]
 
-            return OrderedDict(
-                fields=source_fields,
-                reference=OrderedDict(
-                    resource=self.visit(target_resource),
-                    fields=self.visit(target_fields),
+            return self._construct_dict(
+                ("fields",  source_fields),
+                reference=self._construct_dict(
+                    ("resource",  target_resource),
+                    ("fields",  target_fields),
                 ),
             )
         else:
@@ -169,56 +180,46 @@ class JSONCompiler(Compiler):
         )
 
     def visit_review(self, review: structure.Review, *args, **kwargs):
-        return OrderedDict(path=review.path, badge=review.badge)
+        return self._construct_dict(("path",  review.path), badge=review.badge)
 
     def visit_meta_comment(self, comment: structure.MetaComment, *args, **kwargs):
-        return OrderedDict(
-            metadata=comment.metadata_info,
-            dates=comment.dates,
-            units=comment.units,
-            languages=comment.languages,
-            licenses=comment.licenses,
-            review=comment.review,
-            null=comment.none,
+        return self._construct_dict(
+            ("metadata",  comment.metadata_info),
+            ("dates",  comment.dates),
+            ("units",  comment.units),
+            ("languages",  comment.languages),
+            ("licenses",  comment.licenses),
+            ("review",  comment.review),
+            ("null",  comment.none),
         )
 
     def visit_metadata(self, metadata: structure.OEPMetadata, *args, **kwargs):
         publication_date = None
         if metadata.publication_date is not None:
             publication_date =self._compile_date( metadata.publication_date, "%Y-%m-%d")
-        return OrderedDict(
-            name=metadata.name,
-            title=metadata.title,
-            id=metadata.identifier,
-            description=metadata.description,
-            language=list(map(self.visit, metadata.languages))
-            if metadata.languages is not None
-            else None,
-            keywords=metadata.keywords,
-            publicationDate=publication_date,
-            context=self.visit(metadata.context),
-            spatial=self.visit(metadata.spatial),
-            temporal=self.visit(metadata.temporal),
-            sources=list(map(self.visit, metadata.sources))
-            if metadata.sources is not None
-            else None,
-            licenses=list(map(self.visit, metadata.license))
-            if metadata.license is not None
-            else None,
-            contributors=list(map(self.visit, metadata.contributions))
-            if metadata.contributions is not None
-            else None,
-            resources=list(map(self.visit, metadata.resources))
-            if metadata.resources is not None
-            else None,
-            review=self.visit(metadata.review),
-            metaMetadata=OrderedDict(
-                metadataVersion=self.__METADATA_VERSION,
-                metadataLicense=OrderedDict(
+        return self._construct_dict(
+            ("name",  metadata.name),
+            ("title",  metadata.title),
+            ("id",  metadata.identifier),
+            ("description",  metadata.description),
+            ("keywords",  metadata.keywords),
+            ("publicationDate",  publication_date),
+            ("context",  metadata.context),
+            ("spatial",  metadata.spatial),
+            ("temporal",  metadata.temporal),
+            ("review", metadata.review),
+            ("_comment", metadata.comment),
+            ("language", metadata.languages),
+            ("sources", metadata.sources),
+            ("licenses", metadata.license),
+            ("contributors", metadata.contributions),
+            ("resources", metadata.resources),
+            metaMetadata=self._construct_dict(
+                ("metadataVersion",  self.__METADATA_VERSION),
+                metadataLicense=self._construct_dict(
                     name="CC0-1.0",
                     title="Creative Commons Zero v1.0 Universal",
                     path="https://creativecommons.org/publicdomain/zero/1.0/",
                 ),
             ),
-            _comment=self.visit(metadata.comment),
         )
