@@ -23,7 +23,7 @@ class Compiler:
 
         """
         if isinstance(obj, list):
-            return [self.visit(x) for x in obj]
+            return [self.visit(x) for x in obj if x is not None]
         if isinstance(obj, structure.Compilable):
             meth = getattr(self, "visit_{name}".format(name=obj.__compiler_name__))
             return meth(obj, *args, **kwargs)
