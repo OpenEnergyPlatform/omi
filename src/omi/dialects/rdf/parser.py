@@ -11,7 +11,7 @@ from rdflib.namespace import FOAF
 from rdflib.namespace import RDF
 from rdflib.namespace import RDFS
 
-import omi.structure as struc
+from omi import structure as struc
 from omi.dialects.base.parser import Parser
 from omi.dialects.rdf.namespace import ADMS
 from omi.dialects.rdf.namespace import DCAT
