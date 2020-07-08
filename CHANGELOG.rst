@@ -2,6 +2,13 @@
 Changelog
 =========
 
+0.0.6 (2020-07-08)
+------------------
+
+* Fix compilation of null values
+* Fix parsing of lists
+
+
 0.0.5 (2020-05-12)
 ------------------
 
