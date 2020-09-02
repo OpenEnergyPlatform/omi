@@ -137,6 +137,8 @@ class JSONParser_1_3(JSONParser):
             resources = None
         else:
             resources = []
+            if len(old_resources) == 0:
+                raise ParserException("Resource field doesn't have any child entity")
             for resource in old_resources:
                 old_fields = resource.get("fields")
                 if old_fields is None:
@@ -316,7 +318,10 @@ class JSONParser_1_4(JSONParser):
         old_resources = json_old.get("resources")
         if old_resources is None:
             resources = None
+        #Code added to raise exception when resource is empty
         else:
+            if len(old_resources) == 0:
+                raise ParserException("Resource field doesn't have any child entity")
             resources = []
             for resource in old_resources:
                 old_schema = resource.get("schema")
