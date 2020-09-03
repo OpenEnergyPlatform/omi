@@ -86,3 +86,4 @@
     "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
     "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
     "null": "If not applicable use (null)"} }
+
