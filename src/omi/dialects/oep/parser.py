@@ -573,6 +573,8 @@ class JSONParser_1_4(JSONParser):
         raise NotImplementedError
 
 
+#TODO: Update parser below
+
 class JSONParser_1_5(JSONParser):
     def is_valid(self, inp: str):
         if not super(self, JSONParser_1_5).is_valid(inp):
@@ -640,24 +642,28 @@ class JSONParser_1_5(JSONParser):
         if inp_temporal is None:
             temporal = None
         else:
-            inp_timeseries = inp_temporal.get("timeseries")
-            # TODO: how to parse the Timeseries key -> since v1.5.0 it is a list [] of dicts {}
-            timeseries = []
-            if inp_timeseries is not None:
-                timeseries = dict(
-                    start=parse_date_or_none(inp_timeseries.get("start")),
-                    end=parse_date_or_none(inp_timeseries.get("end")),
-                    resolution=inp_timeseries.get("resolution"),
-                    ts_orientation=structure.TimestampOrientation.create(
-                        inp_timeseries.get("alignment")
+            inp_timeseries = inp_temporal.get("timeseries", [])
+            if inp_timeseries is None:
+                timeseries = None
+            else:
+                timeseries = [
+                    structure.Timeseries(
+                        start=parse_date_or_none(inp_timeseries.get("start")),
+                        end=parse_date_or_none(inp_timeseries.get("end")),
+                        resolution=inp_timeseries.get("resolution"),
+                        ts_orientation=structure.TimestampOrientation.create(
+                            inp_timeseries.get("alignment")
+                        )
+                        if "alignment" in inp_timeseries and inp_timeseries["alignment"] is not None
+                        else None,
+                        aggregation=inp_timeseries.get("aggregationType"),
                     )
-                    if "alignment" in inp_timeseries and inp_timeseries["alignment"] is not None
-                    else None,
-                    aggregation=inp_timeseries.get("aggregationType"),
-                )
+                    for inp_timeseries in inp_timeseries
+                ]
             temporal = structure.Temporal(
                 reference_date=parse_date_or_none(inp_temporal.get("referenceDate")),
-                **timeseries
+                #TODO: does ** kwargs work on list?
+                timeseries_collection=timeseries
             )
 
         # filling the source section
@@ -728,6 +734,8 @@ class JSONParser_1_5(JSONParser):
                                 name=field.get("name"),
                                 description=field.get("description"),
                                 field_type=field.get("type"),
+                                is_about=field.get("is_about"),
+                                value_reference=field.get("value_reference"),
                                 unit=field.get("unit"),
                             )
                             for field in old_fields
@@ -814,6 +822,7 @@ class JSONParser_1_5(JSONParser):
             title=json_old.get("title"),
             identifier=json_old["id"],
             description=json_old.get("description"),
+            subject=json_old.get("subject"),
             languages=json_old.get("language"),
             keywords=json_old.get("keywords"),
             publication_date=parse_date_or_none(json_old.get("publicationDate")),
@@ -824,6 +833,8 @@ class JSONParser_1_5(JSONParser):
             terms_of_use=licenses,
             contributions=contributors,
             resources=resources,
+            databus_identifier=json_old["@id"],
+            databus_context=json_old["@context"],
             review=review,
             comment=comment,
         )
