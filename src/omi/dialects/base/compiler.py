@@ -49,6 +49,9 @@ class Compiler:
         self, ts_orientation: structure.TimestampOrientation, *args, **kwargs
     ):
         raise NotImplementedError
+    
+    def visit_timeseries(self, timeseries: structure.Timeseries, *args, **kwargs):
+        raise NotImplementedError
 
     def visit_source(self, source: structure.Source, *args, **kwargs):
         raise NotImplementedError
