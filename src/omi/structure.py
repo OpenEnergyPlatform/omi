@@ -83,7 +83,7 @@ class Timeseries(Compilable):
         end: datetime = None,
         resolution: str = None,
         ts_orientation: TimestampOrientation = None,
-        aggregation: str = None,):
+        aggregation: str = None):
         self.ts_start = start
         self.ts_end = end
         self.ts_resolution = resolution
@@ -96,7 +96,7 @@ class Temporal(Compilable):
     def __init__(
         self,
         reference_date: datetime = None,
-        timeseries: Iterable[Timeseries] = None
+        timeseries_collection: Iterable[Timeseries] = None
         # start: datetime = None,
         # end: datetime = None,
         # resolution: str = None,
@@ -105,15 +105,13 @@ class Temporal(Compilable):
     ):  # TODO: This should not be a string... maybe
         # we should use datetime instead?
         self.reference_date = reference_date
-        self.timeseries = timeseries
+        self.timeseries_collection = timeseries_collection
         # self.ts_start = start
         # self.ts_end = end
         # self.ts_resolution = resolution
         # self.ts_orientation = ts_orientation
         # self.aggregation = aggregation
 
-
-        
 
 class License(Compilable):
     __compiler_name__ = "license"
