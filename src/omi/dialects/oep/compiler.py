@@ -6,7 +6,7 @@ from omi.dialects.base.compiler import Compiler
 
 
 class JSONCompiler(Compiler):
-    __METADATA_VERSION = "OEP-1.4.0"
+    __METADATA_VERSION = "OEP-1.5.0"
 
     def _compile_date(self, date, format):
         if date:
@@ -80,22 +80,49 @@ class JSONCompiler(Compiler):
         else:
             raise NotImplementedError
 
-    def visit_temporal(self, temporal: structure.Temporal, *args, **kwargs):
+    # def visit_temporal(self, temporal: structure.Temporal, *args, **kwargs):
+    #     start = None
+    #     end = None
+    #     if temporal.ts_start is not None:
+    #         start =self._compile_date( temporal.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
+    #     if temporal.ts_end is not None:
+    #         end =self._compile_date( temporal.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
+    #     return self._construct_dict(
+    #         ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d")),
+    #         timeseries=self._construct_dict(
+    #             ("start",  start),
+    #             ("end",  end),
+    #             ("resolution",  temporal.ts_resolution),
+    #             ("alignment",  temporal.ts_orientation),
+    #             ("aggregationType",  temporal.aggregation),
+    #         ),
+    #     )
+    
+
+    def visit_timeseries(self, timeseries: structure.Timeseries, *args, **kwargs):
         start = None
         end = None
-        if temporal.ts_start is not None:
-            start =self._compile_date( temporal.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
-        if temporal.ts_end is not None:
-            end =self._compile_date( temporal.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
+        if timeseries.ts_start is not None:
+            start =self._compile_date( timeseries.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
+        if timeseries.ts_end is not None:
+            end =self._compile_date( timeseries.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
         return self._construct_dict(
-            ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d")),
-            timeseries=self._construct_dict(
-                ("start",  start),
-                ("end",  end),
-                ("resolution",  temporal.ts_resolution),
-                ("alignment",  temporal.ts_orientation),
-                ("aggregationType",  temporal.aggregation),
-            ),
+            ("start",  start),
+            ("end",  end),
+            ("resolution",  timeseries.ts_resolution),
+            ("alignment",  timeseries.ts_orientation),
+            ("aggregationType",  timeseries.aggregation)
+        ) 
+
+
+    def visit_temporal(self, temporal: structure.Temporal, *args, **kwargs):
+        for i in temporal:
+            a = self._construct_dict(i)
+
+        return self._construct_dict(
+            ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d"),
+            ("timeseries", temporal.timeseries_collection)
+            )
         )
 
     def visit_source(self, source: structure.Source, *args, **kwargs):
@@ -139,6 +166,8 @@ class JSONCompiler(Compiler):
             ("name",  field.name),
             ("description",  field.description),
             ("type",  field.type),
+            ("is_about", field.is_about),
+            ("value_reference", field.value_reference),
             ("unit",  field.unit),
         )
 
@@ -202,6 +231,7 @@ class JSONCompiler(Compiler):
             ("title",  metadata.title),
             ("id",  metadata.identifier),
             ("description",  metadata.description),
+            ("subject", metadata.subject),
             ("keywords",  metadata.keywords),
             ("publicationDate",  publication_date),
             ("context",  metadata.context),
@@ -214,6 +244,8 @@ class JSONCompiler(Compiler):
             ("licenses", metadata.license),
             ("contributors", metadata.contributions),
             ("resources", metadata.resources),
+            ("@id", metadata.databus_identifier),
+            ("@context", metadata.databus_context),
             metaMetadata=self._construct_dict(
                 ("metadataVersion",  self.__METADATA_VERSION),
                 metadataLicense=self._construct_dict(
