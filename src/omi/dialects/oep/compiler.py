@@ -116,13 +116,9 @@ class JSONCompiler(Compiler):
 
 
     def visit_temporal(self, temporal: structure.Temporal, *args, **kwargs):
-        for i in temporal:
-            a = self._construct_dict(i)
-
         return self._construct_dict(
-            ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d"),
+            ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d")),
             ("timeseries", temporal.timeseries_collection)
-            )
         )
 
     def visit_source(self, source: structure.Source, *args, **kwargs):
