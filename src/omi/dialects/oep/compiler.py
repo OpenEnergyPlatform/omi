@@ -6,7 +6,7 @@ from omi.dialects.base.compiler import Compiler
 
 
 class JSONCompiler(Compiler):
-    __METADATA_VERSION = "OEP-1.5.0"
+    __METADATA_VERSION = "OEP-1.5.1"
 
     def _compile_date(self, date, format):
         if date:
