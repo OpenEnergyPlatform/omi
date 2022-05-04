@@ -75,20 +75,6 @@ class TimestampOrientation(Compilable, Enum):
         else:
             raise Exception("Unknown timestamp orientation:", value)
 
-class Timeseries(Compilable):
-    __compiler_name__ = "timeseries"
-
-    def __init__(self, 
-        start: datetime = None,
-        end: datetime = None,
-        resolution: str = None,
-        ts_orientation: TimestampOrientation = None,
-        aggregation: str = None):
-        self.ts_start = start
-        self.ts_end = end
-        self.ts_resolution = resolution
-        self.ts_orientation = ts_orientation
-        self.aggregation = aggregation
 
 class Temporal(Compilable):
     __compiler_name__ = "temporal"
@@ -96,21 +82,19 @@ class Temporal(Compilable):
     def __init__(
         self,
         reference_date: datetime = None,
-        timeseries_collection: Iterable[Timeseries] = None
-        # start: datetime = None,
-        # end: datetime = None,
-        # resolution: str = None,
-        # ts_orientation: TimestampOrientation = None,
-        # aggregation: str = None,
+        start: datetime = None,
+        end: datetime = None,
+        resolution: str = None,
+        ts_orientation: TimestampOrientation = None,
+        aggregation: str = None,
     ):  # TODO: This should not be a string... maybe
         # we should use datetime instead?
         self.reference_date = reference_date
-        self.timeseries_collection = timeseries_collection
-        # self.ts_start = start
-        # self.ts_end = end
-        # self.ts_resolution = resolution
-        # self.ts_orientation = ts_orientation
-        # self.aggregation = aggregation
+        self.ts_start = start
+        self.ts_end = end
+        self.ts_resolution = resolution
+        self.ts_orientation = ts_orientation
+        self.aggregation = aggregation
 
 
 class License(Compilable):
@@ -198,16 +182,12 @@ class Field(Compilable):
         name: str = None,
         description: str = None,
         field_type: str = None,
-        is_about: str = None,
-        value_reference: str = None,
         unit: str = None,
         resource: "Resource" = None,
     ):
         self.name = name
         self.description = description
         self.type = field_type
-        self.is_about = is_about
-        self.value_reference = value_reference
         self.unit = unit
         self.resource = resource
 
@@ -354,7 +334,6 @@ class OEPMetadata(Compilable):
         title: str = None,
         identifier: str = None,
         description: str = None,
-        subject: str = None,
         languages: Iterable[Language] = None,
         keywords: Iterable[str] = None,
         publication_date: datetime = None,
@@ -365,8 +344,6 @@ class OEPMetadata(Compilable):
         terms_of_use: Iterable[TermsOfUse] = None,
         contributions: Iterable[Contribution] = None,
         resources: Iterable[Resource] = None,
-        databus_identifier: str = None,
-        databus_context: str = None,
         review: Review = None,
         comment: MetaComment = None,
     ):
@@ -374,7 +351,6 @@ class OEPMetadata(Compilable):
         self.title = title
         self.identifier = identifier
         self.description = description
-        self.subject = subject
         self.languages = languages
         self.keywords = keywords
         self.publication_date = publication_date
@@ -385,8 +361,6 @@ class OEPMetadata(Compilable):
         self.license = terms_of_use
         self.contributions = contributions
         self.resources = resources
-        self.databus_identifier = databus_identifier
-        self.databus_context = databus_context
         self.review = review
         self.comment = comment
 
