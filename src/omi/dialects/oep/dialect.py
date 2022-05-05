@@ -1,6 +1,6 @@
 from omi.dialects.base.dialect import Dialect
 from omi.dialects.base.register import register
-from omi.dialects.oep.compiler import JSONCompiler
+from omi.dialects.oep.compiler import JSONCompiler, JSONCompilerOEM15
 from omi.dialects.oep.parser import JSONParser_1_3
 from omi.dialects.oep.parser import JSONParser_1_4
 from omi.dialects.oep.parser import JSONParser_1_5
@@ -23,5 +23,5 @@ class OEP_V_1_4_Dialect(Dialect):
 @register("oep-v1.5")
 class OEP_V_1_5_Dialect(Dialect):
     _parser = JSONParser_1_5
-    _compiler = JSONCompiler
+    _compiler = JSONCompilerOEM15
     _renderer = JSONRenderer
