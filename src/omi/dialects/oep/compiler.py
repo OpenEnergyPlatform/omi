@@ -6,7 +6,7 @@ from omi.dialects.base.compiler import Compiler
 
 
 class JSONCompiler(Compiler):
-    __METADATA_VERSION = "OEP-1.5.1"
+    __METADATA_VERSION = "OEP-1.4.0"
 
     def _compile_date(self, date, format):
         if date:
@@ -80,45 +80,22 @@ class JSONCompiler(Compiler):
         else:
             raise NotImplementedError
 
-    # def visit_temporal(self, temporal: structure.Temporal, *args, **kwargs):
-    #     start = None
-    #     end = None
-    #     if temporal.ts_start is not None:
-    #         start =self._compile_date( temporal.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
-    #     if temporal.ts_end is not None:
-    #         end =self._compile_date( temporal.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
-    #     return self._construct_dict(
-    #         ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d")),
-    #         timeseries=self._construct_dict(
-    #             ("start",  start),
-    #             ("end",  end),
-    #             ("resolution",  temporal.ts_resolution),
-    #             ("alignment",  temporal.ts_orientation),
-    #             ("aggregationType",  temporal.aggregation),
-    #         ),
-    #     )
-    
-
-    def visit_timeseries(self, timeseries: structure.Timeseries, *args, **kwargs):
+    def visit_temporal(self, temporal: structure.Temporal, *args, **kwargs):
         start = None
         end = None
-        if timeseries.ts_start is not None:
-            start =self._compile_date( timeseries.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
-        if timeseries.ts_end is not None:
-            end =self._compile_date( timeseries.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
-        return self._construct_dict(
-            ("start",  start),
-            ("end",  end),
-            ("resolution",  timeseries.ts_resolution),
-            ("alignment",  timeseries.ts_orientation),
-            ("aggregationType",  timeseries.aggregation)
-        ) 
-
-
-    def visit_temporal(self, temporal: structure.Temporal, *args, **kwargs):
+        if temporal.ts_start is not None:
+            start =self._compile_date( temporal.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
+        if temporal.ts_end is not None:
+            end =self._compile_date( temporal.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
         return self._construct_dict(
             ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d")),
-            ("timeseries", temporal.timeseries_collection)
+            timeseries=self._construct_dict(
+                ("start",  start),
+                ("end",  end),
+                ("resolution",  temporal.ts_resolution),
+                ("alignment",  temporal.ts_orientation),
+                ("aggregationType",  temporal.aggregation),
+            ),
         )
 
     def visit_source(self, source: structure.Source, *args, **kwargs):
@@ -162,8 +139,6 @@ class JSONCompiler(Compiler):
             ("name",  field.name),
             ("description",  field.description),
             ("type",  field.type),
-            ("is_about", field.is_about),
-            ("value_reference", field.value_reference),
             ("unit",  field.unit),
         )
 
@@ -219,6 +194,84 @@ class JSONCompiler(Compiler):
         )
 
     def visit_metadata(self, metadata: structure.OEPMetadata, *args, **kwargs):
+        publication_date = None
+        if metadata.publication_date is not None:
+            publication_date =self._compile_date( metadata.publication_date, "%Y-%m-%d")
+        return self._construct_dict(
+            ("name",  metadata.name),
+            ("title",  metadata.title),
+            ("id",  metadata.identifier),
+            ("description",  metadata.description),
+            ("keywords",  metadata.keywords),
+            ("publicationDate",  publication_date),
+            ("context",  metadata.context),
+            ("spatial",  metadata.spatial),
+            ("temporal",  metadata.temporal),
+            ("review", metadata.review),
+            ("_comment", metadata.comment),
+            ("language", metadata.languages),
+            ("sources", metadata.sources),
+            ("licenses", metadata.license),
+            ("contributors", metadata.contributions),
+            ("resources", metadata.resources),
+            metaMetadata=self._construct_dict(
+                ("metadataVersion",  self.__METADATA_VERSION),
+                metadataLicense=self._construct_dict(
+                    name="CC0-1.0",
+                    title="Creative Commons Zero v1.0 Universal",
+                    path="https://creativecommons.org/publicdomain/zero/1.0/",
+                ),
+            ),
+        )
+
+
+from omi.oem_structures import oem_v15
+
+class JSONCompilerOEM15(JSONCompiler):
+    """
+    Compiles OEMetadata version JSONCompilerOEM15.__METADATA_VERSION .
+
+    Args:
+        JSONCompiler (object):  Parent Class provides compiler methods for all
+                                metadata fields that have not been changed in 
+                                the metadata structure. 
+    """
+
+    __METADATA_VERSION = "OEP-1.5.1"
+
+    def visit_timeseries(self, timeseries: oem_v15.Timeseries, *args, **kwargs):
+        start = None
+        end = None
+        if timeseries.ts_start is not None:
+            start =self._compile_date( timeseries.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
+        if timeseries.ts_end is not None:
+            end =self._compile_date( timeseries.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
+        return self._construct_dict(
+            ("start",  start),
+            ("end",  end),
+            ("resolution",  timeseries.ts_resolution),
+            ("alignment",  timeseries.ts_orientation),
+            ("aggregationType",  timeseries.aggregation)
+        ) 
+
+    def visit_temporal(self, temporal: oem_v15.Temporal, *args, **kwargs):
+        return self._construct_dict(
+            ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d")),
+            ("timeseries", temporal.timeseries_collection)
+        )
+
+    
+    def visit_field(self, field: oem_v15.Field, *args, **kwargs):
+        return self._construct_dict(
+            ("name",  field.name),
+            ("description",  field.description),
+            ("type",  field.type),
+            ("is_about", field.is_about),
+            ("value_reference", field.value_reference),
+            ("unit",  field.unit),
+        )
+    
+    def visit_metadata(self, metadata: oem_v15.OEPMetadata, *args, **kwargs):
         publication_date = None
         if metadata.publication_date is not None:
             publication_date =self._compile_date( metadata.publication_date, "%Y-%m-%d")
