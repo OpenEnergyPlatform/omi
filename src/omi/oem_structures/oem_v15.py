@@ -60,6 +60,14 @@ class Language(Compilable):
     __compiler_name__ = "language"
 
 
+class Subject(Compilable):
+    __compiler_name__="subject"
+
+    def __init__(self, name: str = None , path: str = None):
+        self.name = name
+        self.path = path
+
+
 class Spatial(Compilable):
     __compiler_name__ = "spatial"
 
@@ -367,8 +375,8 @@ class OEPMetadata(Compilable):
         title: str = None,
         identifier: str = None,
         description: str = None,
-        subject: str = None,
         languages: Iterable[Language] = None,
+        subject: Iterable[Subject] = None,
         keywords: Iterable[str] = None,
         publication_date: datetime = None,
         context: Context = None,
