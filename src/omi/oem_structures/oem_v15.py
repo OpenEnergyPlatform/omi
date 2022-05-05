@@ -16,46 +16,6 @@ from typing import Iterable
 from omi.structure import Compilable
 
 
-class Compilable:
-    """
-    An abstract class for all metadata components.
-    """
-
-    __compiler_name__ = None
-    """Used to identify the appropriate compiler function for this structure"""
-
-    __required__ = None
-    __optional__ = None
-
-    def __repr__(self):
-        return "{}({})".format(
-            self.__class__.__name__,
-            ",".join("{}={}".format(key, val) for key, val in self.__dict__.items()),
-        )
-
-    def __lt__(self, other):
-        for key in sorted(self.__dict__):
-            s = getattr(self, key)
-            o = getattr(other, key)
-            if s is None:
-                return True
-            elif s < o:
-                return True
-            elif s > o:
-                return False
-        return False
-
-    def get_missing_fields(self):
-        for key in sorted(self.__dict__):
-            if key in self.__required__:
-                if s is None:
-                    yield key
-                v = getattr(self, key)
-                if isinstance(v, Compilable):
-                    for x in v.get_missing_fields():
-                        yield key + "." + x
-
-
 class Language(Compilable):
     __compiler_name__ = "language"
 
