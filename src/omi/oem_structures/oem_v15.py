@@ -211,6 +211,17 @@ class Contribution(Compilable):
         self.comment = comment
 
 
+class IsAbout(Compilable):
+    __compiler_name__ = "is_about"
+    def __init__(
+        self, 
+        name: str = None, 
+        path: str = None
+    ):
+        self.name = name
+        self.path = path
+
+
 class Field(Compilable):
     __compiler_name__ = "field"
 
@@ -219,7 +230,7 @@ class Field(Compilable):
         name: str = None,
         description: str = None,
         field_type: str = None,
-        is_about: str = None,
+        is_about: Iterable[IsAbout] = None,
         value_reference: str = None,
         unit: str = None,
         resource: "Resource" = None,
