@@ -9,6 +9,8 @@ internal representation of the data structure, since
 OEMetadata is not a static structure and OMI must be
 be able to validate multiple OEMetadata versions.
 '''
+#TODO: maybe change all inheritance to omi.structure to 
+#      avoide alot of redundancy
 
 from datetime import datetime
 from enum import Enum
