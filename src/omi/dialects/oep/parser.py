@@ -833,8 +833,8 @@ class JSONParser_1_5(JSONParser):
             terms_of_use=licenses,
             contributions=contributors,
             resources=resources,
-            databus_identifier=json_old["@id"],
-            databus_context=json_old["@context"],
+            databus_identifier=json_old("@id"),
+            databus_context=json_old.get("@context"),
             review=review,
             comment=comment,
         )
