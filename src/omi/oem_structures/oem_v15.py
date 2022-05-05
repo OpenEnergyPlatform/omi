@@ -222,6 +222,19 @@ class IsAbout(Compilable):
         self.path = path
 
 
+class ValueReference(Compilable):
+    __compiler_name__ = "value_reference"
+    def __init__(
+        self, 
+        value: str = None,
+        name: str = None, 
+        path: str = None
+    ):
+        self.value = value
+        self.name = name
+        self.path = path
+
+
 class Field(Compilable):
     __compiler_name__ = "field"
 
@@ -231,7 +244,7 @@ class Field(Compilable):
         description: str = None,
         field_type: str = None,
         is_about: Iterable[IsAbout] = None,
-        value_reference: str = None,
+        value_reference: Iterable[ValueReference] = None,
         unit: str = None,
         resource: "Resource" = None,
     ):
