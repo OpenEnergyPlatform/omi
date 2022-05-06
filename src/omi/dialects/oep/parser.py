@@ -616,15 +616,16 @@ class JSONParser_1_5(JSONParser):
             raise ParserException("metadata string does not contain an id")
 
         # filling the subject section
-        old_subject = json_old.get("subject")
-        if old_subject is None:
+        old_subjects = json_old.get("subject")
+        if old_subjects is None:
             subject = None
         else:
             subject = [structure.Subject(
                 name = old_subject.get("name"),
                 path = old_subject.get("path")
-            )] 
-
+            )
+            for old_subject in old_subjects
+            ] 
 
         
         # context section
