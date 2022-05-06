@@ -588,8 +588,8 @@ class JSONParser_1_5(JSONParser):
             return True
 
     def parse_term_of_use(self, old_license: dict):
-        return structure.TermsOfUse(
-            lic=structure.License(
+        return oem_v15.TermsOfUse(
+            lic=oem_v15.License(
                 identifier=old_license.get("name"),
                 name=old_license.get("title"),
                 path=old_license.get("path"),
@@ -622,7 +622,7 @@ class JSONParser_1_5(JSONParser):
             subject = None
         else:
             subject = [
-                structure.Subject(
+                oem_v15.Subject(
                     name = old_subject.get("name"),
                     path = old_subject.get("path")
                 )
@@ -638,19 +638,19 @@ class JSONParser_1_5(JSONParser):
 
             funding_agency = None
             if "fundingAgency" in inp_context:
-                funding_agency = structure.Agency(
+                funding_agency = oem_v15.Agency(
                     name=inp_context.get("fundingAgency"),
                     logo=inp_context.get("fundingAgencyLogo"),
                 )
 
-            context = structure.Context(
+            context = oem_v15.Context(
                 homepage=inp_context.get("homepage"),
                 documentation=inp_context.get("documentation"),
                 source_code=inp_context.get("sourceCode"),
                 contact=inp_context.get("contact"),
                 grant_number=inp_context.get("grantNo"),
                 funding_agency=funding_agency,
-                publisher=structure.Agency(logo=inp_context.get("publisherLogo"))
+                publisher=oem_v15.Agency(logo=inp_context.get("publisherLogo"))
                 if "publisherLogo" in inp_context
                 else None,
             )
@@ -660,7 +660,7 @@ class JSONParser_1_5(JSONParser):
         if old_spatial is None:
             spatial = None
         else:
-            spatial = structure.Spatial(
+            spatial = oem_v15.Spatial(
                 location=old_spatial.get("location"),
                 extent=old_spatial.get("extent"),
                 resolution=old_spatial.get("resolution"),
@@ -676,11 +676,11 @@ class JSONParser_1_5(JSONParser):
                 timeseries = None
             else:
                 timeseries = [
-                    structure.Timeseries(
+                    oem_v15.Timeseries(
                         start=parse_date_or_none(inp_timeseries.get("start")),
                         end=parse_date_or_none(inp_timeseries.get("end")),
                         resolution=inp_timeseries.get("resolution"),
-                        ts_orientation=structure.TimestampOrientation.create(
+                        ts_orientation=oem_v15.TimestampOrientation.create(
                             inp_timeseries.get("alignment")
                         )
                         if "alignment" in inp_timeseries and inp_timeseries["alignment"] is not None
@@ -689,7 +689,7 @@ class JSONParser_1_5(JSONParser):
                     )
                     for inp_timeseries in inp_timeseries
                 ]
-            temporal = structure.Temporal(
+            temporal = oem_v15.Temporal(
                 reference_date=parse_date_or_none(inp_temporal.get("referenceDate")),
                 #TODO: does ** kwargs work on list?
                 timeseries_collection=timeseries
@@ -701,7 +701,7 @@ class JSONParser_1_5(JSONParser):
             sources = None
         else:
             sources = [
-                structure.Source(
+                oem_v15.Source(
                     title=old_source.get("title"),
                     description=old_source.get("description"),
                     path=old_source.get("path"),
@@ -728,8 +728,8 @@ class JSONParser_1_5(JSONParser):
             contributors = None
         else:
             contributors = [
-                structure.Contribution(
-                    contributor=structure.Person(
+                oem_v15.Contribution(
+                    contributor=oem_v15.Person(
                         name=old_contributor.get("title"),
                         email=old_contributor.get("email"),
                     ),
@@ -816,21 +816,21 @@ class JSONParser_1_5(JSONParser):
                             referenced_fields = None
                         else:
                             referenced_fields = [
-                                structure.Field(name=fk_field)
+                                oem_v15.Field(name=fk_field)
                                 for fk_field in old_referenced_fields
                             ]
-                        referenced_resource = structure.Resource(
+                        referenced_resource = oem_v15.Resource(
                             name=old_reference.get("resource"),
-                            schema=structure.Schema(fields=referenced_fields),
+                            schema=oem_v15.Schema(fields=referenced_fields),
                         )
                         for rf in referenced_fields:
                             rf.resource = referenced_resource
                         references = [
-                            structure.Reference(s, t)
+                            oem_v15.Reference(s, t)
                             for s, t in zip(source_fields, referenced_fields)
                         ]
-                        foreign_keys.append(structure.ForeignKey(references=references))
-                    schema = structure.Schema(
+                        foreign_keys.append(oem_v15.ForeignKey(references=references))
+                    schema = oem_v15.Schema(
                         fields=fields,
                         primary_key=resource["schema"].get("primaryKey"),
                         foreign_keys=foreign_keys,
@@ -839,12 +839,12 @@ class JSONParser_1_5(JSONParser):
                 if old_dialect is None:
                     dialect = None
                 else:
-                    dialect = structure.Dialect(
+                    dialect = oem_v15.Dialect(
                         delimiter=resource["dialect"].get("delimiter"),
                         decimal_separator=resource["dialect"].get("decimalSeparator"),
                     )
                 resources.append(
-                    structure.Resource(
+                    oem_v15.Resource(
                         profile=resource.get("profile"),
                         name=resource.get("name"),
                         path=resource.get("path"),
@@ -859,7 +859,7 @@ class JSONParser_1_5(JSONParser):
         if inp_review is None:
             review = None
         else:
-            review = structure.Review(
+            review = oem_v15.Review(
                 path=inp_review.get("path"), badge=inp_review.get("badge")
             )
 
@@ -867,7 +867,7 @@ class JSONParser_1_5(JSONParser):
         if inp_comment is None:
             comment = None
         else:
-            comment = structure.MetaComment(
+            comment = oem_v15.MetaComment(
                 metadata_info=inp_comment.get("metadata"),
                 dates=inp_comment.get("dates"),
                 units=inp_comment.get("units"),
@@ -877,7 +877,7 @@ class JSONParser_1_5(JSONParser):
                 none=inp_comment.get("null"),
             )
 
-        metadata = structure.OEPMetadata(
+        metadata = oem_v15.OEPMetadata(
             name=json_old.get("name"),
             title=json_old.get("title"),
             identifier=json_old["id"],
