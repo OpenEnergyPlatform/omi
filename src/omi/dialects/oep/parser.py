@@ -261,7 +261,8 @@ class JSONParser_1_4(JSONParser):
                     ts_orientation=structure.TimestampOrientation.create(
                         inp_timeseries.get("alignment")
                     )
-                    if "alignment" in inp_timeseries and inp_timeseries["alignment"] is not None
+                    if "alignment" in inp_timeseries
+                    and inp_timeseries["alignment"] is not None
                     else None,
                     aggregation=inp_timeseries.get("aggregationType"),
                 )
@@ -319,7 +320,7 @@ class JSONParser_1_4(JSONParser):
         old_resources = json_old.get("resources")
         if old_resources is None:
             resources = None
-        #Code added to raise exception when resource is empty
+        # Code added to raise exception when resource is empty
         else:
             if len(old_resources) == 0:
                 raise ParserException("Resource field doesn't have any child entity")
@@ -574,7 +575,8 @@ class JSONParser_1_4(JSONParser):
         raise NotImplementedError
 
 
-#TODO: Update parser below
+# TODO: Update parser below
+
 
 class JSONParser_1_5(JSONParser):
     def is_valid(self, inp: str):
@@ -623,13 +625,11 @@ class JSONParser_1_5(JSONParser):
         else:
             subject = [
                 oem_v15.Subject(
-                    name = old_subject.get("name"),
-                    path = old_subject.get("path")
+                    name=old_subject.get("name"), path=old_subject.get("path")
                 )
                 for old_subject in old_subjects
-            ] 
+            ]
 
-        
         # context section
         inp_context = json_old.get("context")
         if inp_context is None:
@@ -683,7 +683,8 @@ class JSONParser_1_5(JSONParser):
                         ts_orientation=oem_v15.TimestampOrientation.create(
                             inp_timeseries.get("alignment")
                         )
-                        if "alignment" in inp_timeseries and inp_timeseries["alignment"] is not None
+                        if "alignment" in inp_timeseries
+                        and inp_timeseries["alignment"] is not None
                         else None,
                         aggregation=inp_timeseries.get("aggregationType"),
                     )
@@ -691,8 +692,8 @@ class JSONParser_1_5(JSONParser):
                 ]
             temporal = oem_v15.Temporal(
                 reference_date=parse_date_or_none(inp_temporal.get("referenceDate")),
-                #TODO: does ** kwargs work on list?
-                timeseries_collection=timeseries
+                # TODO: does ** kwargs work on list?
+                timeseries_collection=timeseries,
             )
 
         # filling the source section
@@ -744,7 +745,7 @@ class JSONParser_1_5(JSONParser):
         old_resources = json_old.get("resources")
         if old_resources is None:
             resources = None
-        #Code added to raise exception when resource is empty
+        # Code added to raise exception when resource is empty
         else:
             if len(old_resources) == 0:
                 raise ParserException("Resource field doesn't have any child entity")
@@ -769,12 +770,12 @@ class JSONParser_1_5(JSONParser):
                             else:
                                 is_about = [
                                     oem_v15.IsAbout(
-                                        name = old_is_about.name,
-                                        path = old_is_about.path
+                                        name=old_is_about.get("name"),
+                                        path=old_is_about.get("path"),
                                     )
                                     for old_is_about in old_is_abouts
                                 ]
-                            
+
                             # filling the value reference section
                             old_value_references = field.get("valueReference")
                             if old_value_references is None:
@@ -782,22 +783,22 @@ class JSONParser_1_5(JSONParser):
                             else:
                                 value_reference = [
                                     oem_v15.ValueReference(
-                                        value= old_value_reference.value,
-                                        name = old_value_reference.name,
-                                        path = old_value_reference.path
+                                        value=old_value_reference.get("value"),
+                                        name=old_value_reference.get("name"),
+                                        path=old_value_reference.get("path"),
                                     )
                                     for old_value_reference in old_value_references
                                 ]
 
                             fields.append(
                                 oem_v15.Field(
-                                        name=field.get("name"),
-                                        description=field.get("description"),
-                                        field_type=field.get("type"),
-                                        is_about=is_about,
-                                        value_reference=value_reference,
-                                        unit=field.get("unit"),
-                                    )
+                                    name=field.get("name"),
+                                    description=field.get("description"),
+                                    field_type=field.get("type"),
+                                    is_about=is_about,
+                                    value_reference=value_reference,
+                                    unit=field.get("unit"),
+                                )
                             )
 
                     field_dict = {field.name: field for field in fields or []}
