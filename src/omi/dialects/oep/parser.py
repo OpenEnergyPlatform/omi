@@ -598,10 +598,36 @@ class JSONParser_1_5(JSONParser):
         )
 
     def parse(self, json_old: dict, *args, **kwargs):
-        # context section
+        """_summary_
+
+        Args:
+            json_old (dict): _description_
+
+        Raises:
+            ParserException: _description_
+            ParserException: _description_
+            ParserException: _description_
+
+        Returns:
+            _type_: _description_
+        """
+
         if "id" not in json_old:
             raise ParserException("metadata string does not contain an id")
 
+        # filling the subject section
+        old_subject = json_old.get("subject")
+        if old_subject is None:
+            subject = None
+        else:
+            subject = [structure.Subject(
+                name = old_subject.get("name"),
+                path = old_subject.get("path")
+            )] 
+
+
+        
+        # context section
         inp_context = json_old.get("context")
         if inp_context is None:
             context = None
@@ -822,7 +848,7 @@ class JSONParser_1_5(JSONParser):
             title=json_old.get("title"),
             identifier=json_old["id"],
             description=json_old.get("description"),
-            subject=json_old.get("subject"),
+            subject=subject,
             languages=json_old.get("language"),
             keywords=json_old.get("keywords"),
             publication_date=parse_date_or_none(json_old.get("publicationDate")),
