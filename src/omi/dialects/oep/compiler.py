@@ -239,6 +239,14 @@ class JSONCompilerOEM15(JSONCompiler):
 
     __METADATA_VERSION = "OEP-1.5.1"
 
+
+    def visit_subject(self, subject: oem_v15.Subject, *args, **kwargs):
+        return self._construct_dict(
+            ("name", subject.name),
+            ("path", subject.path)
+        )
+
+
     def visit_timeseries(self, timeseries: oem_v15.Timeseries, *args, **kwargs):
         start = None
         end = None
@@ -254,13 +262,29 @@ class JSONCompilerOEM15(JSONCompiler):
             ("aggregationType",  timeseries.aggregation)
         ) 
 
+
     def visit_temporal(self, temporal: oem_v15.Temporal, *args, **kwargs):
         return self._construct_dict(
             ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d")),
             ("timeseries", temporal.timeseries_collection)
         )
 
+
+    def visit_is_about(self, is_about: oem_v15.IsAbout, *args, **kwargs):
+        return self._construct_dict(
+            ("name", is_about.name),
+            ("path", is_about.path)
+        )
+
     
+    def visit_value_reference(self, value_reference: oem_v15.ValueReference, *args, **kwargs):
+        return self._construct_dict(
+            ("value", value_reference.value),
+            ("name", value_reference.name),
+            ("path", value_reference.path)
+        )
+
+
     def visit_field(self, field: oem_v15.Field, *args, **kwargs):
         return self._construct_dict(
             ("name",  field.name),
@@ -271,6 +295,7 @@ class JSONCompilerOEM15(JSONCompiler):
             ("unit",  field.unit),
         )
     
+
     def visit_metadata(self, metadata: oem_v15.OEPMetadata, *args, **kwargs):
         publication_date = None
         if metadata.publication_date is not None:
