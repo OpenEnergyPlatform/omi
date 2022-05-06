@@ -8,6 +8,7 @@ from dateutil.parser import parse as parse_date
 from omi import structure
 from omi.dialects.base.parser import Parser
 from omi.dialects.base.parser import ParserException
+from omi.oem_structures import oem_v15
 
 
 def parse_date_or_none(x, *args, **kwargs):
@@ -620,11 +621,12 @@ class JSONParser_1_5(JSONParser):
         if old_subjects is None:
             subject = None
         else:
-            subject = [structure.Subject(
-                name = old_subject.get("name"),
-                path = old_subject.get("path")
-            )
-            for old_subject in old_subjects
+            subject = [
+                structure.Subject(
+                    name = old_subject.get("name"),
+                    path = old_subject.get("path")
+                )
+                for old_subject in old_subjects
             ] 
 
         
@@ -752,21 +754,52 @@ class JSONParser_1_5(JSONParser):
                 if old_schema is None:
                     schema = None
                 else:
+                    # filling the fields section
                     old_fields = old_schema.get("fields")
                     if old_fields is None:
                         fields = None
                     else:
-                        fields = [
-                            structure.Field(
-                                name=field.get("name"),
-                                description=field.get("description"),
-                                field_type=field.get("type"),
-                                is_about=field.get("is_about"),
-                                value_reference=field.get("value_reference"),
-                                unit=field.get("unit"),
+                        fields = []
+
+                        for field in old_fields:
+                            # filling the is about section
+                            old_is_abouts = field.get("isAbout")
+                            if old_is_abouts is None:
+                                is_about = None
+                            else:
+                                is_about = [
+                                    oem_v15.IsAbout(
+                                        name = old_is_about.name,
+                                        path = old_is_about.path
+                                    )
+                                    for old_is_about in old_is_abouts
+                                ]
+                            
+                            # filling the value reference section
+                            old_value_references = field.get("valueReference")
+                            if old_value_references is None:
+                                value_reference = None
+                            else:
+                                value_reference = [
+                                    oem_v15.ValueReference(
+                                        value= old_value_reference.value,
+                                        name = old_value_reference.name,
+                                        path = old_value_reference.path
+                                    )
+                                    for old_value_reference in old_value_references
+                                ]
+
+                            fields.append(
+                                oem_v15.Field(
+                                        name=field.get("name"),
+                                        description=field.get("description"),
+                                        field_type=field.get("type"),
+                                        is_about=is_about,
+                                        value_reference=value_reference,
+                                        unit=field.get("unit"),
+                                    )
                             )
-                            for field in old_fields
-                        ]
+
                     field_dict = {field.name: field for field in fields or []}
                     old_foreign_keys = old_schema.get("foreignKeys", [])
                     foreign_keys = []
@@ -860,7 +893,7 @@ class JSONParser_1_5(JSONParser):
             terms_of_use=licenses,
             contributions=contributors,
             resources=resources,
-            databus_identifier=json_old("@id"),
+            databus_identifier=json_old.get("@id"),
             databus_context=json_old.get("@context"),
             review=review,
             comment=comment,
