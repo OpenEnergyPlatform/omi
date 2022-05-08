@@ -1,6 +1,7 @@
 import datetime
 
 from omi import structure as s
+from omi.oem_structures import oem_v15
 
 _source_year = s.Field(
     name="year", description="Reference year", field_type="integer", unit=None
@@ -357,7 +358,297 @@ metadata_v_1_4 = s.OEPMetadata(
     ),
 )
 
+############################################### oem v151 #########################################################
+metadata_v_1_5 = oem_v15.OEPMetadata(
+    name="oep_metadata_table_example_v15",
+    title="Good example title",
+    identifier="http://openenergyplatform.org/dataedit/view/model_draft/oep_metadata_table_example_v14",
+    description="example metadata for example data",
+    languages=["en-GB", "en-US", "de-DE", "fr-FR"],
+    subject=[
+        oem_v15.Subject(
+            name="energy",
+            path="https://openenergy-platform.org/ontology/oeo/OEO_00000150",
+        ),
+        oem_v15.Subject(
+            name="test dataset",
+            path="https://openenergy-platform.org/ontology/oeo/OEO_00000408",
+        ),
+    ],
+    keywords=["example", "template", "test"],
+    publication_date=datetime.datetime(2022, 2, 15, 0, 0),
+    context=oem_v15.Context(
+        homepage="https://reiner-lemoine-institut.de/szenariendb/",
+        documentation="https://github.com/OpenEnergyPlatform/organisation/wiki/metadata",
+        source_code="https://github.com/OpenEnergyPlatform/examples/tree/master/metadata",
+        contact="https://github.com/Ludee",
+        grant_number="03ET4057",
+        funding_agency=oem_v15.Agency(
+            name="Bundesministerium für Wirtschaft und Energie",
+            logo="https://www.innovation-beratung-foerderung.de/INNO/Redaktion/DE/Bilder/Titelbilder/titel_foerderlogo_bmwi.jpg?__blob=poster&v=2",
+        ),
+        publisher=oem_v15.Agency(
+            logo="https://reiner-lemoine-institut.de//wp-content/uploads/2015/09/rlilogo.png"
+        ),
+    ),
+    spatial=oem_v15.Spatial(location=None, extent="europe", resolution="100 m"),
+    temporal=oem_v15.Temporal(
+        reference_date=datetime.datetime(2016, 1, 1, 0, 0),
+        timeseries_collection=[
+            oem_v15.Timeseries(
+                start=datetime.datetime(
+                    2017,
+                    1,
+                    1,
+                    0,
+                    0,
+                    tzinfo=datetime.timezone(datetime.timedelta(0, 3600)),
+                ),
+                end=datetime.datetime(
+                    2017,
+                    12,
+                    31,
+                    23,
+                    0,
+                    tzinfo=datetime.timezone(datetime.timedelta(0, 3600)),
+                ),
+                resolution="1 h",
+                ts_orientation=oem_v15.TimestampOrientation.left,
+                aggregation="sum",
+            ),
+            oem_v15.Timeseries(
+                start=datetime.datetime(
+                    2017,
+                    1,
+                    1,
+                    0,
+                    0,
+                    tzinfo=datetime.timezone(datetime.timedelta(0, 3600)),
+                ),
+                end=datetime.datetime(
+                    2018,
+                    1,
+                    1,
+                    23,
+                    0,
+                    tzinfo=datetime.timezone(datetime.timedelta(0, 3600)),
+                ),
+                resolution="15 min",
+                ts_orientation=oem_v15.TimestampOrientation.right,
+                aggregation="sum",
+            ),
+        ],
+    ),
+    sources=[
+        oem_v15.Source(
+            title="OpenEnergyPlatform Metadata Example",
+            description="Metadata description",
+            path="https://github.com/OpenEnergyPlatform",
+            licenses=[
+                oem_v15.TermsOfUse(
+                    lic=cc010,
+                    instruction="You are free: To Share, To Create, To Adapt",
+                    attribution="© Reiner Lemoine Institut",
+                )
+            ],
+        ),
+        oem_v15.Source(
+            title="OpenStreetMap",
+            description="A collaborative project to create a free editable map of the world",
+            path="https://www.openstreetmap.org/",
+            licenses=[
+                oem_v15.TermsOfUse(
+                    lic=odbl10,
+                    instruction="You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
+                    attribution="© OpenStreetMap contributors",
+                )
+            ],
+        ),
+    ],
+    terms_of_use=[
+        oem_v15.TermsOfUse(
+            lic=odbl10,
+            instruction="You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
+            attribution="© Reiner Lemoine Institut © OpenStreetMap contributors",
+        )
+    ],
+    contributions=[
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="Ludee", email=None),
+            date=datetime.datetime(2016, 6, 16),
+            obj="metadata",
+            comment="Create metadata",
+        ),
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="Ludee", email=None),
+            date=datetime.datetime(2016, 11, 22),
+            obj="metadata",
+            comment="Update metadata",
+        ),
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="Ludee", email=None),
+            date=datetime.datetime(2016, 11, 22),
+            obj="metadata",
+            comment="Update header and license",
+        ),
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="Ludee", email=None),
+            date=datetime.datetime(2017, 3, 16),
+            obj="metadata",
+            comment="Add license to source",
+        ),
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="Ludee", email=None),
+            date=datetime.datetime(2017, 3, 28),
+            obj="metadata",
+            comment="Add copyright to source and license",
+        ),
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="Ludee", email=None),
+            date=datetime.datetime(2017, 5, 30),
+            obj="metadata",
+            comment="Release metadata version 1.3",
+        ),
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="Ludee", email=None),
+            date=datetime.datetime(2017, 6, 26),
+            obj="metadata",
+            comment="Move referenceDate into temporal and remove array",
+        ),
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="Ludee", email=None),
+            date=datetime.datetime(2018, 7, 19),
+            obj="metadata",
+            comment="Start metadata version 1.4",
+        ),
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="Ludee", email=None),
+            date=datetime.datetime(2018, 7, 26),
+            obj="data",
+            comment="Rename table and files",
+        ),
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="Ludee", email=None),
+            date=datetime.datetime(2018, 10, 18),
+            obj="metadata",
+            comment="Add contribution object",
+        ),
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="christian-rli", email=None),
+            date=datetime.datetime(2018, 10, 18),
+            obj="metadata",
+            comment="Add datapackage compatibility",
+        ),
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="Ludee", email=None),
+            date=datetime.datetime(2018, 11, 2),
+            obj="metadata",
+            comment="Release metadata version 1.4",
+        ),
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="christian-rli", email=None),
+            date=datetime.datetime(2019, 2, 5),
+            obj="metadata",
+            comment="Apply template structure to example",
+        ),
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="Ludee", email=None),
+            date=datetime.datetime(2019, 3, 22),
+            obj="metadata",
+            comment="Hotfix foreignKeys",
+        ),
+        oem_v15.Contribution(
+            contributor=oem_v15.Person(name="Ludee", email=None),
+            date=datetime.datetime(2019, 7, 9),
+            obj="metadata",
+            comment="Release metadata version OEP-1.3.0",
+        ),
+    ],
+    resources=[
+        oem_v15.Resource(
+            name="model_draft.oep_metadata_table_example_v14",
+            path="http://openenergyplatform.org/dataedit/view/model_draft/oep_metadata_table_example_v14",
+            profile="tabular-data-resource",
+            resource_format="PostgreSQL",
+            encoding="UTF-8",
+            schema=oem_v15.Schema(
+                fields=[
+                    oem_v15.Field(
+                        name="id",
+                        description="Unique identifier",
+                        field_type="serial",
+                        unit=None,
+                        is_about=[oem_v15.IsAbout(name=None, path=None)],
+                        value_reference=[
+                            oem_v15.ValueReference(value=None, name=None, path=None)
+                        ],
+                    ),
+                    _source_year,
+                    oem_v15.Field(
+                        name="value",
+                        description="Example value",
+                        field_type="double precision",
+                        unit="MW",
+                        is_about=[
+                            oem_v15.IsAbout(
+                                name="written name",
+                                path="https://openenergy-platform.org/ontology/oeo/IAO_0000590",
+                            )
+                        ],
+                        value_reference=[
+                            oem_v15.ValueReference(value=None, name=None, path=None)
+                        ],
+                    ),
+                    oem_v15.Field(
+                        name="geom",
+                        description="Geometry",
+                        field_type="geometry(Point, 4326)",
+                        unit=None,
+                        is_about=[
+                            oem_v15.IsAbout(
+                                name="spatial region",
+                                path="https://openenergy-platform.org/ontology/oeo/BFO_0000006",
+                            )
+                        ],
+                        value_reference=[
+                            oem_v15.ValueReference(
+                                value="test", name="test", path="test"
+                            )
+                        ],
+                    ),
+                ],
+                primary_key=["id"],
+                foreign_keys=[
+                    oem_v15.ForeignKey(
+                        references=[
+                            oem_v15.Reference(source=_source_year, target=_target_year)
+                        ]
+                    )
+                ],
+            ),
+            dialect=oem_v15.Dialect(delimiter=None, decimal_separator="."),
+        )
+    ],
+    databus_identifier="https://databus.dbpedia.org/kurzum/mastr/bnetza-mastr/01.04.00",
+    databus_context="https://github.com/OpenEnergyPlatform/oemetadata/blob/master/metadata/latest/context.json",
+    review=oem_v15.Review(
+        path="https://github.com/OpenEnergyPlatform/data-preprocessing/wiki",
+        badge="platin",
+    ),
+    comment=oem_v15.MetaComment(
+        metadata_info="Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
+        dates="Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
+        units="Use a space between numbers and units (100 m)",
+        languages="Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
+        licenses="License name must follow the SPDX License List (https://spdx.org/licenses/)",
+        review="Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)",
+        none="If not applicable use (null)",
+    ),
+)
+
 
 metadata_v_1_3_minimal = s.OEPMetadata()
 
 metadata_v_1_4_minimal = s.OEPMetadata(identifier="id")
+
+metadata_v_1_5_minimal = oem_v15.OEPMetadata(identifier="id")
