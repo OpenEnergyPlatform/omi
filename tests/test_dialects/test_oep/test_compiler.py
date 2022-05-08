@@ -1,13 +1,13 @@
 import json
 
-from omi.dialects.oep.compiler import JSONCompiler
+from omi.dialects.oep.compiler import JSONCompiler, JSONCompilerOEM15
 
-from ..internal_structures import metadata_v_1_5
+from ..internal_structures import metadata_v_1_4, metadata_v_1_5
 
 
 def test_compiler_v1_5():
-    compiler = JSONCompiler()
-    with open("tests/data/metadata_v15.json", "r") as _input_file:
+    compiler = JSONCompilerOEM15()
+    with open("tests/data/metadata_v15.json", "r", encoding="utf-8") as _input_file:
         expected_result = json.load(_input_file)
         result = compiler.visit(metadata_v_1_5)
         assert_equal(expected_result, result)
@@ -15,7 +15,7 @@ def test_compiler_v1_5():
 
 def test_compiler_v1_4():
     compiler = JSONCompiler()
-    with open("tests/data/metadata_v14.json", "r", encoding='utf-8') as _input_file:
+    with open("tests/data/metadata_v14.json", "r", encoding="utf-8") as _input_file:
         expected_result = json.load(_input_file)
         result = compiler.visit(metadata_v_1_4)
         assert_equal(expected_result, result)
