@@ -19,7 +19,11 @@ def assert_compileable_equal(expected, got, nulls=None, exclude=None):
     assert isinstance(expected, (Compilable, dict)), type(expected)
     assert isinstance(got, (Compilable, dict)), (type(got), expected)
     for key in set(expected.__dict__.keys()).union(set(got.__dict__.keys())):
-        if key not in exclude:
+        if (
+            key not in exclude
+            and isinstance(getattr(expected, key), Field)
+            or isinstance(getattr(expected, key), oem_v15.Field)
+        ):
             l = getattr(expected, key)
             r = getattr(got, key)
             if isinstance(l, Compilable):
