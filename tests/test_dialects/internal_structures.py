@@ -554,8 +554,8 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
     databus_identifier="https://databus.dbpedia.org/kurzum/mastr/bnetza-mastr/01.04.00",
     databus_context="https://github.com/OpenEnergyPlatform/oemetadata/blob/master/metadata/latest/context.json",
     review=oem_v15.Review(
-        path="https://github.com/OpenEnergyPlatform/data-preprocessing/wiki",
-        badge="platin",
+        path="https://github.com/OpenEnergyPlatform/data-preprocessing/issues",
+        badge="Platinum",
     ),
     comment=oem_v15.MetaComment(
         metadata_info="Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
