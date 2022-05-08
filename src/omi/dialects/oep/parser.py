@@ -600,6 +600,9 @@ class JSONParser_1_5(JSONParser):
             attribution=old_license.get("attribution"),
         )
 
+    def parse_timeseries(self, old_timeseries: dict):
+        pass
+
     def parse(self, json_old: dict, *args, **kwargs):
         """_summary_
 
@@ -677,18 +680,17 @@ class JSONParser_1_5(JSONParser):
             else:
                 timeseries = [
                     oem_v15.Timeseries(
-                        start=parse_date_or_none(inp_timeseries.get("start")),
-                        end=parse_date_or_none(inp_timeseries.get("end")),
-                        resolution=inp_timeseries.get("resolution"),
+                        start=parse_date_or_none(ts.get("start")),
+                        end=parse_date_or_none(ts.get("end")),
+                        resolution=ts.get("resolution"),
                         ts_orientation=oem_v15.TimestampOrientation.create(
-                            inp_timeseries.get("alignment")
+                            ts.get("alignment")
                         )
-                        if "alignment" in inp_timeseries
-                        and inp_timeseries["alignment"] is not None
+                        if "alignment" in ts and ts["alignment"] is not None
                         else None,
-                        aggregation=inp_timeseries.get("aggregationType"),
+                        aggregation=ts.get("aggregationType"),
                     )
-                    for inp_timeseries in inp_timeseries
+                    for ts in inp_timeseries
                 ]
             temporal = oem_v15.Temporal(
                 reference_date=parse_date_or_none(inp_temporal.get("referenceDate")),
@@ -875,7 +877,8 @@ class JSONParser_1_5(JSONParser):
                 languages=inp_comment.get("languages"),
                 licenses=inp_comment.get("licenses"),
                 review=inp_comment.get("review"),
-                none=inp_comment.get("null"),
+                null=inp_comment.get("null"),
+                todo=inp_comment.get("todo"),
             )
 
         metadata = oem_v15.OEPMetadata(
