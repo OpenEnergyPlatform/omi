@@ -489,7 +489,7 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
     resources=[
         oem_v15.Resource(
             name="model_draft.oep_metadata_table_example_v151",
-            path="http://openenergyplatform.org/dataedit/view/model_draft/oep_metadata_table_example_v14",
+            path="http://openenergyplatform.org/dataedit/view/model_draft/oep_metadata_table_example_v151",
             profile="tabular-data-resource",
             resource_format="PostgreSQL",
             encoding="UTF-8",
