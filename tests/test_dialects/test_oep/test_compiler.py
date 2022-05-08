@@ -2,7 +2,15 @@ import json
 
 from omi.dialects.oep.compiler import JSONCompiler
 
-from ..internal_structures import metadata_v_1_4
+from ..internal_structures import metadata_v_1_5
+
+
+def test_compiler_v1_5():
+    compiler = JSONCompiler()
+    with open("tests/data/metadata_v15.json", "r") as _input_file:
+        expected_result = json.load(_input_file)
+        result = compiler.visit(metadata_v_1_5)
+        assert_equal(expected_result, result)
 
 
 def test_compiler_v1_4():
