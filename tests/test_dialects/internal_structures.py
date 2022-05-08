@@ -617,7 +617,8 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
         languages="Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
         licenses="License name must follow the SPDX License List (https://spdx.org/licenses/)",
         review="Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/blob/master/data-review/manual/review_manual.md)",
-        none="If not applicable use (null)",
+        null="If not applicable use: null",
+        todo="If a value is not yet available, use: todo",
     ),
 )
 
