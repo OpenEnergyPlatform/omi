@@ -80,7 +80,7 @@ class Parser:
         -------
 
         """
-        with open(file, **kwargs) as inp:
+        with open(file, **kwargs, encoding='utf-8') as inp:
             return inp.read()
 
     def parse_from_file(self, file_path, *args, **kwargs):
