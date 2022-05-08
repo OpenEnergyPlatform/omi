@@ -384,7 +384,7 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
         contact="https://github.com/Ludee",
         grant_number="03EI1005",
         funding_agency=oem_v15.Agency(
-            name="Bundesministerium für Wirtschaft und Energie",
+            name="Bundesministerium für Wirtschaft und Klimaschutz",
             logo="https://commons.wikimedia.org/wiki/File:BMWi_Logo_2021.svg#/media/File:BMWi_Logo_2021.svg",
         ),
         publisher=oem_v15.Agency(
