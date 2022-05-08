@@ -363,7 +363,7 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
     name="oep_metadata_table_example_v15",
     title="Example title for metadata example - Version 1.5.1",
     identifier="http://openenergyplatform.org/dataedit/view/model_draft/oep_metadata_table_example_v14",
-    description="example metadata for example data",
+    description="This is an metadata example for example data. There is a corresponding table on the OEP for each metadata version.",
     languages=["en-GB", "en-US", "de-DE", "fr-FR"],
     subject=[
         oem_v15.Subject(
