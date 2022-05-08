@@ -1,4 +1,4 @@
-'''
+"""
 This module extends the internal data structure 
 with the latest changes of the OEMetadata standard.
 
@@ -8,8 +8,8 @@ This bypasses the limitation of OMI to rely on a single
 internal representation of the data structure, since 
 OEMetadata is not a static structure and OMI must be
 be able to validate multiple OEMetadata versions.
-'''
-#TODO: maybe change all inheritance to omi.structure to 
+"""
+# TODO: maybe change all inheritance to omi.structure to
 #      avoide alot of redundancy
 
 from datetime import datetime
@@ -23,9 +23,9 @@ class Language(Compilable):
 
 
 class Subject(Compilable):
-    __compiler_name__="subject"
+    __compiler_name__ = "subject"
 
-    def __init__(self, name: str = None , path: str = None):
+    def __init__(self, name: str = None, path: str = None):
         self.name = name
         self.path = path
 
@@ -58,20 +58,24 @@ class TimestampOrientation(Compilable, Enum):
         else:
             raise Exception("Unknown timestamp orientation:", value)
 
+
 class Timeseries(Compilable):
     __compiler_name__ = "timeseries"
 
-    def __init__(self, 
+    def __init__(
+        self,
         start: datetime = None,
         end: datetime = None,
         resolution: str = None,
         ts_orientation: TimestampOrientation = None,
-        aggregation: str = None):
+        aggregation: str = None,
+    ):
         self.ts_start = start
         self.ts_end = end
         self.ts_resolution = resolution
         self.ts_orientation = ts_orientation
         self.aggregation = aggregation
+
 
 class Temporal(Compilable):
     __compiler_name__ = "temporal"
@@ -175,23 +179,16 @@ class Contribution(Compilable):
 
 class IsAbout(Compilable):
     __compiler_name__ = "is_about"
-    def __init__(
-        self, 
-        name: str = None, 
-        path: str = None
-    ):
+
+    def __init__(self, name: str = None, path: str = None):
         self.name = name
         self.path = path
 
 
 class ValueReference(Compilable):
     __compiler_name__ = "value_reference"
-    def __init__(
-        self, 
-        value: str = None,
-        name: str = None, 
-        path: str = None
-    ):
+
+    def __init__(self, value: str = None, name: str = None, path: str = None):
         self.value = value
         self.name = name
         self.path = path
@@ -332,7 +329,8 @@ class MetaComment(Compilable):
         languages: str = None,
         licenses: str = None,
         review: str = None,
-        none: str = None,
+        null: str = None,
+        todo: str = None,
     ):
         self.metadata_info = metadata_info
         self.dates = dates
@@ -340,7 +338,8 @@ class MetaComment(Compilable):
         self.languages = languages
         self.licenses = licenses
         self.review = review
-        self.none = none
+        self.null = null
+        self.todo = todo
 
 
 class Review(Compilable):
