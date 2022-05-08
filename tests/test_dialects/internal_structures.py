@@ -611,7 +611,7 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
         badge="Platinum",
     ),
     comment=oem_v15.MetaComment(
-        metadata_info="Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)",
+        metadata_info="Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/oemetadata)",
         dates="Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
         units="Use a space between numbers and units (100 m)",
         languages="Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
