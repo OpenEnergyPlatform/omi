@@ -375,7 +375,7 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
             path="https://openenergy-platform.org/ontology/oeo/OEO_00000408",
         ),
     ],
-    keywords=["example", "template", "test"],
+    keywords=["energy", "example", "template", "test"],
     publication_date=datetime.datetime(2022, 2, 15, 0, 0),
     context=oem_v15.Context(
         homepage="https://reiner-lemoine-institut.de/szenariendb/",
