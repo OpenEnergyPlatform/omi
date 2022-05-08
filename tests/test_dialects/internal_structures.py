@@ -429,7 +429,7 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
                     2018,
                     1,
                     1,
-                    23,
+                    0,
                     0,
                     tzinfo=datetime.timezone(datetime.timedelta(0, 3600)),
                 ),
