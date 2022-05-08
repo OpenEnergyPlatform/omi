@@ -418,7 +418,7 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
             ),
             oem_v15.Timeseries(
                 start=datetime.datetime(
-                    2017,
+                    2018,
                     1,
                     1,
                     0,
@@ -426,10 +426,10 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
                     tzinfo=datetime.timezone(datetime.timedelta(0, 3600)),
                 ),
                 end=datetime.datetime(
-                    2018,
+                    2019,
+                    6,
                     1,
-                    1,
-                    0,
+                    23,
                     0,
                     tzinfo=datetime.timezone(datetime.timedelta(0, 3600)),
                 ),
