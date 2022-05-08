@@ -488,7 +488,7 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
     ],
     resources=[
         oem_v15.Resource(
-            name="model_draft.oep_metadata_table_example_v14",
+            name="model_draft.oep_metadata_table_example_v151",
             path="http://openenergyplatform.org/dataedit/view/model_draft/oep_metadata_table_example_v14",
             profile="tabular-data-resource",
             resource_format="PostgreSQL",
@@ -505,7 +505,60 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
                             oem_v15.ValueReference(value=None, name=None, path=None)
                         ],
                     ),
-                    _source_year,
+                    oem_v15.Field(
+                        name="name",
+                        description="Example name",
+                        field_type="text",
+                        unit=None,
+                        is_about=[
+                            oem_v15.IsAbout(
+                                name="written name",
+                                path="https://openenergy-platform.org/ontology/oeo/IAO_0000590",
+                            )
+                        ],
+                        value_reference=[
+                            oem_v15.ValueReference(value=None, name=None, path=None)
+                        ],
+                    ),
+                    oem_v15.Field(
+                        name="type",
+                        description="Type of wind farm",
+                        field_type="text",
+                        unit=None,
+                        is_about=[
+                            oem_v15.IsAbout(
+                                name="wind farm",
+                                path="https://openenergy-platform.org/ontology/oeo/OEO_00000447",
+                            )
+                        ],
+                        value_reference=[
+                            oem_v15.ValueReference(
+                                value="onshore",
+                                name="onshore wind farm",
+                                path="https://openenergy-platform.org/ontology/oeo/OEO_00000311",
+                            ),
+                            oem_v15.ValueReference(
+                                value="offshore",
+                                name="offshore wind farm",
+                                path="https://openenergy-platform.org/ontology/oeo/OEO_00000308",
+                            ),
+                        ],
+                    ),
+                    oem_v15.Field(
+                        name="year",
+                        description="Example value",
+                        field_type="double precision",
+                        unit=None,
+                        is_about=[
+                            oem_v15.IsAbout(
+                                name="year",
+                                path="https://openenergy-platform.org/ontology/oeo/UO_0000036",
+                            )
+                        ],
+                        value_reference=[
+                            oem_v15.ValueReference(value=None, name=None, path=None)
+                        ],
+                    ),
                     oem_v15.Field(
                         name="value",
                         description="Example value",
@@ -513,8 +566,8 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
                         unit="MW",
                         is_about=[
                             oem_v15.IsAbout(
-                                name="written name",
-                                path="https://openenergy-platform.org/ontology/oeo/IAO_0000590",
+                                name="quantity value",
+                                path="https://openenergy-platform.org/ontology/oeo/OEO_00000350",
                             )
                         ],
                         value_reference=[
