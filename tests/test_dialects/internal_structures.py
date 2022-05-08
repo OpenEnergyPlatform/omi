@@ -378,14 +378,14 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
     keywords=["energy", "example", "template", "test"],
     publication_date=datetime.datetime(2022, 2, 15, 0, 0),
     context=oem_v15.Context(
-        homepage="https://reiner-lemoine-institut.de/szenariendb/",
-        documentation="https://github.com/OpenEnergyPlatform/organisation/wiki/metadata",
+        homepage="https://reiner-lemoine-institut.de/lod-geoss/",
+        documentation="https://openenergy-platform.org/tutorials/jupyter/OEMetadata/",
         source_code="https://github.com/OpenEnergyPlatform/examples/tree/master/metadata",
         contact="https://github.com/Ludee",
-        grant_number="03ET4057",
+        grant_number="03EI1005",
         funding_agency=oem_v15.Agency(
             name="Bundesministerium für Wirtschaft und Energie",
-            logo="https://www.innovation-beratung-foerderung.de/INNO/Redaktion/DE/Bilder/Titelbilder/titel_foerderlogo_bmwi.jpg?__blob=poster&v=2",
+            logo="https://commons.wikimedia.org/wiki/File:BMWi_Logo_2021.svg#/media/File:BMWi_Logo_2021.svg",
         ),
         publisher=oem_v15.Agency(
             logo="https://reiner-lemoine-institut.de//wp-content/uploads/2015/09/rlilogo.png"
