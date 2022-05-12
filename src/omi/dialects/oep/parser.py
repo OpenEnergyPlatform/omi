@@ -589,6 +589,31 @@ class JSONParser_1_5(JSONParser):
         else:
             return True
 
+    def parse_from_string(
+        self,
+        string: str,
+        load_args=None,
+        parse_args=None,
+        load_kwargs=None,
+        parse_kwargs=None,
+    ) -> oem_v15.OEPMetadata:
+        """
+        Parse a string into :class:`~omi.structure.OEPMetadata`
+
+        Parameters
+        ----------
+        string
+
+        Returns
+        -------
+
+        """
+        return self.parse(
+            self.load_string(string, *(load_args or []), **(load_kwargs or {})),
+            *(parse_args or []),
+            **(parse_kwargs or {})
+        )
+
     def parse_term_of_use(self, old_license: dict):
         return oem_v15.TermsOfUse(
             lic=oem_v15.License(
