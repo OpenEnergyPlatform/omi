@@ -296,7 +296,7 @@ class JSONCompilerOEM15(JSONCompiler):
             ("aggregationType", timeseries.aggregation),
         )
 
-    def visit_temporal(self, temporal: oem_v15.Temporal, *args, **kwargs):
+    def visit_temporal_oemv15(self, temporal: oem_v15.Temporal, *args, **kwargs):
         return self._construct_dict(
             ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d")),
             ("timeseries", temporal.timeseries_collection),
