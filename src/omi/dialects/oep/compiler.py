@@ -2,6 +2,7 @@ import json
 from collections import OrderedDict
 
 from omi import structure
+from omi.oem_structures import oem_v15
 from omi.dialects.base.compiler import Compiler
 
 
@@ -33,7 +34,6 @@ class JSONCompiler(Compiler):
             for field_name, field in args
             if (not omit_none) or (field is not None)
         }
-        print(d)
         d.update(**kwargs)
         return d
 
@@ -230,9 +230,6 @@ class JSONCompiler(Compiler):
         )
 
 
-from omi.oem_structures import oem_v15
-
-
 class JSONCompilerOEM15(JSONCompiler):
     """
     Compiles OEMetadata version JSONCompilerOEM15.__METADATA_VERSION .
@@ -271,6 +268,18 @@ class JSONCompilerOEM15(JSONCompiler):
 
     def visit_subject(self, subject: oem_v15.Subject, *args, **kwargs):
         return self._construct_dict(("name", subject.name), ("path", subject.path))
+
+    def visit_timestamp_orientation(
+        self, tso: oem_v15.TimestampOrientation, *args, **kwargs
+    ):
+        if tso == oem_v15.TimestampOrientation.left:
+            return "left"
+        elif tso == oem_v15.TimestampOrientation.middle:
+            return "middle"
+        elif tso == oem_v15.TimestampOrientation.right:
+            return "right"
+        else:
+            raise NotImplementedError
 
     def visit_timeseries(self, timeseries: oem_v15.Timeseries, *args, **kwargs):
         start = None
@@ -314,7 +323,6 @@ class JSONCompilerOEM15(JSONCompiler):
             ("value_reference", field.value_reference),
             ("unit", field.unit),
         )
-    
 
     def visit_meta_comment(self, comment: oem_v15.MetaComment, *args, **kwargs):
         return self._construct_dict(
@@ -325,9 +333,8 @@ class JSONCompilerOEM15(JSONCompiler):
             ("licenses", comment.licenses),
             ("review", comment.review),
             ("null", comment.null),
-            ("todo", comment.todo)
+            ("todo", comment.todo),
         )
-
 
     def visit_metadata(self, metadata: oem_v15.OEPMetadata, *args, **kwargs):
         publication_date = None
