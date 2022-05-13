@@ -1,4 +1,6 @@
 from omi import structure
+import omi
+from omi.oem_structures import oem_v15
 
 
 class Compiler:
@@ -6,6 +8,7 @@ class Compiler:
     Compiles :class:`~omi.structure.Compilable` objects into the respective metadata
     format. Every omi compiler should inherit from this class
     """
+
     def visit(self, obj, *args, **kwargs):
         """
         Calls the respective compiler for :class:`~omi.structure.Compilable` objects
@@ -45,12 +48,19 @@ class Compiler:
     def visit_temporal(self, temporal: structure.Temporal, *args, **kwargs):
         raise NotImplementedError
 
+    # def visit_temporal_oemv15(self, temporal_oemv15: oem_v15.Temporal, *args, **kwargs):
+    #     #     from omi.dialects.oep.compiler import JSONCompilerOEM15
+    #     #     com = JSONCompilerOEM15()
+    #     #     return com.visit_temporal_oemv15(self, temporal_oemv15, *args, **kwargs)
+
+    #     raise NotImplementedError
+
     def visit_timestamp_orientation(
         self, ts_orientation: structure.TimestampOrientation, *args, **kwargs
     ):
         raise NotImplementedError
-    
-    def visit_timeseries(self, timeseries: structure.Timeseries, *args, **kwargs):
+
+    def visit_timeseries(self, timeseries: oem_v15.Timeseries, *args, **kwargs):
         raise NotImplementedError
 
     def visit_source(self, source: structure.Source, *args, **kwargs):
