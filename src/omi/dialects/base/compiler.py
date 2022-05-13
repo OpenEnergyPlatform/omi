@@ -1,5 +1,4 @@
 from omi import structure
-import omi
 from omi.oem_structures import oem_v15
 
 
@@ -47,13 +46,6 @@ class Compiler:
 
     def visit_temporal(self, temporal: structure.Temporal, *args, **kwargs):
         raise NotImplementedError
-
-    # def visit_temporal_oemv15(self, temporal_oemv15: oem_v15.Temporal, *args, **kwargs):
-    #     #     from omi.dialects.oep.compiler import JSONCompilerOEM15
-    #     #     com = JSONCompilerOEM15()
-    #     #     return com.visit_temporal_oemv15(self, temporal_oemv15, *args, **kwargs)
-
-    #     raise NotImplementedError
 
     def visit_timestamp_orientation(
         self, ts_orientation: structure.TimestampOrientation, *args, **kwargs
