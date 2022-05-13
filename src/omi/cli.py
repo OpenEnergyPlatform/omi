@@ -30,13 +30,13 @@ def grp():
 @click.option("-o", default=None, help="Output file")
 @click.argument("file_path")
 def translate(f, t, o, file_path):
-    with open(file_path, "r") as infile:
+    with open(file_path, "r", encoding="utf-8") as infile:
         from_dialect = get_dialect(f)()
         obj = from_dialect.parse(infile.read())
         to_dialect = get_dialect(t)()
         s = to_dialect.compile_and_render(obj)
         if o:
-            with open(o, "w") as outfile:
+            with open(o, "w", encoding="utf-8") as outfile:
                 outfile.write(s)
         else:
             print(s)
