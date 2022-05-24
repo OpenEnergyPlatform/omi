@@ -9,6 +9,12 @@ oem151 = {'name': None, 'title': None, 'id': None, 'description': None, 'languag
 ## make copy of empty oem151 template
 v151_template = copy.deepcopy(oem151)
 
+## select oem151 keys
+
+context_keys = (list(oem151["context"].keys()))
+spatial_keys = (list(oem151["spatial"].keys()))
+review_keys = (list(oem151["review"].keys()))
+
 ## load oem141 for conversion to oem151
 json_path = './JSON/v141'
 json_files = os.listdir(json_path)
@@ -39,3 +45,21 @@ for key in first_level_keys:
             v151_template[key] = v141_file[key]
     else:
         print(f'The key:[{key}] is not present in oemetadata v141, despite being declared in the OEM v141 template ')
+
+# Update review keys
+for key in review_keys:
+    if key in v141_file["review"].keys():
+        if v141_file["review"][key] != "":
+            v151_template["review"][key] = v141_file["review"][key]
+
+# Update context keys
+for key in context_keys:
+    if key in v141_file["context"].keys():
+        if v141_file["context"][key] != "":
+            v151_template["context"][key] = v141_file["context"][key]
+
+# Update spatial keys
+for key in spatial_keys:
+    if key in v141_file["spatial"].keys():
+        if v141_file["spatial"][key] != "":
+            v151_template["spatial"][key] = v141_file["spatial"][key]
