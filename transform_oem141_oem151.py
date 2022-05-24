@@ -27,6 +27,11 @@ sources_dict = copy.deepcopy(oem151["sources"][0])
 sources_licenses_keys = (list(oem151["sources"][0]["licenses"][0]))
 sources_licenses_dict = copy.deepcopy(oem151["sources"][0]["licenses"][0])
 
+resources_dict = copy.deepcopy(oem151["resources"][0])
+resources_schema_keys = (list(oem151["resources"][0]["schema"]))
+resources_dialect_dict = copy.deepcopy(oem151["resources"][0]["dialect"])
+resources_schema_fields = copy.deepcopy(oem151["resources"][0]["schema"]["fields"][0])
+
 ## load oem141 for conversion to oem151
 json_path = './JSON/v141'
 json_files = os.listdir(json_path)
@@ -123,3 +128,42 @@ for index, dict in enumerate(v141_file["sources"]):
 
         elif v141_file["sources"][index][key] != "":
             v151_template["sources"][index][key] = value
+
+# update resources
+for index, dict in enumerate(v141_file["resources"]):
+    # add own resources_dict for each resource
+    v151_template["resources"].append(copy.deepcopy(resources_dict))
+    for key, value in dict.items():
+        if key == "schema":
+            if "primaryKey" in value:
+                v151_template["resources"][index][key]["primaryKey"] = v141_file["resources"][index][key]["primaryKey"]
+            if "foreignKeys" in value:
+                v151_template["resources"][index][key]["foreignKeys"] = v141_file["resources"][index][key]["foreignKeys"]
+                ## check with @jh-RLI if nested keys have to be filled individually for "foreignKeys"
+                # for index_fk, dict_fk in enumerate(v141_file["resources"][index]["schema"]["foreignKeys"]):
+                #     print("index_fk, dict_fk", index_fk, dict_fk)
+                #     v151_template["resources"][index][key].append(copy.deepcopy(v151_template["resources"][index][key]))
+                #     if "fields" in dict_fk:
+                #       print( v151_template["resources"][index][key]["foreignKeys"])
+                #       v151_template["resources"][index][key]["foreignKeys"][index_fk]["fields"] = v141_file["resources"][index][key]["foreignKeys"][index_fk]["fields"]
+
+            if "fields" in value:
+               for index_fields, dict_fields in enumerate(v141_file["resources"][index]["schema"]["fields"]):
+                    v151_template["resources"][index]["schema"]["fields"].append(copy.deepcopy(resources_schema_fields))
+                    for key_fields, value_fields in dict_fields.items():
+                        v151_template["resources"][index]["schema"]["fields"][index_fields][key_fields] = value_fields
+
+        # if dialect is not empty copy information over
+        elif key == "dialect":
+            if "delimiter" in value:
+                v151_template["resources"][index][key]["delimiter"] = value["delimiter"]
+            elif "decimalSeparator" in value:
+                v151_template["resources"][index][key]["decimalSeparator"] = value["decimalSeparator"]
+
+        elif v141_file["resources"][index][key] != "":
+            v151_template["resources"][index][key] = value
+
+
+# save updated oem151 template to json
+with open("v151_updated.json", "w") as outfile:
+    json.dump(v151_template, outfile)
