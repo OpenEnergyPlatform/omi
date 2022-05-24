@@ -15,6 +15,11 @@ context_keys = (list(oem151["context"].keys()))
 spatial_keys = (list(oem151["spatial"].keys()))
 review_keys = (list(oem151["review"].keys()))
 
+contributer_keys = (list(oem151["contributors"][0].keys()))
+contributer_dict = copy.deepcopy(oem151["contributors"][0])
+licenses_keys = (list(oem151["licenses"][0].keys()))
+licenses_dict = copy.deepcopy(oem151["licenses"][0])
+
 ## load oem141 for conversion to oem151
 json_path = './JSON/v141'
 json_files = os.listdir(json_path)
@@ -63,3 +68,19 @@ for key in spatial_keys:
     if key in v141_file["spatial"].keys():
         if v141_file["spatial"][key] != "":
             v151_template["spatial"][key] = v141_file["spatial"][key]
+
+# update contributors
+for index, dict in enumerate(v141_file["contributors"]):
+    # add own contributer_dict for each contributer
+    v151_template["contributors"].append(copy.deepcopy(contributer_dict))
+    for key, value in dict.items():
+        if v141_file["contributors"][index][key] != "":
+            v151_template["contributors"][index][key] = value
+
+# update licenses
+for index, dict in enumerate(v141_file["licenses"]):
+    # add own licenses_dict for each licenses
+    v151_template["licenses"].append(copy.deepcopy(licenses_dict))
+    for key, value in dict.items():
+        if v141_file["licenses"][index][key] != "":
+            v151_template["licenses"][index][key] = value
