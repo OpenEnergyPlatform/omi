@@ -23,6 +23,10 @@ licenses_dict = copy.deepcopy(oem151["licenses"][0])
 temporal_keys = (list(oem151["temporal"].keys()))
 ts_keys = list(oem151["temporal"]["timeseries"][0].keys())
 
+sources_dict = copy.deepcopy(oem151["sources"][0])
+sources_licenses_keys = (list(oem151["sources"][0]["licenses"][0]))
+sources_licenses_dict = copy.deepcopy(oem151["sources"][0]["licenses"][0])
+
 ## load oem141 for conversion to oem151
 json_path = './JSON/v141'
 json_files = os.listdir(json_path)
@@ -103,3 +107,19 @@ for key in temporal_keys:
         else:
             # if key is not present in v141 just pass and don't update the key
             pass
+
+# update sources
+for index, dict in enumerate(v141_file["sources"]):
+    # add own sources_dict for each source
+    v151_template["sources"].append(copy.deepcopy(sources_dict))
+    for key, value in dict.items():
+        if key == "licenses" and v141_file["sources"][index]["licenses"]:
+            for src_lc_key in sources_licenses_keys:
+                if src_lc_key in list(v141_file["sources"][index]["licenses"][0]) and v141_file["sources"][index]["licenses"][0][src_lc_key] != "":
+                    v151_template["sources"][index][key][0][src_lc_key] = value[0][src_lc_key]
+
+        elif key == "licenses" and not v141_file["sources"][index]["licenses"]:
+            v151_template["sources"][index][key][0] = sources_licenses_dict
+
+        elif v141_file["sources"][index][key] != "":
+            v151_template["sources"][index][key] = value
