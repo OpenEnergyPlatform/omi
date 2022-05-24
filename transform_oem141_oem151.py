@@ -20,6 +20,9 @@ contributer_dict = copy.deepcopy(oem151["contributors"][0])
 licenses_keys = (list(oem151["licenses"][0].keys()))
 licenses_dict = copy.deepcopy(oem151["licenses"][0])
 
+temporal_keys = (list(oem151["temporal"].keys()))
+ts_keys = list(oem151["temporal"]["timeseries"][0].keys())
+
 ## load oem141 for conversion to oem151
 json_path = './JSON/v141'
 json_files = os.listdir(json_path)
@@ -84,3 +87,19 @@ for index, dict in enumerate(v141_file["licenses"]):
     for key, value in dict.items():
         if v141_file["licenses"][index][key] != "":
             v151_template["licenses"][index][key] = value
+
+# Update temporal
+for key in temporal_keys:
+    if key == "timeseries":
+        for timeseries_key in ts_keys:
+            if v141_file["temporal"][key] is not None and timeseries_key in list(v141_file["temporal"]["timeseries"].keys()):
+                v151_template["temporal"][key][0][timeseries_key] = v141_file["temporal"][key][timeseries_key]
+            else:
+                print(f"{timeseries_key} is not used and filled in oem141")
+
+    elif key in v141_file["temporal"].keys():
+        if v141_file["temporal"][key] != "":
+            v151_template["temporal"][key] = v141_file["temporal"][key]
+        else:
+            # if key is not present in v141 just pass and don't update the key
+            pass
