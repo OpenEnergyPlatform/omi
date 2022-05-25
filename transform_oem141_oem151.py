@@ -1,13 +1,13 @@
 import os
 import json
-import copy
+from copy import deepcopy
 
 ## oem templates
 oem141 = {'name': '', 'title': '', 'id': '', 'description': '', 'language': [''], 'keywords': [''], 'publicationDate': '', 'context': {'homepage': '', 'documentation': '', 'sourceCode': '', 'contact': '', 'grantNo': '', 'fundingAgency': '', 'fundingAgencyLogo': '', 'publisherLogo': ''}, 'spatial': {'location': '', 'extent': '', 'resolution': ''}, 'temporal': {'referenceDate': '', 'timeseries': {'start': '', 'end': '', 'resolution': '', 'alignment': '', 'aggregationType': ''}}, 'sources': [{'title': '', 'description': '', 'path': '', 'licenses': [{'name': '', 'title': '', 'path': '', 'instruction': '', 'attribution': ''}]}, {'title': '', 'description': '', 'path': '', 'licenses': [{'name': '', 'title': '', 'path': '', 'instruction': '', 'attribution': ''}]}], 'licenses': [{'name': '', 'title': '', 'path': '', 'instruction': '', 'attribution': ''}], 'contributors': [{'title': '', 'email': '', 'date': '', 'object': '', 'comment': ''}, {'title': '', 'email': '', 'date': '', 'object': '', 'comment': ''}], 'resources': [{'profile': '', 'name': '', 'path': '', 'format': '', 'encoding': '', 'schema': {'fields': [{'name': '', 'description': '', 'type': '', 'unit': ''}, {'name': '', 'description': '', 'type': '', 'unit': ''}], 'primaryKey': [''], 'foreignKeys': [{'fields': [''], 'reference': {'resource': '', 'fields': ['']}}]}, 'dialect': {'delimiter': '', 'decimalSeparator': '.'}}], 'review': {'path': '', 'badge': ''}, 'metaMetadata': {'metadataVersion': 'OEP-1.4.1', 'metadataLicense': {'name': 'CC0-1.0', 'title': 'Creative Commons Zero v1.0 Universal', 'path': 'https://creativecommons.org/publicdomain/zero/1.0/'}}, '_comment': {'metadata': 'Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/organisation/wiki/metadata)', 'dates': 'Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ssÂ±hh)', 'units': 'Use a space between numbers and units (100 m)', 'languages': 'Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)', 'licenses': 'License name must follow the SPDX License List (https://spdx.org/licenses/)', 'review': 'Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/wiki)', 'null': 'If not applicable use (null)'}}
 oem151 = {'name': None, 'title': None, 'id': None, 'description': None, 'language': [None], 'subject': [{'name': None, 'path': None}], 'keywords': [None], 'publicationDate': None, 'context': {'homepage': None, 'documentation': None, 'sourceCode': None, 'contact': None, 'grantNo': None, 'fundingAgency': None, 'fundingAgencyLogo': None, 'publisherLogo': None}, 'spatial': {'location': None, 'extent': None, 'resolution': None}, 'temporal': {'referenceDate': None, 'timeseries': [{'start': None, 'end': None, 'resolution': None, 'alignment': None, 'aggregationType': None}, {'start': None, 'end': None, 'resolution': None, 'alignment': None, 'aggregationType': None}]}, 'sources': [{'title': None, 'description': None, 'path': None, 'licenses': [{'name': None, 'title': None, 'path': None, 'instruction': None, 'attribution': None}]}, {'title': None, 'description': None, 'path': None, 'licenses': [{'name': None, 'title': None, 'path': None, 'instruction': None, 'attribution': None}]}], 'licenses': [{'name': None, 'title': None, 'path': None, 'instruction': None, 'attribution': None}], 'contributors': [{'title': None, 'email': None, 'date': None, 'object': None, 'comment': None}], 'resources': [{'profile': None, 'name': None, 'path': None, 'format': None, 'encoding': None, 'schema': {'fields': [{'name': None, 'description': None, 'type': None, 'unit': None, 'isAbout': [{'name': None, 'path': None}], 'valueReference': [{'value': None, 'name': None, 'path': None}]}, {'name': None, 'description': None, 'type': None, 'unit': None, 'isAbout': [{'name': None, 'path': None}], 'valueReference': [{'value': None, 'name': None, 'path': None}]}], 'primaryKey': [None], 'foreignKeys': [{'fields': [None], 'reference': {'resource': None, 'fields': [None]}}]}, 'dialect': {'delimiter': None, 'decimalSeparator': '.'}}], '@id': None, '@context': None, 'review': {'path': None, 'badge': None}, 'metaMetadata': {'metadataVersion': 'OEP-1.5.0', 'metadataLicense': {'name': 'CC0-1.0', 'title': 'Creative Commons Zero v1.0 Universal', 'path': 'https://creativecommons.org/publicdomain/zero/1.0/'}}, '_comment': {'metadata': 'Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/oemetadata)', 'dates': 'Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ssÂ±hh)', 'units': 'Use a space between numbers and units (100 m)', 'languages': 'Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)', 'licenses': 'License name must follow the SPDX License List (https://spdx.org/licenses/)', 'review': 'Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/blob/master/data-review/manual/review_manual.md)', 'null': 'If not applicable use: null', 'todo': 'If a value is not yet available, use: todo'}}
 
 ## make copy of empty oem151 template
-v151_template = copy.deepcopy(oem151)
+v151_template = deepcopy(oem151)
 
 ## select oem151 keys
 
@@ -16,21 +16,21 @@ spatial_keys = (list(oem151["spatial"].keys()))
 review_keys = (list(oem151["review"].keys()))
 
 contributer_keys = (list(oem151["contributors"][0].keys()))
-contributer_dict = copy.deepcopy(oem151["contributors"][0])
+contributer_dict = deepcopy(oem151["contributors"][0])
 licenses_keys = (list(oem151["licenses"][0].keys()))
-licenses_dict = copy.deepcopy(oem151["licenses"][0])
+licenses_dict = deepcopy(oem151["licenses"][0])
 
 temporal_keys = (list(oem151["temporal"].keys()))
 ts_keys = list(oem151["temporal"]["timeseries"][0].keys())
 
-sources_dict = copy.deepcopy(oem151["sources"][0])
+sources_dict = deepcopy(oem151["sources"][0])
 sources_licenses_keys = (list(oem151["sources"][0]["licenses"][0]))
-sources_licenses_dict = copy.deepcopy(oem151["sources"][0]["licenses"][0])
+sources_licenses_dict = deepcopy(oem151["sources"][0]["licenses"][0])
 
-resources_dict = copy.deepcopy(oem151["resources"][0])
+resources_dict = deepcopy(oem151["resources"][0])
 resources_schema_keys = (list(oem151["resources"][0]["schema"]))
-resources_dialect_dict = copy.deepcopy(oem151["resources"][0]["dialect"])
-resources_schema_fields = copy.deepcopy(oem151["resources"][0]["schema"]["fields"][0])
+resources_dialect_dict = deepcopy(oem151["resources"][0]["dialect"])
+resources_schema_fields = deepcopy(oem151["resources"][0]["schema"]["fields"][0])
 
 ## load oem141 for conversion to oem151
 json_path = './JSON/v141'
@@ -38,132 +38,134 @@ json_files = os.listdir(json_path)
 all_json_files_paths = [json_path + "/" + json_file for json_file in json_files]
 
 ## open all files to convert from oem141 to oem151
-#for json_file in all_json_files_paths:
+for json_file in all_json_files_paths:
 
-with open(all_json_files_paths[1]) as json_file:
-    v141_file = json.load(json_file)
+    # save filename for output
+    filename = json_file.split("/")[-1].split(".")[0]
 
-## update oem151 template with values from oem141
+    # create a clean and empty 'v151_temp_backfill' for each JSON to be parsed
+    v151_temp_backfill = deepcopy(v151_temp_backfill_clean)
 
-# Update key-values on 1st level, that contain information that need to be updated. Note: '_comment'-key and 'metaMetadata' is not copied from oeo141
-first_level_keys = [
-    "name",
-    "title",
-    "id",
-    "description",
-    "language",
-    "keywords",
-    "publicationDate",
-]
+    with open(json_file, encoding='utf-8') as json_file:
+        v141_file = json.load(json_file)
 
-for key in first_level_keys:
-    if key in v141_file:
-        if v141_file[key] != "":
-            v151_template[key] = v141_file[key]
-    else:
-        print(f'The key:[{key}] is not present in oemetadata v141, despite being declared in the OEM v141 template ')
+    ## update oem151 template with values from oem141
 
-# Update review keys
-for key in review_keys:
-    if key in v141_file["review"].keys():
-        if v141_file["review"][key] != "":
-            v151_template["review"][key] = v141_file["review"][key]
+    # Update key-values on 1st level, that contain information that need to be updated. Note: '_comment'-key and 'metaMetadata' is not copied from oeo141
+    first_level_keys = [
+        "name",
+        "title",
+        "id",
+        "description",
+        "language",
+        "keywords",
+        "publicationDate",
+    ]
 
-# Update context keys
-for key in context_keys:
-    if key in v141_file["context"].keys():
-        if v141_file["context"][key] != "":
-            v151_template["context"][key] = v141_file["context"][key]
-
-# Update spatial keys
-for key in spatial_keys:
-    if key in v141_file["spatial"].keys():
-        if v141_file["spatial"][key] != "":
-            v151_template["spatial"][key] = v141_file["spatial"][key]
-
-# update contributors
-for index, dict in enumerate(v141_file["contributors"]):
-    # add own contributer_dict for each contributer
-    v151_template["contributors"].append(copy.deepcopy(contributer_dict))
-    for key, value in dict.items():
-        if v141_file["contributors"][index][key] != "":
-            v151_template["contributors"][index][key] = value
-
-# update licenses
-for index, dict in enumerate(v141_file["licenses"]):
-    # add own licenses_dict for each licenses
-    v151_template["licenses"].append(copy.deepcopy(licenses_dict))
-    for key, value in dict.items():
-        if v141_file["licenses"][index][key] != "":
-            v151_template["licenses"][index][key] = value
-
-# Update temporal
-for key in temporal_keys:
-    if key == "timeseries":
-        for timeseries_key in ts_keys:
-            if v141_file["temporal"][key] is not None and timeseries_key in list(v141_file["temporal"]["timeseries"].keys()):
-                v151_template["temporal"][key][0][timeseries_key] = v141_file["temporal"][key][timeseries_key]
-            else:
-                print(f"{timeseries_key} is not used and filled in oem141")
-
-    elif key in v141_file["temporal"].keys():
-        if v141_file["temporal"][key] != "":
-            v151_template["temporal"][key] = v141_file["temporal"][key]
+    for key in first_level_keys:
+        if key in v141_file and v141_file[key] != "":
+                v151_template[key] = v141_file[key]
         else:
-            # if key is not present in v141 just pass and don't update the key
-            pass
+            print(f'The key:[{key}] is not present in oemetadata v141, despite being declared in the OEM v141 template ')
 
-# update sources
-for index, dict in enumerate(v141_file["sources"]):
-    # add own sources_dict for each source
-    v151_template["sources"].append(copy.deepcopy(sources_dict))
-    for key, value in dict.items():
-        if key == "licenses" and v141_file["sources"][index]["licenses"]:
-            for src_lc_key in sources_licenses_keys:
-                if src_lc_key in list(v141_file["sources"][index]["licenses"][0]) and v141_file["sources"][index]["licenses"][0][src_lc_key] != "":
-                    v151_template["sources"][index][key][0][src_lc_key] = value[0][src_lc_key]
+    # Update review keys
+    for key in review_keys:
+        if key in v141_file["review"].keys() and v141_file["review"][key] != "":
+                v151_template["review"][key] = v141_file["review"][key]
 
-        elif key == "licenses" and not v141_file["sources"][index]["licenses"]:
-            v151_template["sources"][index][key][0] = sources_licenses_dict
+    # Update context keys
+    for key in context_keys:
+        if key in v141_file["context"].keys() and v141_file["context"][key] != "":
+                v151_template["context"][key] = v141_file["context"][key]
 
-        elif v141_file["sources"][index][key] != "":
-            v151_template["sources"][index][key] = value
+    # Update spatial keys
+    for key in spatial_keys:
+        if key in v141_file["spatial"].keys() and v141_file["spatial"][key] != "":
+                v151_template["spatial"][key] = v141_file["spatial"][key]
 
-# update resources
-for index, dict in enumerate(v141_file["resources"]):
-    # add own resources_dict for each resource
-    v151_template["resources"].append(copy.deepcopy(resources_dict))
-    for key, value in dict.items():
-        if key == "schema":
-            if "primaryKey" in value:
-                v151_template["resources"][index][key]["primaryKey"] = v141_file["resources"][index][key]["primaryKey"]
-            if "foreignKeys" in value:
-                v151_template["resources"][index][key]["foreignKeys"] = v141_file["resources"][index][key]["foreignKeys"]
-                ## check with @jh-RLI if nested keys have to be filled individually for "foreignKeys"
-                # for index_fk, dict_fk in enumerate(v141_file["resources"][index]["schema"]["foreignKeys"]):
-                #     print("index_fk, dict_fk", index_fk, dict_fk)
-                #     v151_template["resources"][index][key].append(copy.deepcopy(v151_template["resources"][index][key]))
-                #     if "fields" in dict_fk:
-                #       print( v151_template["resources"][index][key]["foreignKeys"])
-                #       v151_template["resources"][index][key]["foreignKeys"][index_fk]["fields"] = v141_file["resources"][index][key]["foreignKeys"][index_fk]["fields"]
+    # update contributors
+    for index, dict in enumerate(v141_file["contributors"]):
+        # add own contributer_dict for each contributer
+        v151_template["contributors"].append(deepcopy(contributer_dict))
+        for key, value in dict.items():
+            if v141_file["contributors"][index][key] != "":
+                v151_template["contributors"][index][key] = value
 
-            if "fields" in value:
-               for index_fields, dict_fields in enumerate(v141_file["resources"][index]["schema"]["fields"]):
-                    v151_template["resources"][index]["schema"]["fields"].append(copy.deepcopy(resources_schema_fields))
-                    for key_fields, value_fields in dict_fields.items():
-                        v151_template["resources"][index]["schema"]["fields"][index_fields][key_fields] = value_fields
+    # update licenses
+    for index, dict in enumerate(v141_file["licenses"]):
+        # add own licenses_dict for each licenses
+        v151_template["licenses"].append(deepcopy(licenses_dict))
+        for key, value in dict.items():
+            if v141_file["licenses"][index][key] != "":
+                v151_template["licenses"][index][key] = value
 
-        # if dialect is not empty copy information over
-        elif key == "dialect":
-            if "delimiter" in value:
-                v151_template["resources"][index][key]["delimiter"] = value["delimiter"]
-            elif "decimalSeparator" in value:
-                v151_template["resources"][index][key]["decimalSeparator"] = value["decimalSeparator"]
+    # Update temporal
+    for key in temporal_keys:
+        if key == "timeseries":
+            for timeseries_key in ts_keys:
+                if v141_file["temporal"][key] is not None and timeseries_key in list(v141_file["temporal"]["timeseries"].keys()):
+                    v151_template["temporal"][key][0][timeseries_key] = v141_file["temporal"][key][timeseries_key]
+                else:
+                    print(f"{timeseries_key} is not used and filled in oem141")
 
-        elif v141_file["resources"][index][key] != "":
-            v151_template["resources"][index][key] = value
+        elif key in v141_file["temporal"].keys():
+            if v141_file["temporal"][key] != "":
+                v151_template["temporal"][key] = v141_file["temporal"][key]
+            else:
+                # if key is not present in v141 just pass and don't update the key
+                pass
+
+    # update sources
+    for index, dict in enumerate(v141_file["sources"]):
+        # add own sources_dict for each source
+        v151_template["sources"].append(deepcopy(sources_dict))
+        for key, value in dict.items():
+            if key == "licenses" and v141_file["sources"][index]["licenses"]:
+                for src_lc_key in sources_licenses_keys:
+                    if src_lc_key in list(v141_file["sources"][index]["licenses"][0]) and v141_file["sources"][index]["licenses"][0][src_lc_key] != "":
+                        v151_template["sources"][index][key][0][src_lc_key] = value[0][src_lc_key]
+
+            elif key == "licenses" and not v141_file["sources"][index]["licenses"]:
+                v151_template["sources"][index][key][0] = sources_licenses_dict
+
+            elif v141_file["sources"][index][key] != "":
+                v151_template["sources"][index][key] = value
+
+    # update resources
+    for index, dict in enumerate(v141_file["resources"]):
+        # add own resources_dict for each resource
+        v151_template["resources"].append(deepcopy(resources_dict))
+        for key, value in dict.items():
+            if key == "schema":
+                if "primaryKey" in value:
+                    v151_template["resources"][index][key]["primaryKey"] = v141_file["resources"][index][key]["primaryKey"]
+                if "foreignKeys" in value:
+                    v151_template["resources"][index][key]["foreignKeys"] = v141_file["resources"][index][key]["foreignKeys"]
+                    ## check with @jh-RLI if nested keys have to be filled individually for "foreignKeys"
+                    # for index_fk, dict_fk in enumerate(v141_file["resources"][index]["schema"]["foreignKeys"]):
+                    #     print("index_fk, dict_fk", index_fk, dict_fk)
+                    #     v151_template["resources"][index][key].append(deepcopy(v151_template["resources"][index][key]))
+                    #     if "fields" in dict_fk:
+                    #       print( v151_template["resources"][index][key]["foreignKeys"])
+                    #       v151_template["resources"][index][key]["foreignKeys"][index_fk]["fields"] = v141_file["resources"][index][key]["foreignKeys"][index_fk]["fields"]
+
+                if "fields" in value:
+                   for index_fields, dict_fields in enumerate(v141_file["resources"][index]["schema"]["fields"]):
+                        v151_template["resources"][index]["schema"]["fields"].append(deepcopy(resources_schema_fields))
+                        for key_fields, value_fields in dict_fields.items():
+                            v151_template["resources"][index]["schema"]["fields"][index_fields][key_fields] = value_fields
+
+            # if dialect is not empty copy information over
+            elif key == "dialect":
+                if "delimiter" in value:
+                    v151_template["resources"][index][key]["delimiter"] = value["delimiter"]
+                elif "decimalSeparator" in value:
+                    v151_template["resources"][index][key]["decimalSeparator"] = value["decimalSeparator"]
+
+            elif v141_file["resources"][index][key] != "":
+                v151_template["resources"][index][key] = value
 
 
-# save updated oem151 template to json
-with open("v151_updated.json", "w") as outfile:
-    json.dump(v151_template, outfile)
+    # save updated oem151 template to json
+    with open("f"{filename}.metadata_oem151.json", "w", encoding='utf-8') as outfile:
+        json.dump(v151_template, outfile, indent=4)
