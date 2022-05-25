@@ -155,7 +155,7 @@ for json_file in all_json_files_paths:
                     v151_temp_backfill["resources"][index][key]["primaryKey"] = v141_file["resources"][index][key]["primaryKey"]
                 if "foreignKeys" in value:
                     v151_temp_backfill["resources"][index][key]["foreignKeys"] = v141_file["resources"][index][key]["foreignKeys"]
-                    
+
                 if "fields" in value:
                    for index_fields, dict_fields in enumerate(v141_file["resources"][index]["schema"]["fields"]):
                         v151_temp_backfill["resources"][index]["schema"]["fields"].append(deepcopy(resources_schema_fields))
@@ -174,5 +174,5 @@ for json_file in all_json_files_paths:
 
 
     # save updated oem151 template to json
-    with open("f{filename}.metadata_oem151.json", "w", encoding='utf-8') as outfile:
+    with open(f"./JSON/v151/{filename}.metadata_oem151.json", "w", encoding='utf-8') as outfile:
         json.dump(v151_temp_backfill, outfile, indent=4)
