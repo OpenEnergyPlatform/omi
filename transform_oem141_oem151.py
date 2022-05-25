@@ -155,14 +155,7 @@ for json_file in all_json_files_paths:
                     v151_temp_backfill["resources"][index][key]["primaryKey"] = v141_file["resources"][index][key]["primaryKey"]
                 if "foreignKeys" in value:
                     v151_temp_backfill["resources"][index][key]["foreignKeys"] = v141_file["resources"][index][key]["foreignKeys"]
-                    ## check with @jh-RLI if nested keys have to be filled individually for "foreignKeys"
-                    # for index_fk, dict_fk in enumerate(v141_file["resources"][index]["schema"]["foreignKeys"]):
-                    #     print("index_fk, dict_fk", index_fk, dict_fk)
-                    #     v151_temp_backfill["resources"][index][key].append(deepcopy(v151_temp_backfill["resources"][index][key]))
-                    #     if "fields" in dict_fk:
-                    #       print( v151_temp_backfill["resources"][index][key]["foreignKeys"])
-                    #       v151_temp_backfill["resources"][index][key]["foreignKeys"][index_fk]["fields"] = v141_file["resources"][index][key]["foreignKeys"][index_fk]["fields"]
-
+                    
                 if "fields" in value:
                    for index_fields, dict_fields in enumerate(v141_file["resources"][index]["schema"]["fields"]):
                         v151_temp_backfill["resources"][index]["schema"]["fields"].append(deepcopy(resources_schema_fields))
