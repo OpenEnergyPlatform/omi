@@ -5,7 +5,7 @@ from copy import deepcopy
 """
 This script transforms OEMetadata v1.4.1 (oem141) into OEMetadata v.1.5.1 (oem151).
 It does so by backfilling the key-values from oem141 files into an empty oem151 template.json.
-Default keys and values from oem151 are provided, if keys are not used or values filled in oem141.
+Default keys and values from oem151 are provided, if keys are not used or values are not filled in oem141.
 The method applies for all key-values, except for the ‘foreignKeys‘ key, which is a direct copy of the list in oem141
 and the '_comment' and 'metaMetadata' key, which are not processed, as new oem151 information is provided
 
@@ -218,4 +218,4 @@ for json_file in all_json_files_paths:
     with open(
         f"./JSON/v151/{filename}.metadata_oem151.json", "w", encoding="utf-8"
     ) as outfile:
-        json.dump(v151_temp_backfill, outfile, indent=4)
+        json.dump(v151_temp_backfill, outfile, indent=4, ensure_ascii=False)
