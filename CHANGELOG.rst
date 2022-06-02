@@ -6,6 +6,8 @@ Changelog
 ------------------
 
 * Add oem_structure module: Introcude support for multipe OEMetadata structure representations
+* add new Dialect for OEM v15
+* Full support (except for validation) for OEP-Metadata v1.5
 
 
 0.0.6 (2020-07-08)
