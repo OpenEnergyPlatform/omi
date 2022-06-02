@@ -12,9 +12,10 @@ from ..internal_structures import metadata_v_1_4
 from omi.dialects.rdf.namespace import OEO
 from rdflib.namespace import DCTERMS
 
+
 def test_compiler_v1_4():
     compiler = RDFCompiler()
-    with open("tests/data/metadata_v14.ttl", "r", encoding='utf-8') as _input_file:
+    with open("tests/data/metadata_v14.ttl", "r", encoding="utf-8") as _input_file:
         expected_graph = Graph()
         expected_graph.parse(data=_input_file.read(), format="ttl")
         _ = compiler.visit(metadata_v_1_4)
