@@ -598,7 +598,7 @@ class JSONParser_1_5(JSONParser):
         parse_kwargs=None,
     ) -> oem_v15.OEPMetadata:
         """
-        Parse a string into :class:`~omi.structure.OEPMetadata`
+        Parse a string into :class:`~omi.oem_structures.oem_v15.OEPMetadata`
 
         Parameters
         ----------
@@ -930,7 +930,7 @@ class JSONParser_1_5(JSONParser):
         return metadata
 
     def assert_1_5_metastring(self, json_string: str):
-        """Checks string conformity to OEP Metadata Standard Version 1.3
+        """Checks string conformity to OEP Metadata Standard Version 1.5
 
         Parameters
         ----------
@@ -956,7 +956,14 @@ class JSONParser_1_5(JSONParser):
             "metadata_version",
         ]
         subkeys_spatial = ["location", "extent", "resolution"]
-        subkeys_temporal = ["reference_date", "start", "end", "resolution"]
+        subkeys_timeseries = [
+            "start",
+            "end",
+            "resolution",
+            "alignment",
+            "aggregationType",
+        ]
+        subkeys_temporal = ["reference_date", "timeseries"]
         subkeys_license = ["id", "name", "version", "url", "instruction", "copyright"]
         object_subkeys = {
             "spatial": subkeys_spatial,
