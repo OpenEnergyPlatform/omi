@@ -78,6 +78,31 @@ Documentation
 
 https://omi.readthedocs.io/
 
+Usage
+=====
+
+CLI - oemetadata version 1.5::
+
+    omi translate -f oep-v1.5
+
+CLI - oemetadata version 1.4::
+
+    omi translate -f oep-v1.4 -t oep-v1.4
+
+omi is able to read a JSON file and parse it into one of the internal Python structures (depending on the oemetadata version). 
+The OEPMetadata Python object can then be compiled and converted back to JSON. You can manipulate a successfully parsed 
+OEPMetadata object.
+
+Module usage::
+
+    from omi.dialects.oep.dialect import OEP_V_1_3_Dialect, OEP_V_1_4_Dialect, OEP_V_1_5_Dialect
+    inp = '{"id":"unique_id"}' #or read from json file
+    dialect1_5 = OEP_V_1_5_Dialect()
+    parsed = dialect1_5.parse(input)
+    print(parsed)
+    parsed.identifier = "anotehr_unique_id"
+    compiled = dialect1_5.compile(parsed)
+    print(compiled)
 
 Development
 ===========
