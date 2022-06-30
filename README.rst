@@ -89,9 +89,9 @@ CLI - oemetadata version 1.4::
 
     omi translate -f oep-v1.4 -t oep-v1.4
 
-omi is able to read a JSON file parse it into one of the internal python structures (depending of the oemetadata version).
-The OEPMetadata python object can then be compiled and rendered to JSON again. You can manipulate a sucsessfuly parsed 
-OEPMetadata object. 
+omi is able to read a JSON file and parse it into one of the internal Python structures (depending on the oemetadata version). 
+The OEPMetadata Python object can then be compiled and converted back to JSON. You can manipulate a successfully parsed 
+OEPMetadata object.
 
 Module usage::
 
