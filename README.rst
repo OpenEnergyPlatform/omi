@@ -93,11 +93,9 @@ omi is able to read a JSON file parse it into one of the internal python structu
 The OEPMetadata python object can then be compiled and rendered to JSON again. You can manipulate a sucsessfuly parsed 
 OEPMetadata object. 
 
-.. code-block:: python
-    :caption: Module usage
-    
-    from omi.dialects.oep.dialect import OEP_V_1_3_Dialect, OEP_V_1_4_Dialect, OEP_V_1_5_Dialect
+Module usage::
 
+    from omi.dialects.oep.dialect import OEP_V_1_3_Dialect, OEP_V_1_4_Dialect, OEP_V_1_5_Dialect
     inp = '{"id":"unique_id"}' #or read from json file
     dialect1_5 = OEP_V_1_5_Dialect()
     parsed = dialect1_5.parse(input)
