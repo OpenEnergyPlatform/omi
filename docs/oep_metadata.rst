@@ -4,7 +4,7 @@ Translations in Python
 
 .. testsetup:: *
 
-    from omi.dialects.oep.dialect import OEP_V_1_3_Dialect, OEP_V_1_4_Dialect
+    from omi.dialects.oep.dialect import OEP_V_1_3_Dialect, OEP_V_1_4_Dialect, OEP_V_1_5_Dialect
 
 In order to perform the translation from one dialect to another, you need to
 parse your input using the respective input dialect. As a minimal example, let's

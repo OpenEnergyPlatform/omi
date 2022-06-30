@@ -1,50 +1,33 @@
+"""
+This module extends the internal data structure 
+with the latest changes of the OEMetadata standard.
+
+An OEMeadata version specific dialect can import it.
+
+This bypasses the limitation of OMI to rely on a single 
+internal representation of the data structure, since 
+OEMetadata is not a static structure and OMI must be
+be able to validate multiple OEMetadata versions.
+"""
+# TODO: maybe change all inheritance to omi.structure to
+#      avoide alot of redundancy
+
 from datetime import datetime
 from enum import Enum
 from typing import Iterable
-
-
-class Compilable:
-    """
-    An abstract class for all metadata components.
-    """
-
-    __compiler_name__ = None
-    """Used to identify the appropriate compiler function for this structure"""
-
-    __required__ = None
-    __optional__ = None
-
-    def __repr__(self):
-        return "{}({})".format(
-            self.__class__.__name__,
-            ",".join("{}={}".format(key, val) for key, val in self.__dict__.items()),
-        )
-
-    def __lt__(self, other):
-        for key in sorted(self.__dict__):
-            s = getattr(self, key)
-            o = getattr(other, key)
-            if s is None:
-                return True
-            elif s < o:
-                return True
-            elif s > o:
-                return False
-        return False
-
-    def get_missing_fields(self):
-        for key in sorted(self.__dict__):
-            if key in self.__required__:
-                if s is None:
-                    yield key
-                v = getattr(self, key)
-                if isinstance(v, Compilable):
-                    for x in v.get_missing_fields():
-                        yield key + "." + x
+from omi.structure import Compilable
 
 
 class Language(Compilable):
     __compiler_name__ = "language"
+
+
+class Subject(Compilable):
+    __compiler_name__ = "subject"
+
+    def __init__(self, name: str = None, path: str = None):
+        self.name = name
+        self.path = path
 
 
 class Spatial(Compilable):
@@ -76,25 +59,34 @@ class TimestampOrientation(Compilable, Enum):
             raise Exception("Unknown timestamp orientation:", value)
 
 
+class Timeseries(Compilable):
+    __compiler_name__ = "timeseries"
+
+    def __init__(
+        self,
+        start: datetime = None,
+        end: datetime = None,
+        resolution: str = None,
+        ts_orientation: TimestampOrientation = None,
+        aggregation: str = None,
+    ):
+        self.ts_start = start
+        self.ts_end = end
+        self.ts_resolution = resolution
+        self.ts_orientation = ts_orientation
+        self.aggregation = aggregation
+
+
 class Temporal(Compilable):
     __compiler_name__ = "temporal"
 
     def __init__(
         self,
         reference_date: datetime = None,
-        start: datetime = None,
-        end: datetime = None,
-        resolution: str = None,
-        ts_orientation: TimestampOrientation = None,
-        aggregation: str = None,
-    ):  # TODO: This should not be a string... maybe
-        # we should use datetime instead?
+        timeseries_collection: Iterable[Timeseries] = None,
+    ):
         self.reference_date = reference_date
-        self.ts_start = start
-        self.ts_end = end
-        self.ts_resolution = resolution
-        self.ts_orientation = ts_orientation
-        self.aggregation = aggregation
+        self.timeseries_collection = timeseries_collection
 
 
 class License(Compilable):
@@ -174,6 +166,23 @@ class Contribution(Compilable):
         self.comment = comment
 
 
+class IsAbout(Compilable):
+    __compiler_name__ = "is_about"
+
+    def __init__(self, name: str = None, path: str = None):
+        self.name = name
+        self.path = path
+
+
+class ValueReference(Compilable):
+    __compiler_name__ = "value_reference"
+
+    def __init__(self, value: str = None, name: str = None, path: str = None):
+        self.value = value
+        self.name = name
+        self.path = path
+
+
 class Field(Compilable):
     __compiler_name__ = "field"
 
@@ -182,12 +191,16 @@ class Field(Compilable):
         name: str = None,
         description: str = None,
         field_type: str = None,
+        is_about: Iterable[IsAbout] = None,
+        value_reference: Iterable[ValueReference] = None,
         unit: str = None,
         resource: "Resource" = None,
     ):
         self.name = name
         self.description = description
         self.type = field_type
+        self.is_about = is_about
+        self.value_reference = value_reference
         self.unit = unit
         self.resource = resource
 
@@ -305,7 +318,8 @@ class MetaComment(Compilable):
         languages: str = None,
         licenses: str = None,
         review: str = None,
-        none: str = None,
+        null: str = None,
+        todo: str = None,
     ):
         self.metadata_info = metadata_info
         self.dates = dates
@@ -313,7 +327,8 @@ class MetaComment(Compilable):
         self.languages = languages
         self.licenses = licenses
         self.review = review
-        self.none = none
+        self.null = null
+        self.todo = todo
 
 
 class Review(Compilable):
@@ -335,6 +350,7 @@ class OEPMetadata(Compilable):
         identifier: str = None,
         description: str = None,
         languages: Iterable[Language] = None,
+        subject: Iterable[Subject] = None,
         keywords: Iterable[str] = None,
         publication_date: datetime = None,
         context: Context = None,
@@ -344,6 +360,8 @@ class OEPMetadata(Compilable):
         terms_of_use: Iterable[TermsOfUse] = None,
         contributions: Iterable[Contribution] = None,
         resources: Iterable[Resource] = None,
+        databus_identifier: str = None,
+        databus_context: str = None,
         review: Review = None,
         comment: MetaComment = None,
     ):
@@ -351,6 +369,7 @@ class OEPMetadata(Compilable):
         self.title = title
         self.identifier = identifier
         self.description = description
+        self.subject = subject
         self.languages = languages
         self.keywords = keywords
         self.publication_date = publication_date
@@ -361,6 +380,8 @@ class OEPMetadata(Compilable):
         self.license = terms_of_use
         self.contributions = contributions
         self.resources = resources
+        self.databus_identifier = databus_identifier
+        self.databus_context = databus_context
         self.review = review
         self.comment = comment
 
