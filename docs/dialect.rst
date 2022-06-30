@@ -24,6 +24,7 @@ Available dialects are:
     - `oep-v1.3`
     - `oep-v1.4`
     - `oep-rdf-v1.4`
+    - `oep-v1.5`
 
 .. autoclass:: omi.dialects.base.dialect.Parser
    :members:
