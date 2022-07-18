@@ -68,3 +68,66 @@ class Converter:
 
     def convert_oemetadata():
         pass
+
+
+class Metadata14To15Translation(Converter):
+    """
+    Converts/translates the oemetadata object generated based on the input oemetadata.json file to oemetadata-v1.5.1 structure.
+
+    Args:
+        Converter : Base converter class 
+    """
+
+    def remove_temporal(
+        self, metadata14: structure.OEPMetadata
+    ) -> structure.OEPMetadata:
+        metadata14.temporal = None
+        return metadata14
+
+    @staticmethod
+    def create_subject(subject: oem_v15.Subject, name: str = "", path: str = ""):
+        subject()
+        subject.name = name
+        subject.path = path
+        return subject
+
+    @staticmethod
+    def create_oeo_id(oeo_id: str = None):
+        return oeo_id
+
+    @staticmethod
+    def create_oeo_context(oeo_context: str = None):
+        return oeo_context
+
+    # NOTE: need?
+    @staticmethod
+    def create_meta_comment_null(
+        meta_comment_null: str = "If not applicable use: null",  # hardcoded
+    ):
+        return meta_comment_null
+
+    @staticmethod
+    def create_meta_comment_todo(
+        meta_comment_todo: str = "If a value is not yet available, use: todo",  # hardcoded
+    ):
+        return meta_comment_todo
+
+    @staticmethod
+    def create_is_about(is_about: oem_v15.IsAbout, name: str = "", path: str =""):
+        is_about()
+        is_about.name = name
+        is_about.path = path
+        return is_about
+
+    @staticmethod
+    def create_value_reference(
+        value_reference: oem_v15.ValueReference,
+        value: str = "",
+        name: str = "",
+        path: str = "",
+    ):
+        value_reference()
+        value_reference.value = value
+        value_reference.name = name
+        value_reference.path = path
+        return value_reference
