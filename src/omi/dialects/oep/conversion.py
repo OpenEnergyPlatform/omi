@@ -131,3 +131,96 @@ class Metadata14To15Translation(Converter):
         value_reference.name = name
         value_reference.path = path
         return value_reference
+    
+    def convert_timestamp_orientation(self, ts: str):
+        new_ts = oem_v15.TimestampOrientation.create(ts)
+        return new_ts
+
+    def convert_temporal(
+        self,
+        metadata14_temporal: structure.Temporal,
+    ):
+        temporal = None
+        if metadata14_temporal is not None:
+            temporal = oem_v15.Temporal(
+                reference_date=metadata14_temporal.reference_date,
+                timeseries_collection=[
+                    oem_v15.Timeseries(
+                        start=metadata14_temporal.ts_start,
+                        end=metadata14_temporal.ts_end,
+                        resolution=metadata14_temporal.ts_resolution,
+                        ts_orientation=self.convert_timestamp_orientation(
+                            metadata14_temporal.ts_orientation.name
+                        ),
+                        aggregation=metadata14_temporal.aggregation,
+                    )
+                ],
+            )
+        return temporal
+
+    # NOTE maybe move timeseries element from convert temporal
+    def convert_timeseries(self):
+        NotImplementedError
+
+    def convert_meta_comment(
+        self, metadata14_meta_comment: structure.MetaComment
+    ) -> oem_v15.MetaComment:
+
+        if metadata14_meta_comment is not None:
+            meta_comment = oem_v15.MetaComment(
+                metadata_info=metadata14_meta_comment.metadata_info,
+                dates=metadata14_meta_comment.dates,
+                units=metadata14_meta_comment.units,
+                languages=metadata14_meta_comment.languages,
+                licenses=metadata14_meta_comment.licenses,
+                review=metadata14_meta_comment.review,
+                null=self.create_meta_comment_null(),
+                todo=self.create_meta_comment_todo(),
+            )
+        else:
+            meta_comment = None
+
+        return meta_comment
+
+    def convert_ressources_field(self, metadata14_ressources_field: list = None):
+        field: oem_v15.Field
+        ressources_fields = []
+        if metadata14_ressources_field is not None:
+            for field in metadata14_ressources_field:
+                print("convert_ressources_field")
+                print(field)
+                # for field in metadata14_ressources_field
+                ressources_field = oem_v15.Field(
+                    name=field.name,
+                    description=field.description,
+                    field_type=field.type,
+                    is_about=[self.create_is_about(oem_v15.IsAbout, name="test")],
+                    value_reference=[
+                        self.create_value_reference(oem_v15.ValueReference)
+                    ],
+                    unit=field.unit,
+                    resource=field.resource,
+                )
+                ressources_fields.append(ressources_field)
+        else:
+            ressources_fields = None
+
+        return ressources_fields
+
+    def convert_ressource(self, metadata14_ressources: list):
+        ressource: oem_v15.Resource
+        for ressource in metadata14_ressources:
+            ressource = oem_v15.Resource(
+                name=ressource.name,
+                path=ressource.path,
+                profile=ressource.profile,
+                resource_format=ressource.format,
+                encoding=ressource.encoding,
+                schema=oem_v15.Schema(
+                    fields=self.convert_ressources_field(ressource.schema.fields),
+                    primary_key=ressource.schema.primary_key,
+                    foreign_keys=ressource.schema.foreign_keys,
+                ),
+                dialect=ressource.dialect,
+            )
+            return ressource
