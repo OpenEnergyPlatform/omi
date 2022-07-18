@@ -353,7 +353,6 @@ class JSONCompilerOEM15(JSONCompiler):
             ("spatial", metadata.spatial),
             ("temporal", metadata.temporal),
             ("review", metadata.review),
-            ("_comment", metadata.comment),
             ("language", metadata.languages),
             ("sources", metadata.sources),
             ("licenses", metadata.license),
@@ -361,6 +360,7 @@ class JSONCompilerOEM15(JSONCompiler):
             ("resources", metadata.resources),
             ("@id", metadata.databus_identifier),
             ("@context", metadata.databus_context),
+            ("_comment", metadata.comment),
             metaMetadata=self._construct_dict(
                 ("metadataVersion", self.__METADATA_VERSION),
                 metadataLicense=self._construct_dict(
