@@ -2,6 +2,7 @@ import os
 import json
 from copy import deepcopy
 
+
 """
 This script transforms OEMetadata v1.4.1 (oem141) into OEMetadata v.1.5.1 (oem151).
 It does so by backfilling the key-values from oem141 files into an empty oem151 template.json.
@@ -20,7 +21,7 @@ for oem in oem_versions:
     try:
         os.makedirs(f"./JSON/{oem}")
     except FileExistsError:
-        print(f'The directory: ./JSON/{oem} exists already')
+        print(f"The directory: ./JSON/{oem} exists already")
         pass
 
 # load oem141 file paths
@@ -29,7 +30,146 @@ json_files = os.listdir(json_path)
 all_json_files_paths = [json_path + "/" + json_file for json_file in json_files]
 
 # oem151 template
-oem151 = {'name': None, 'title': None, 'id': None, 'description': None, 'language': [None], 'subject': [{'name': None, 'path': None}], 'keywords': [None], 'publicationDate': None, 'context': {'homepage': None, 'documentation': None, 'sourceCode': None, 'contact': None, 'grantNo': None, 'fundingAgency': None, 'fundingAgencyLogo': None, 'publisherLogo': None}, 'spatial': {'location': None, 'extent': None, 'resolution': None}, 'temporal': {'referenceDate': None, 'timeseries': [{'start': None, 'end': None, 'resolution': None, 'alignment': None, 'aggregationType': None}, {'start': None, 'end': None, 'resolution': None, 'alignment': None, 'aggregationType': None}]}, 'sources': [{'title': None, 'description': None, 'path': None, 'licenses': [{'name': None, 'title': None, 'path': None, 'instruction': None, 'attribution': None}]}, {'title': None, 'description': None, 'path': None, 'licenses': [{'name': None, 'title': None, 'path': None, 'instruction': None, 'attribution': None}]}], 'licenses': [{'name': None, 'title': None, 'path': None, 'instruction': None, 'attribution': None}], 'contributors': [{'title': None, 'email': None, 'date': None, 'object': None, 'comment': None}], 'resources': [{'profile': None, 'name': None, 'path': None, 'format': None, 'encoding': None, 'schema': {'fields': [{'name': None, 'description': None, 'type': None, 'unit': None, 'isAbout': [{'name': None, 'path': None}], 'valueReference': [{'value': None, 'name': None, 'path': None}]}, {'name': None, 'description': None, 'type': None, 'unit': None, 'isAbout': [{'name': None, 'path': None}], 'valueReference': [{'value': None, 'name': None, 'path': None}]}], 'primaryKey': [None], 'foreignKeys': [{'fields': [None], 'reference': {'resource': None, 'fields': [None]}}]}, 'dialect': {'delimiter': None, 'decimalSeparator': '.'}}], '@id': None, '@context': None, 'review': {'path': None, 'badge': None}, 'metaMetadata': {'metadataVersion': 'OEP-1.5.0', 'metadataLicense': {'name': 'CC0-1.0', 'title': 'Creative Commons Zero v1.0 Universal', 'path': 'https://creativecommons.org/publicdomain/zero/1.0/'}}, '_comment': {'metadata': 'Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/oemetadata)', 'dates': 'Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ssÂ±hh)', 'units': 'Use a space between numbers and units (100 m)', 'languages': 'Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)', 'licenses': 'License name must follow the SPDX License List (https://spdx.org/licenses/)', 'review': 'Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/blob/master/data-review/manual/review_manual.md)', 'null': 'If not applicable use: null', 'todo': 'If a value is not yet available, use: todo'}}
+oem151 = {
+    "name": None,
+    "title": None,
+    "id": None,
+    "description": None,
+    "language": [None],
+    "subject": [{"name": None, "path": None}],
+    "keywords": [None],
+    "publicationDate": None,
+    "context": {
+        "homepage": None,
+        "documentation": None,
+        "sourceCode": None,
+        "contact": None,
+        "grantNo": None,
+        "fundingAgency": None,
+        "fundingAgencyLogo": None,
+        "publisherLogo": None,
+    },
+    "spatial": {"location": None, "extent": None, "resolution": None},
+    "temporal": {
+        "referenceDate": None,
+        "timeseries": [
+            {
+                "start": None,
+                "end": None,
+                "resolution": None,
+                "alignment": None,
+                "aggregationType": None,
+            },
+            {
+                "start": None,
+                "end": None,
+                "resolution": None,
+                "alignment": None,
+                "aggregationType": None,
+            },
+        ],
+    },
+    "sources": [
+        {
+            "title": None,
+            "description": None,
+            "path": None,
+            "licenses": [
+                {
+                    "name": None,
+                    "title": None,
+                    "path": None,
+                    "instruction": None,
+                    "attribution": None,
+                }
+            ],
+        },
+        {
+            "title": None,
+            "description": None,
+            "path": None,
+            "licenses": [
+                {
+                    "name": None,
+                    "title": None,
+                    "path": None,
+                    "instruction": None,
+                    "attribution": None,
+                }
+            ],
+        },
+    ],
+    "licenses": [
+        {
+            "name": None,
+            "title": None,
+            "path": None,
+            "instruction": None,
+            "attribution": None,
+        }
+    ],
+    "contributors": [
+        {"title": None, "email": None, "date": None, "object": None, "comment": None}
+    ],
+    "resources": [
+        {
+            "profile": None,
+            "name": None,
+            "path": None,
+            "format": None,
+            "encoding": None,
+            "schema": {
+                "fields": [
+                    {
+                        "name": None,
+                        "description": None,
+                        "type": None,
+                        "unit": None,
+                        "isAbout": [{"name": None, "path": None}],
+                        "valueReference": [{"value": None, "name": None, "path": None}],
+                    },
+                    {
+                        "name": None,
+                        "description": None,
+                        "type": None,
+                        "unit": None,
+                        "isAbout": [{"name": None, "path": None}],
+                        "valueReference": [{"value": None, "name": None, "path": None}],
+                    },
+                ],
+                "primaryKey": [None],
+                "foreignKeys": [
+                    {
+                        "fields": [None],
+                        "reference": {"resource": None, "fields": [None]},
+                    }
+                ],
+            },
+            "dialect": {"delimiter": None, "decimalSeparator": "."},
+        }
+    ],
+    "@id": None,
+    "@context": None,
+    "review": {"path": None, "badge": None},
+    "metaMetadata": {
+        "metadataVersion": "OEP-1.5.0",
+        "metadataLicense": {
+            "name": "CC0-1.0",
+            "title": "Creative Commons Zero v1.0 Universal",
+            "path": "https://creativecommons.org/publicdomain/zero/1.0/",
+        },
+    },
+    "_comment": {
+        "metadata": "Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/oemetadata)",
+        "dates": "Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ssÂ±hh)",
+        "units": "Use a space between numbers and units (100 m)",
+        "languages": "Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
+        "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
+        "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/blob/master/data-review/manual/review_manual.md)",
+        "null": "If not applicable use: null",
+        "todo": "If a value is not yet available, use: todo",
+    },
+}
 
 # create oem template with empty lists in keys: sources, temporal, licenses, contributers, resources
 oem151_empty_lists = deepcopy(oem151)
@@ -212,7 +352,6 @@ for json_file in all_json_files_paths:
 
             elif v141_file["resources"][index][key] != "":
                 v151_temp_backfill["resources"][index][key] = value
-
 
     # save backfilled oem151 template to json in ./JSON/v151
     with open(
