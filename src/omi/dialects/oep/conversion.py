@@ -1,3 +1,13 @@
+"""
+The conversion in OMI is used to translate metadata version, usually from low to high version.
+
+The Converter class is the base class that provides base funtionality to enable a specific version translateion.
+
+The Translation class includes all functionality to create missing fields and supply default, none or user input values for each new field.
+The translated metadata will be build and can be saved to a file by using convinience methodes provides by the converter or manually saved 
+to file using OMI's dialect15.compile_and_render().
+"""
+
 from datetime import datetime
 import json
 import logging
