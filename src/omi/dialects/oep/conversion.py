@@ -224,3 +224,28 @@ class Metadata14To15Translation(Converter):
                 dialect=ressource.dialect,
             )
             return ressource
+    
+    def build_metadata15(self, metadata: structure.OEPMetadata):
+        converted_metadata = oem_v15.OEPMetadata(
+            name=metadata.name,
+            title=metadata.title,
+            identifier=metadata.identifier,
+            description=metadata.description,
+            subject=[self.create_subject(oem_v15.Subject)],  # NOTE add just one dummy subject object, maybe its better to keep it empty? # add value from user input??
+            languages=metadata.languages,
+            keywords=metadata.keywords,
+            publication_date=metadata.publication_date,
+            context=metadata.context,
+            spatial=metadata.spatial,
+            temporal=self.convert_temporal(metadata.temporal),  #NOTE add value from user input??
+            sources=metadata.sources,
+            terms_of_use=metadata.license,
+            contributions=metadata.contributions,
+            resources=[self.convert_ressource(metadata.resources)],
+            databus_identifier=self.create_oeo_id(),  #NOTE add value from user input??
+            databus_context=self.create_oeo_context(),  #NOTE add value from user input??
+            review=metadata.review,
+            comment=self.convert_meta_comment(metadata.comment),
+        )
+
+        return converted_metadata
