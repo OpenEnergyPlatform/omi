@@ -1,5 +1,6 @@
 import json
 from collections import OrderedDict
+from datetime import datetime
 
 from omi import structure
 from omi.oem_structures import oem_v15
@@ -9,7 +10,7 @@ from omi.dialects.base.compiler import Compiler
 class JSONCompiler(Compiler):
     __METADATA_VERSION = "OEP-1.4.0"
 
-    def _compile_date(self, date, format):
+    def _compile_date(self, date: datetime, format):
         if date:
             return date.strftime(format)
         else:
@@ -213,12 +214,12 @@ class JSONCompiler(Compiler):
             ("spatial", metadata.spatial),
             ("temporal", metadata.temporal),
             ("review", metadata.review),
-            ("_comment", metadata.comment),
             ("language", metadata.languages),
             ("sources", metadata.sources),
             ("licenses", metadata.license),
             ("contributors", metadata.contributions),
             ("resources", metadata.resources),
+            ("_comment", metadata.comment),
             metaMetadata=self._construct_dict(
                 ("metadataVersion", self.__METADATA_VERSION),
                 metadataLicense=self._construct_dict(
@@ -226,7 +227,7 @@ class JSONCompiler(Compiler):
                     title="Creative Commons Zero v1.0 Universal",
                     path="https://creativecommons.org/publicdomain/zero/1.0/",
                 ),
-            ),
+            ),   
         )
 
 
