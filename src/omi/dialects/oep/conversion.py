@@ -29,11 +29,20 @@ class Converter:
 
     def __init__(
         self,
-        dielact_id: str = "oep-v1.5", #latest version
+        dielact_id: str = "oep-v1.5",  # latest version
         metadata: structure.OEPMetadata = None,
     ) -> None:
         self.dialect_id = dielact_id
         self.metadata = metadata
+
+    def read_input(self):
+        pass
+
+    def create_output(self):
+        pass
+
+    def save_to_file(self):
+        pass
 
     def validate_str_version_format(self):
         return NotImplementedError
@@ -59,7 +68,7 @@ class Converter:
             )
         return get_dialect(identifier=self.dialect_id)
 
-    #NOTE: Add omi version to user? 
+    # NOTE: Add omi version to user?
     def set_contribution(
         self, metadata: oem_v15.OEPMetadata, user: str = "OMI", user_email: str = None
     ) -> oem_v15.OEPMetadata:
@@ -85,7 +94,7 @@ class Metadata14To15Translation(Converter):
     Converts/translates the oemetadata object generated based on the input oemetadata.json file to oemetadata-v1.5.1 structure.
 
     Args:
-        Converter : Base converter class 
+        Converter : Base converter class
     """
 
     def remove_temporal(
@@ -123,7 +132,7 @@ class Metadata14To15Translation(Converter):
         return meta_comment_todo
 
     @staticmethod
-    def create_is_about(is_about: oem_v15.IsAbout, name: str = "", path: str =""):
+    def create_is_about(is_about: oem_v15.IsAbout, name: str = "", path: str = ""):
         is_about()
         is_about.name = name
         is_about.path = path
@@ -141,7 +150,7 @@ class Metadata14To15Translation(Converter):
         value_reference.name = name
         value_reference.path = path
         return value_reference
-    
+
     def convert_timestamp_orientation(self, ts: str):
         new_ts = oem_v15.TimestampOrientation.create(ts)
         return new_ts
@@ -234,26 +243,30 @@ class Metadata14To15Translation(Converter):
                 dialect=ressource.dialect,
             )
             return ressource
-    
+
     def build_metadata15(self, metadata: structure.OEPMetadata):
         converted_metadata = oem_v15.OEPMetadata(
             name=metadata.name,
             title=metadata.title,
             identifier=metadata.identifier,
             description=metadata.description,
-            subject=[self.create_subject(oem_v15.Subject)],  # NOTE add just one dummy subject object, maybe its better to keep it empty? # add value from user input??
+            subject=[
+                self.create_subject(oem_v15.Subject)
+            ],  # NOTE add just one dummy subject object, maybe its better to keep it empty? # add value from user input??
             languages=metadata.languages,
             keywords=metadata.keywords,
             publication_date=metadata.publication_date,
             context=metadata.context,
             spatial=metadata.spatial,
-            temporal=self.convert_temporal(metadata.temporal),  #NOTE add value from user input??
+            temporal=self.convert_temporal(
+                metadata.temporal
+            ),  # NOTE add value from user input??
             sources=metadata.sources,
             terms_of_use=metadata.license,
             contributions=metadata.contributions,
             resources=[self.convert_ressource(metadata.resources)],
-            databus_identifier=self.create_oeo_id(),  #NOTE add value from user input??
-            databus_context=self.create_oeo_context(),  #NOTE add value from user input??
+            databus_identifier=self.create_oeo_id(),  # NOTE add value from user input??
+            databus_context=self.create_oeo_context(),  # NOTE add value from user input??
             review=metadata.review,
             comment=self.convert_meta_comment(metadata.comment),
         )
