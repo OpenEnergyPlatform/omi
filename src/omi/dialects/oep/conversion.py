@@ -12,6 +12,7 @@ from datetime import datetime
 import json
 import logging
 import pathlib
+from select import select
 
 from omi.dialects.base.dialect import Dialect
 from omi.dialects import get_dialect
@@ -34,15 +35,6 @@ class Converter:
     ) -> None:
         self.dialect_id = dielact_id
         self.metadata = metadata
-
-    def read_input(self):
-        pass
-
-    def create_output(self):
-        pass
-
-    def save_to_file(self):
-        pass
 
     def validate_str_version_format(self):
         return NotImplementedError
@@ -72,12 +64,13 @@ class Converter:
     def set_contribution(
         self, metadata: oem_v15.OEPMetadata, user: str = "OMI", user_email: str = None
     ) -> oem_v15.OEPMetadata:
+        to_metadata = "oep-v1.5.1"  # NOTE hardcoded
         contribution = oem_v15.Contribution(
             contributor=oem_v15.Person(name=user, email=user_email),
             date=datetime.now(),
             obj="Metadata conversion",
             comment="Update metadata to "
-            + self.dialect_id
+            + to_metadata
             + " using OMIs metadata conversion tool.",
         )
 
@@ -105,7 +98,7 @@ class Metadata14To15Translation(Converter):
 
     @staticmethod
     def create_subject(subject: oem_v15.Subject, name: str = "", path: str = ""):
-        subject()
+        subject = subject()
         subject.name = name
         subject.path = path
         return subject
@@ -133,7 +126,7 @@ class Metadata14To15Translation(Converter):
 
     @staticmethod
     def create_is_about(is_about: oem_v15.IsAbout, name: str = "", path: str = ""):
-        is_about()
+        is_about = is_about()
         is_about.name = name
         is_about.path = path
         return is_about
@@ -145,7 +138,7 @@ class Metadata14To15Translation(Converter):
         name: str = "",
         path: str = "",
     ):
-        value_reference()
+        value_reference = value_reference()
         value_reference.value = value
         value_reference.name = name
         value_reference.path = path
@@ -206,14 +199,11 @@ class Metadata14To15Translation(Converter):
         ressources_fields = []
         if metadata14_ressources_field is not None:
             for field in metadata14_ressources_field:
-                print("convert_ressources_field")
-                print(field)
-                # for field in metadata14_ressources_field
                 ressources_field = oem_v15.Field(
                     name=field.name,
                     description=field.description,
                     field_type=field.type,
-                    is_about=[self.create_is_about(oem_v15.IsAbout, name="test")],
+                    is_about=[self.create_is_about(oem_v15.IsAbout)],
                     value_reference=[
                         self.create_value_reference(oem_v15.ValueReference)
                     ],
@@ -274,6 +264,37 @@ class Metadata14To15Translation(Converter):
         return converted_metadata
 
 
+def read_input_json(file_path: pathlib.Path = "tests/data/metadata_v14.json"):
+    with open(file_path, "r", encoding="utf-8") as f:
+        jsn = json.load(f)
+
+    return jsn
+
+
+def save_to_file(metadata: oem_v15.OEPMetadata, file_path: pathlib.Path):
+
+    with open(file_path, "w", encoding="utf-8") as outfile:
+        outfile.write(metadata)
+
+
+def run_conversion(
+    to_metadata: str, from_metadata: str, convert=Metadata14To15Translation
+):
+    metadata_file = read_input_json(from_metadata)
+    convert = convert(metadata=metadata_file)
+    dialect_input = convert.detect_oemetadata_dialect()
+    metadata = dialect_input._parser().parse(metadata_file)
+    convert.set_contribution(metadata)
+
+    converted = convert.build_metadata15(metadata)
+
+    dialect15 = get_dialect("oep-v1.5")()
+    s = dialect15.compile_and_render(obj=converted)
+    save_to_file(s, to_metadata)
+
+    return s
+
+
 def main() -> None:
     with open("tests/data/metadata_v14.json", "r", encoding="utf-8") as f:
         jsn = json.load(f)
@@ -290,11 +311,14 @@ def main() -> None:
     print("####################################")
 
     converted = conv14to15.build_metadata15(metadata)
+
     print(converted)
     print("####################################")
     dialect15 = get_dialect("oep-v1.5")()
     # parsed = dialect._parser().parse(converted)
     compiled = dialect15._compiler().visit(converted)
+    print(compiled)
+    # rendered = dialect15._renderer().render(compiled)
     # parsed = dialect15._parser().parse(compiled)
     print(type(compiled))
     # s = dialect15._renderer().render(compiled)
@@ -307,4 +331,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+
+    run_conversion(
+        to_metadata="1_test_scripts/metadata/conversion_out_oem151.json",
+        from_metadata="tests/data/metadata_v14.json",
+    )
