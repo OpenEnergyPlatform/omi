@@ -17,6 +17,7 @@ Why does this file exist, and why not put this in __main__?
 import click
 
 from omi.dialects import get_dialect
+from omi.dialects.oep import conversion
 
 
 @click.group()
@@ -40,6 +41,22 @@ def translate(f, t, o, file_path):
                 outfile.write(s)
         else:
             print(s)
+
+
+@grp.command("convert")
+@click.option(
+    "-i",
+    default=None,
+    help="Input file. Must be a JSON conforming to the oemetadata v1.4 spec.",
+)
+@click.option(
+    "-o",
+    default=None,
+    help="Output file. Will be a a JSON conforming to the oemetadata v1.5 spec",
+)
+def convert(o, i):
+    conversion.run_conversion(o, i)
+    print(f"Created updated metadata file: {o}")
 
 
 cli = click.CommandCollection(sources=[grp])
