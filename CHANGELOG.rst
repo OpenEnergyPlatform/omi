@@ -2,6 +2,14 @@
 Changelog
 =========
 
+current (2022-XX-XX)
+--------------------
+
+* Add conversion to translate oemetadata from v1.4 to v1.5
+* Add conversion option to OMIs CLI application
+* Add conversion additional script that converts oemetadata from v1.4 to v1.5 without using OMI. thanks to @chrwm
+
+
 0.0.7 (2022-06-02)
 ------------------
 
