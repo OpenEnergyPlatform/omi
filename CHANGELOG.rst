@@ -2,7 +2,7 @@
 Changelog
 =========
 
-0.0.7 (not yet released)
+0.0.7 (2022-06-02)
 ------------------
 
 * Add oem_structure module: Introcude support for multipe OEMetadata structure representations
