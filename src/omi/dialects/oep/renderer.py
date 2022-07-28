@@ -26,7 +26,7 @@ class JSONRenderer(json.JSONEncoder, Renderer):
             output = []
             if primitives_only:
                 for item in o:
-                    output.append(json.dumps(item))
+                    output.append(json.dumps(item, ensure_ascii=False))
                 return "[ " + ", ".join(output) + "  ]"
             else:
                 self.current_indent += 2
@@ -78,7 +78,7 @@ class JSONRenderer(json.JSONEncoder, Renderer):
             self.current_indent_str = "".join([" " for x in range(self.current_indent)])
             return "{\n" + ",\n".join(output) + "}"
         else:
-            return json.dumps(o)
+            return json.dumps(o, ensure_ascii=False)
 
     def render(self, inp, *args, **kwargs):
         return self.encode(inp)
