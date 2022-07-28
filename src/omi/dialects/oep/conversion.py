@@ -12,7 +12,6 @@ from datetime import datetime
 import json
 import logging
 import pathlib
-from select import select
 
 from omi.dialects.base.dialect import Dialect
 from omi.dialects import get_dialect
@@ -295,43 +294,7 @@ def run_conversion(
     return s
 
 
-def main() -> None:
-    with open("tests/data/metadata_v14.json", "r", encoding="utf-8") as f:
-        jsn = json.load(f)
-
-    conv14to15 = Metadata14To15Translation(metadata=jsn)
-    dialect = conv14to15.detect_oemetadata_dialect()
-    metadata = dialect._parser().parse(jsn)
-    conv14to15.set_contribution(metadata)
-    # conv14to15.remove_temporal(metadata)
-    print("##################################")
-    print(
-        dialect._compiler().visit(metadata)
-    )  # For some reason compile and render does not work when using the dialect
-    print("####################################")
-
-    converted = conv14to15.build_metadata15(metadata)
-
-    print(converted)
-    print("####################################")
-    dialect15 = get_dialect("oep-v1.5")()
-    # parsed = dialect._parser().parse(converted)
-    compiled = dialect15._compiler().visit(converted)
-    print(compiled)
-    # rendered = dialect15._renderer().render(compiled)
-    # parsed = dialect15._parser().parse(compiled)
-    print(type(compiled))
-    # s = dialect15._renderer().render(compiled)
-    s = dialect15.compile_and_render(obj=converted)
-
-    with open(
-        "1_test_scripts/metadata/conversion_out_oem151.json", "w", encoding="utf-8"
-    ) as outfile:
-        outfile.write(s)
-
-
 if __name__ == "__main__":
-    # main()
 
     run_conversion(
         to_metadata="1_test_scripts/metadata/conversion_out_oem151.json",
