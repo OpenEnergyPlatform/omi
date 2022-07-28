@@ -296,6 +296,7 @@ def run_conversion(
 
 if __name__ == "__main__":
 
+    # Run conversion with test data
     run_conversion(
         to_metadata="1_test_scripts/metadata/conversion_out_oem151.json",
         from_metadata="tests/data/metadata_v14.json",
