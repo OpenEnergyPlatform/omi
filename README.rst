@@ -103,7 +103,7 @@ Module usage::
     dialect1_5 = OEP_V_1_5_Dialect()
     parsed = dialect1_5.parse(input)
     print(parsed)
-    parsed.identifier = "anotehr_unique_id"
+    parsed.identifier = "another_unique_id"
     compiled = dialect1_5.compile(parsed)
     print(compiled)
 
