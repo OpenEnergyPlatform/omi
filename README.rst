@@ -81,7 +81,7 @@ https://omi.readthedocs.io/
 Usage
 =====
 
-*Compile and Render*
+**Compile and Render**
 
 Check if omi is able to read a oemetadata file (for version 1.4 and 1.5)
 CLI - oemetadata version 1.5::
@@ -108,7 +108,7 @@ Module usage::
     print(compiled)
 
 
-*Conversion*
+**Conversion**
 
 To ease the conversion of oemetadata from the outdated version 1.4 to the latest version, we provide
 conversion functionality. The following example shows how to convert the oemetadata from v1.4 to v1.5
