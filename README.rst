@@ -114,6 +114,8 @@ To ease the conversion of oemetadata from the outdated version 1.4 to the latest
 conversion functionality. The following example shows how to convert the oemetadata from v1.4 to v1.5
 by using a CLI command.
 
+CLI - oemetadata conversion from v1.4 to v1.5::
+
     omi convert -i {input/path} -o {output/path} 
 
 
