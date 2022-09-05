@@ -81,13 +81,16 @@ https://omi.readthedocs.io/
 Usage
 =====
 
+*Compile and Render*
+
+Check if omi is able to read a oemetadata file (for version 1.4 and 1.5)
 CLI - oemetadata version 1.5::
 
-    omi translate -f oep-v1.5
+    omi translate -f oep-v1.5 /path/
 
 CLI - oemetadata version 1.4::
 
-    omi translate -f oep-v1.4 -t oep-v1.4
+    omi translate -f oep-v1.4 -t oep-v1.4 /path/
 
 omi is able to read a JSON file and parse it into one of the internal Python structures (depending on the oemetadata version). 
 The OEPMetadata Python object can then be compiled and converted back to JSON. You can manipulate a successfully parsed 
@@ -103,6 +106,16 @@ Module usage::
     parsed.identifier = "anotehr_unique_id"
     compiled = dialect1_5.compile(parsed)
     print(compiled)
+
+
+*Conversion*
+
+To ease the conversion of oemetadata from the outdated version 1.4 to the latest version, we provide
+conversion functionality. The following example shows how to convert the oemetadata from v1.4 to v1.5
+by using a CLI command.
+
+    omi convert -i {input/path} -o {output/path} 
+
 
 Development
 ===========
