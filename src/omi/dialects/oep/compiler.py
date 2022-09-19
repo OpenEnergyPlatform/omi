@@ -346,6 +346,7 @@ class JSONCompilerOEM15(JSONCompiler):
             ("title", metadata.title),
             ("id", metadata.identifier),
             ("description", metadata.description),
+            ("language", metadata.languages),
             ("subject", metadata.subject),
             ("keywords", metadata.keywords),
             ("publicationDate", publication_date),
@@ -353,14 +354,12 @@ class JSONCompilerOEM15(JSONCompiler):
             ("spatial", metadata.spatial),
             ("temporal", metadata.temporal),
             ("review", metadata.review),
-            ("language", metadata.languages),
             ("sources", metadata.sources),
             ("licenses", metadata.license),
             ("contributors", metadata.contributions),
             ("resources", metadata.resources),
             ("@id", metadata.databus_identifier),
             ("@context", metadata.databus_context),
-            ("_comment", metadata.comment),
             metaMetadata=self._construct_dict(
                 ("metadataVersion", self.__METADATA_VERSION),
                 metadataLicense=self._construct_dict(
@@ -369,4 +368,5 @@ class JSONCompilerOEM15(JSONCompiler):
                     path="https://creativecommons.org/publicdomain/zero/1.0/",
                 ),
             ),
+            _comment=self._construct_dict(("_comment", metadata.comment)),
         )
