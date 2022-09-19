@@ -21,6 +21,7 @@ lib
 lib64
 venv*/
 pyvenv*/
+/0_env
 
 # Installer logs
 pip-log.txt
@@ -34,6 +35,9 @@ nosetests.xml
 coverage.xml
 htmlcov
 
+# Test results and reports
+/1_test_scripts
+
 # Translations
 *.mo
 
@@ -44,6 +48,7 @@ htmlcov
 .idea
 *.iml
 *.komodoproject
+.vscode
 
 # Complexity
 output/*.html
