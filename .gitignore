@@ -36,7 +36,7 @@ coverage.xml
 htmlcov
 
 # Test results and reports
-/1_test_scripts
+/1_test_results
 
 # Translations
 *.mo
