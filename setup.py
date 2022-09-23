@@ -73,7 +73,7 @@ setup(
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
     python_requires=">=3.5",
-    install_requires=["click", "rdfLib", "python-dateutil"],
+    install_requires=["click", "rdfLib", "python-dateutil", "jsonschema"],
     tests_require=["tox", "pytest"],
     extras_require={
         "dev": ["black", "isort", "pre-commit"]
