@@ -73,7 +73,7 @@ setup(
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
     python_requires=">=3.5",
-    install_requires=["click", "rdfLib", "python-dateutil", "jsonschema"],
+    install_requires=["click", "rdfLib", "python-dateutil", "jsonschema"], # TODO: add oemetadata as soon as new release on pypi (json files not inclides ATM)
     tests_require=["tox", "pytest"],
     extras_require={
         "dev": ["black", "isort", "pre-commit"]
