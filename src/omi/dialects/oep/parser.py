@@ -10,6 +10,24 @@ from omi.dialects.base.parser import Parser
 from omi.dialects.base.parser import ParserException
 from omi.oem_structures import oem_v15
 
+from jsonschema import ValidationError
+from jsonschema import validate
+
+# oemetadata
+from metadata.latest.schema import OEMETADATA_LATEST_SCHEMA
+from metadata.v130.schema import OEMETADATA_V130_SCHEMA
+from metadata.v140.schema import OEMETADATA_V140_SCHEMA
+from metadata.v141.schema import OEMETADATA_V141_SCHEMA
+from metadata.v150.schema import OEMETADATA_V150_SCHEMA
+
+ALL_OEM_SCHEMAS = [
+    OEMETADATA_LATEST_SCHEMA,
+    OEMETADATA_V130_SCHEMA,
+    OEMETADATA_V140_SCHEMA,
+    OEMETADATA_V141_SCHEMA,
+    OEMETADATA_V150_SCHEMA,
+]
+
 
 def parse_date_or_none(x, *args, **kwargs):
     if x is None:
@@ -17,30 +35,71 @@ def parse_date_or_none(x, *args, **kwargs):
     else:
         return parse_date(x, *args, **kwargs)
 
+def create_report_json(error_data: list[dict]):
+    with open("tests/data/report.json", "w", encoding="utf-8") as fp:
+            json.dump(error_data, fp, indent=4, sort_keys=False)
 
 class JSONParser(Parser):
     def load_string(self, string: str, *args, **kwargs):
         return json.loads(string)
 
-    def is_valid(self, inp: str):
-        """Checks the validity of a JSON string
-
+    def validate(self, jsn: dict, schemas: list | dict = ALL_OEM_SCHEMAS):
+        """
+        Check whether the given dictionary adheres to the the json-schema
+        specification
         Parameters
         ----------
-        inp: str
-            The JSON string to be checked.
-
+        jsn
+          The dictionary to validate
         Returns
         -------
-        bool
-            True if valid JSON, False otherwise.
+          Nothing
         """
+        is_valid = False
+        report = []
+        if isinstance(schemas, list):
+            for schema in schemas:
+                try:
+                    validate(jsn, schema)
+                except ValidationError as error:
+                # for error in sorted(v.iter_errors(jsn), key=str):
+                    error_dict = {
+                        "message": error.message,
+                        "schema_path": error.schema_path
+                        # "instance_path": error.instance_path
+                    }
+                    report.append(error_dict)
+        else:
+            try:
+                validate(jsn, schemas)
+            except ValidationError as error:
+            # for error in sorted(v.iter_errors(jsn), key=str):
+                error_dict = {
+                    "message": error.message,
+                    "schema_path": error.schema_path
+                    # "instance_path": error.instance_path
+                }
+                report.append(error_dict)
+        print(report)
+        create_report_json(report)
+        # print(report)
+
+    def is_valid(self, inp: str | dict):
+
+        if isinstance(inp, str):
+            try:
+                jsn = json.loads(inp)
+            except ValueError:
+                return False
+        else:
+            jsn = inp
 
         try:
-            json.loads(inp)
-        except ValueError:
+            self.validate(jsn)
+        except ValidationError:
             return False
-        return True
+        else:
+            return True
 
 
 class JSONParser_1_3(JSONParser):
@@ -579,15 +638,33 @@ class JSONParser_1_4(JSONParser):
 
 
 class JSONParser_1_5(JSONParser):
-    def is_valid(self, inp: str):
-        if not super(self, JSONParser_1_5).is_valid(inp):
-            return False
-        try:
-            self.assert_1_5_metastring(inp)
-        except:
-            return False
-        else:
-            return True
+
+    # def validate(self, jsn: dict, schema: dict):
+    #     """
+    #     Check whether the given dictionary adheres to the the json-schema
+    #     specification
+    #     Parameters
+    #     ----------
+    #     jsn
+    #       The dictionary to validate
+    #     Returns
+    #     -------
+    #       Nothing
+    #     """
+    #     validate(jsn, self.schema)
+
+    # def is_valid(self, inp: str, schema: dict):
+    #     try:
+    #         jsn = json.loads(inp)
+    #     except ValueError:
+    #         return False
+    #     else:
+    #         try:
+    #             self.validate(jsn, )
+    #         except ValidationError:
+    #             return False
+    #         else:
+    #             return True
 
     def parse_from_string(
         self,
