@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from base64 import encode
 import json
 
 from dateutil.parser import parse as parse_date
@@ -43,7 +44,7 @@ class JSONParser(Parser):
     def load_string(self, string: str, *args, **kwargs):
         return json.loads(string)
 
-    def validate(self, jsn: dict, schemas: list | dict = ALL_OEM_SCHEMAS):
+    def validate(self, jsn: dict, schemas: list or dict = ALL_OEM_SCHEMAS): # | not allowed below py3.10 use or instead
         """
         Check whether the given dictionary adheres to the the json-schema
         specification
@@ -75,20 +76,22 @@ class JSONParser(Parser):
             except ValidationError as error:
             # for error in sorted(v.iter_errors(jsn), key=str):
                 error_dict = {
-                    "message": error.message,
-                    "schema_path": error.schema_path
-                    # "instance_path": error.instance_path
+                    # "json path": error.json_path, 
+                    "instance path": [i for i in error.absolute_path],
+                    "value that raised the error": error.instance,
+                    "error message": error.message,                  
+                    "schema_path": [i for i in error.schema_path],
+                    
                 }
                 report.append(error_dict)
-        print(report)
-        create_report_json(report)
-        # print(report)
 
-    def is_valid(self, inp: str | dict):
+        create_report_json(report)
+
+    def is_valid(self, inp: str or dict):
 
         if isinstance(inp, str):
             try:
-                jsn = json.loads(inp)
+                jsn = json.loads(inp, encode="utf-8")
             except ValueError:
                 return False
         else:
