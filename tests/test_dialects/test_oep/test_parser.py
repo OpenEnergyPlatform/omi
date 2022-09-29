@@ -1,3 +1,4 @@
+from email import parser
 import unittest
 from omi.dialects.oep.parser import JSONParser_1_3
 from omi.dialects.oep.parser import JSONParser_1_4
@@ -11,6 +12,8 @@ from ..internal_structures import metadata_v_1_4_minimal
 from ..internal_structures import metadata_v_1_5
 from ..internal_structures import metadata_v_1_5_minimal
 from omi.dialects.base.parser import ParserException
+
+from metadata.latest.schema import OEMETADATA_LATEST_SCHEMA
 
 
 class ParserTest(unittest.TestCase):
@@ -50,3 +53,13 @@ class ParserTest(unittest.TestCase):
         _input_file = "tests/data/metadata_v15.json"
         expected_result = metadata_v_1_5
         _test_generic_parsing(parser, _input_file, expected_result)
+
+    def test_parser_v1_5_is_valid(self):
+        parser = JSONParser_1_5()
+        _input_file = "tests/data/metadata_v15.json"
+
+        with open(_input_file, "rb", encoding='utf-8') as inp:
+            file = inp.read()
+
+        # file = parser.parse_from_file(_input_file)
+        parser.validate(file)
