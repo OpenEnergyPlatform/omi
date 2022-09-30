@@ -48,7 +48,7 @@ def create_report_json(error_data: list[dict], save_at: pathlib.Path = "reports/
         print(f"Created error report containing {len(error_data)} errors at: {save_at}{filename}")
 
 class JSONParser(Parser):
-    one_schema_was_valid = False
+    # one_schema_was_valid = False
 
     def load_string(self, string: str, *args, **kwargs):
         return json.loads(string)
@@ -669,33 +669,6 @@ class JSONParser_1_4(JSONParser):
 
 
 class JSONParser_1_5(JSONParser):
-
-    # def validate(self, jsn: dict, schema: dict):
-    #     """
-    #     Check whether the given dictionary adheres to the the json-schema
-    #     specification
-    #     Parameters
-    #     ----------
-    #     jsn
-    #       The dictionary to validate
-    #     Returns
-    #     -------
-    #       Nothing
-    #     """
-    #     validate(jsn, self.schema)
-
-    # def is_valid(self, inp: str, schema: dict):
-    #     try:
-    #         jsn = json.loads(inp)
-    #     except ValueError:
-    #         return False
-    #     else:
-    #         try:
-    #             self.validate(jsn, )
-    #         except ValidationError:
-    #             return False
-    #         else:
-    #             return True
 
     def parse_from_string(
         self,
