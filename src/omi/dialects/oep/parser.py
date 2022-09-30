@@ -4,6 +4,7 @@
 from base64 import encode
 import json
 import pathlib
+import logging
 
 from dateutil.parser import parse as parse_date
 
@@ -14,6 +15,8 @@ from omi.oem_structures import oem_v15
 
 from jsonschema import ValidationError, SchemaError
 from jsonschema import Draft7Validator, FormatChecker
+
+from enum import Enum
 
 # oemetadata
 from metadata.latest.schema import OEMETADATA_LATEST_SCHEMA
@@ -30,71 +33,68 @@ ALL_OEM_SCHEMAS = [
     OEMETADATA_V150_SCHEMA,
 ]
 
-
 def parse_date_or_none(x, *args, **kwargs):
     if x is None:
         return None
     else:
         return parse_date(x, *args, **kwargs)
 
-
-def create_report_json(error_data: list[dict], save_at: pathlib.Path = "tests/data/report.json"):
+def create_report_json(error_data: list[dict], save_at: pathlib.Path = "reports/", filename: str = "report.json"):
     if len(error_data) >= 1:
-        with open(save_at, "w", encoding="utf-8") as fp:
+        pathlib.Path(save_at).mkdir(parents=True, exist_ok=True)
+        with open(f"{save_at}{filename}", "w", encoding="utf-8") as fp:
             json.dump(error_data, fp, indent=4, sort_keys=False)
         
-        print(f"Created error report at: {save_at}")
-
+        print(f"Created error report containing {len(error_data)} errors at: {save_at}{filename}")
 
 class JSONParser(Parser):
+    one_schema_was_valid = False
+
     def load_string(self, string: str, *args, **kwargs):
         return json.loads(string)
 
     def validate(
-        self, jsn: dict, schemas: list or dict = ALL_OEM_SCHEMAS
-    ):  # | not allowed below py3.10 use or instead
+        self, jsn: dict, schemas: list[dict] = ALL_OEM_SCHEMAS
+    ):
         """
         Check whether the given dictionary adheres to the the json-schema
-        specification
+        and oemetadata specification.
+
         Parameters
         ----------
         jsn
           The dictionary to validate
+        schema
+          The jsonschema used for validation. 
+          Default is a list of all available verion specific schemas from oemetadata.
         Returns
         -------
           Nothing
         """
-
+        self.one_schema_was_valid = False
         # if all schemas are checked, continue until valid schema found
-        is_valid = False
-        # report = []
-        # TODO: IS THIS EVEN POSSIBLE? :D
+        # or use latest schema that faild
+        # or detect schema version based on oemetadata metaMetadata[0].metadataVersion 
+        
+
         #############################
         # enable this function handle either a single schema passed as
         # parameter or use the default (list of all available schemas).
         # Incase one wants to test multiple metadata with various versions.
         #############################
-        if isinstance(schemas, list):
-            for schema in schemas:
-                v = Draft7Validator(schema=schema, format_checker=FormatChecker()) # TODO: How to get the correct Validator based on the schema - dont like to use specific class
-                v.check_schema
-                report = []
-                for error in sorted(v.iter_errors(instance=jsn), key=str):
-                    # https://python-jsonschema.readthedocs.io/en/stable/errors/#handling-validation-errors
-                    error_dict = {
-                        "oemetadata schema version": schema.get("$id"),
-                        # "json path": error.json_path,
-                        "instance path": [i for i in error.absolute_path],
-                        "value that raised the error": error.instance,
-                        "error message": error.message,
-                        "schema_path": [i for i in error.schema_path],
-                    }
-                    report.append(error_dict)
-            create_report_json(report)
-        else:
-            report = []
-            v = Draft7Validator(schema=schemas, format_checker=FormatChecker()) # TODO: How to get the correct Validator based on the schema - dont like to use specific class
+        try:
+            isinstance(schemas, list)
+        except TypeError as e:
+            logging.info("Schemas must be provides as list: [schmea1, schema2, ...]")
+            raise e("parameter 'schemas' must be of type list[dict].")
+        
+        report = []
+        for schema in schemas:
+            # if not self.one_schema_was_valid:
+            # TODO: How to get the correct Validator based on the schema - dont like to use specific class
+            v = Draft7Validator(schema=schema, format_checker=FormatChecker()) 
             v.check_schema
+        
             for error in sorted(v.iter_errors(instance=jsn), key=str):
                 # https://python-jsonschema.readthedocs.io/en/stable/errors/#handling-validation-errors
                 error_dict = {
@@ -106,9 +106,14 @@ class JSONParser(Parser):
                     "schema_path": [i for i in error.schema_path],
                 }
                 report.append(error_dict)
-            create_report_json(report)
+            # reset error collection if one schema was valid
+            # if sorted(v.iter_errors(instance=jsn), key=str) is None:
+            #     self.one_schema_was_valid = True
+            #     print(f"Valid with schema{schema.get('$id')}")
+            #     continue
 
-        # create_report_json(report)
+        create_report_json(report)
+       
 
     def is_valid(self, inp: str or dict):
 
