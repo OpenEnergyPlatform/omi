@@ -306,13 +306,13 @@ class JSONCompilerOEM15(JSONCompiler):
     def visit_isAbout(self, isAbout: oem_v15.IsAbout, *args, **kwargs):
         return self._construct_dict(("name", isAbout.name), ("path", isAbout.path))
 
-    def visit_value_reference(
-        self, value_reference: oem_v15.ValueReference, *args, **kwargs
+    def visit_valueReference(
+        self, valueReference: oem_v15.ValueReference, *args, **kwargs
     ):
         return self._construct_dict(
-            ("value", value_reference.value),
-            ("name", value_reference.name),
-            ("path", value_reference.path),
+            ("value", valueReference.value),
+            ("name", valueReference.name),
+            ("path", valueReference.path),
         )
 
     def visit_field(self, field: oem_v15.Field, *args, **kwargs):
@@ -321,7 +321,7 @@ class JSONCompilerOEM15(JSONCompiler):
             ("description", field.description),
             ("type", field.type),
             ("isAbout", field.isAbout),
-            ("value_reference", field.value_reference),
+            ("valueReference", field.valueReference),
             ("unit", field.unit),
         )
 

@@ -175,7 +175,7 @@ class IsAbout(Compilable):
 
 
 class ValueReference(Compilable):
-    __compiler_name__ = "value_reference"
+    __compiler_name__ = "valueReference"
 
     def __init__(self, value: str = None, name: str = None, path: str = None):
         self.value = value
@@ -192,7 +192,7 @@ class Field(Compilable):
         description: str = None,
         field_type: str = None,
         isAbout: Iterable[IsAbout] = None,
-        value_reference: Iterable[ValueReference] = None,
+        valueReference: Iterable[ValueReference] = None,
         unit: str = None,
         resource: "Resource" = None,
     ):
@@ -200,7 +200,7 @@ class Field(Compilable):
         self.description = description
         self.type = field_type
         self.isAbout = isAbout
-        self.value_reference = value_reference
+        self.valueReference = valueReference
         self.unit = unit
         self.resource = resource
 

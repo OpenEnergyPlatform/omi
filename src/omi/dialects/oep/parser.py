@@ -806,9 +806,9 @@ class JSONParser_1_5(JSONParser):
                             # filling the value reference section
                             old_value_references = field.get("valueReference")
                             if old_value_references is None:
-                                value_reference = None
+                                valueReference = None
                             else:
-                                value_reference = [
+                                valueReference = [
                                     oem_v15.ValueReference(
                                         value=old_value_reference.get("value"),
                                         name=old_value_reference.get("name"),
@@ -823,7 +823,7 @@ class JSONParser_1_5(JSONParser):
                                     description=field.get("description"),
                                     field_type=field.get("type"),
                                     isAbout=isAbout,
-                                    value_reference=value_reference,
+                                    valueReference=valueReference,
                                     unit=field.get("unit"),
                                 )
                             )
