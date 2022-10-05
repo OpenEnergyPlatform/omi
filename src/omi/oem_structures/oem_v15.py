@@ -167,7 +167,7 @@ class Contribution(Compilable):
 
 
 class IsAbout(Compilable):
-    __compiler_name__ = "is_about"
+    __compiler_name__ = "isAbout"
 
     def __init__(self, name: str = None, path: str = None):
         self.name = name
@@ -191,7 +191,7 @@ class Field(Compilable):
         name: str = None,
         description: str = None,
         field_type: str = None,
-        is_about: Iterable[IsAbout] = None,
+        isAbout: Iterable[IsAbout] = None,
         value_reference: Iterable[ValueReference] = None,
         unit: str = None,
         resource: "Resource" = None,
@@ -199,7 +199,7 @@ class Field(Compilable):
         self.name = name
         self.description = description
         self.type = field_type
-        self.is_about = is_about
+        self.isAbout = isAbout
         self.value_reference = value_reference
         self.unit = unit
         self.resource = resource
