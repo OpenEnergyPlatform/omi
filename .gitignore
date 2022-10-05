@@ -46,6 +46,7 @@ htmlcov
 *.komodoproject
 /0_local_test
 /reports
+.vscode
 
 # Complexity
 output/*.html
