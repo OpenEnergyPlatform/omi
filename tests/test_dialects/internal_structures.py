@@ -500,8 +500,8 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
                         description="Unique identifier",
                         field_type="serial",
                         unit=None,
-                        is_about=[oem_v15.IsAbout(name=None, path=None)],
-                        value_reference=[
+                        isAbout=[oem_v15.IsAbout(name=None, path=None)],
+                        valueReference=[
                             oem_v15.ValueReference(value=None, name=None, path=None)
                         ],
                     ),
@@ -510,13 +510,13 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
                         description="Example name",
                         field_type="text",
                         unit=None,
-                        is_about=[
+                        isAbout=[
                             oem_v15.IsAbout(
                                 name="written name",
                                 path="https://openenergy-platform.org/ontology/oeo/IAO_0000590",
                             )
                         ],
-                        value_reference=[
+                        valueReference=[
                             oem_v15.ValueReference(value=None, name=None, path=None)
                         ],
                     ),
@@ -525,13 +525,13 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
                         description="Type of wind farm",
                         field_type="text",
                         unit=None,
-                        is_about=[
+                        isAbout=[
                             oem_v15.IsAbout(
                                 name="wind farm",
                                 path="https://openenergy-platform.org/ontology/oeo/OEO_00000447",
                             )
                         ],
-                        value_reference=[
+                        valueReference=[
                             oem_v15.ValueReference(
                                 value="onshore",
                                 name="onshore wind farm",
@@ -549,13 +549,13 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
                         description="Example value",
                         field_type="double precision",
                         unit=None,
-                        is_about=[
+                        isAbout=[
                             oem_v15.IsAbout(
                                 name="year",
                                 path="https://openenergy-platform.org/ontology/oeo/UO_0000036",
                             )
                         ],
-                        value_reference=[
+                        valueReference=[
                             oem_v15.ValueReference(value=None, name=None, path=None)
                         ],
                     ),
@@ -564,13 +564,13 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
                         description="Example value",
                         field_type="double precision",
                         unit="MW",
-                        is_about=[
+                        isAbout=[
                             oem_v15.IsAbout(
                                 name="quantity value",
                                 path="https://openenergy-platform.org/ontology/oeo/OEO_00000350",
                             )
                         ],
-                        value_reference=[
+                        valueReference=[
                             oem_v15.ValueReference(value=None, name=None, path=None)
                         ],
                     ),
@@ -579,13 +579,13 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
                         description="Geometry",
                         field_type="geometry(Point, 4326)",
                         unit=None,
-                        is_about=[
+                        isAbout=[
                             oem_v15.IsAbout(
                                 name="spatial region",
                                 path="https://openenergy-platform.org/ontology/oeo/BFO_0000006",
                             )
                         ],
-                        value_reference=[
+                        valueReference=[
                             oem_v15.ValueReference(
                                 value="test", name="test", path="test"
                             )
