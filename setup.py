@@ -72,7 +72,7 @@ setup(
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.5",
     install_requires=["click", "rdfLib", "python-dateutil"],
     tests_require=["tox", "pytest"],
     extras_require={
