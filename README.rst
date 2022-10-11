@@ -81,16 +81,20 @@ https://omi.readthedocs.io/
 Usage
 =====
 
-**Compile and Render**
+**Parse, Compile, Render, Convert and Validate**
+Omi can read(parse), compile, Render(json compilant), convert(convert metadata from v1.4 to v1.5 structure) and validate - a json 
+file or object that is compliant with the oemetadata spec. This is usefull to do various operations that help to integrate with - as 
+well as in interact with the oemetadata. Some parts of this tool might still be volatile but the code quality is conventionsly improved 
+as this module is a core component of the oeplatfroms metadata integration system.
 
 Check if omi is able to read a oemetadata file (for version 1.4 and 1.5)
 CLI - oemetadata version 1.5::
 
-    omi translate -f oep-v1.5 /path/
+    omi translate -f oep-v1.5 examples/data/metadata_v15.json
 
 CLI - oemetadata version 1.4::
 
-    omi translate -f oep-v1.4 -t oep-v1.4 /path/
+    omi translate -f oep-v1.4 -t oep-v1.4 examples/data/metadata_v14.json
 
 omi is able to read a JSON file and parse it into one of the internal Python structures (depending on the oemetadata version). 
 The OEPMetadata Python object can then be compiled and converted back to JSON. You can manipulate a successfully parsed 
