@@ -335,7 +335,6 @@ def run_conversion(
     convert.set_contribution(metadata)
 
     converted = convert.build_metadata15(metadata)
-    print(converted)
 
     dialect15 = get_dialect("oep-v1.5")()
     s = dialect15.compile_and_render(obj=converted)
