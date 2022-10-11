@@ -793,9 +793,9 @@ class JSONParser_1_5(JSONParser):
                             # filling the is about section
                             old_is_abouts = field.get("isAbout")
                             if old_is_abouts is None:
-                                is_about = None
+                                isAbout = None
                             else:
-                                is_about = [
+                                isAbout = [
                                     oem_v15.IsAbout(
                                         name=old_is_about.get("name"),
                                         path=old_is_about.get("path"),
@@ -806,9 +806,9 @@ class JSONParser_1_5(JSONParser):
                             # filling the value reference section
                             old_value_references = field.get("valueReference")
                             if old_value_references is None:
-                                value_reference = None
+                                valueReference = None
                             else:
-                                value_reference = [
+                                valueReference = [
                                     oem_v15.ValueReference(
                                         value=old_value_reference.get("value"),
                                         name=old_value_reference.get("name"),
@@ -822,8 +822,8 @@ class JSONParser_1_5(JSONParser):
                                     name=field.get("name"),
                                     description=field.get("description"),
                                     field_type=field.get("type"),
-                                    is_about=is_about,
-                                    value_reference=value_reference,
+                                    isAbout=isAbout,
+                                    valueReference=valueReference,
                                     unit=field.get("unit"),
                                 )
                             )

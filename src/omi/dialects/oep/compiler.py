@@ -303,16 +303,16 @@ class JSONCompilerOEM15(JSONCompiler):
             ("timeseries", temporal.timeseries_collection),
         )
 
-    def visit_is_about(self, is_about: oem_v15.IsAbout, *args, **kwargs):
-        return self._construct_dict(("name", is_about.name), ("path", is_about.path))
+    def visit_isAbout(self, isAbout: oem_v15.IsAbout, *args, **kwargs):
+        return self._construct_dict(("name", isAbout.name), ("path", isAbout.path))
 
-    def visit_value_reference(
-        self, value_reference: oem_v15.ValueReference, *args, **kwargs
+    def visit_valueReference(
+        self, valueReference: oem_v15.ValueReference, *args, **kwargs
     ):
         return self._construct_dict(
-            ("value", value_reference.value),
-            ("name", value_reference.name),
-            ("path", value_reference.path),
+            ("value", valueReference.value),
+            ("name", valueReference.name),
+            ("path", valueReference.path),
         )
 
     def visit_field(self, field: oem_v15.Field, *args, **kwargs):
@@ -320,8 +320,8 @@ class JSONCompilerOEM15(JSONCompiler):
             ("name", field.name),
             ("description", field.description),
             ("type", field.type),
-            ("is_about", field.is_about),
-            ("value_reference", field.value_reference),
+            ("isAbout", field.isAbout),
+            ("valueReference", field.valueReference),
             ("unit", field.unit),
         )
 
