@@ -1,5 +1,4 @@
 import datetime
-import imp
 import unittest
 
 from omi.structure import Compilable
