@@ -42,12 +42,12 @@ class Converter:
 
     def validate_str_version_format(self):
         return NotImplementedError
-    
+
     def sanitize_oem(self, oemetadata: dict) -> oem_v15.OEPMetadata:
         """
         Remove all "" or " " values. Additionaly it is possible to specify a specific
         field that will set to none. Key that got a none value will result in a json null
-        that will not be visible in a json document.  
+        that will not be visible in a json document.
 
         Args:
             oemetadata (oem_v15.OEPMetadata): _description_
@@ -55,12 +55,14 @@ class Converter:
         Returns:
             oem_v15.OEPMetadata: _description_
         """
-         
+
         omi_dialect = self.detect_oemetadata_dialect(oemetadata)
         metadata = omi_dialect._parser().parse(oemetadata)
         print(type(omi_dialect))
-        
-        if metadata["metaMetadata"]["metadataVersion"] == "oep-v1.5.1":  # NOTE hardcoded
+
+        if (
+            metadata["metaMetadata"]["metadataVersion"] == "oep-v1.5.1"
+        ):  # NOTE hardcoded
             oemetadata_obj: oem_v15.OEPMetadata
             # sanitize ....
         else:
@@ -101,13 +103,15 @@ class Converter:
                         "message": f"Could not detect the dialect based on the Oemetadata json string. The key related to meta-metadata information might not be present in the input metadata json file. Fallback to the default dialect: '{self.dialect_id}'.",
                     }
                 )
-        
 
         return get_dialect(identifier=self.dialect_id)
 
     # NOTE: Add omi version to user?
     def set_contribution(
-        self, metadata: oem_v15.OEPMetadata, user: str = "OMI-v0.0.8", user_email: str = None
+        self,
+        metadata: oem_v15.OEPMetadata,
+        user: str = "OMI-v0.0.8",
+        user_email: str = None,
     ) -> oem_v15.OEPMetadata:
         to_metadata = "oep-v1.5.1"  # NOTE hardcoded
         contribution = oem_v15.Contribution(
@@ -192,20 +196,20 @@ class Metadata14To15Translation(Converter):
     def convert_timestamp_orientation(self, ts: str):
         new_ts = oem_v15.TimestampOrientation.create(ts)
         return new_ts
-    
-     # NOTE maybe move timeseries element from convert temporal
+
+    # NOTE maybe move timeseries element from convert temporal
     def convert_timeseries(self, metadata14_temporal: structure.Temporal):
         timeseries = None
         if metadata14_temporal.ts_start and metadata14_temporal.ts_end is not None:
-           timeseries = oem_v15.Timeseries(
-                        start=metadata14_temporal.ts_start,
-                        end=metadata14_temporal.ts_end,
-                        resolution=metadata14_temporal.ts_resolution,
-                        ts_orientation=self.convert_timestamp_orientation(
-                            metadata14_temporal.ts_orientation.name
-                        ),
-                        aggregation=metadata14_temporal.aggregation,
-                    )
+            timeseries = oem_v15.Timeseries(
+                start=metadata14_temporal.ts_start,
+                end=metadata14_temporal.ts_end,
+                resolution=metadata14_temporal.ts_resolution,
+                ts_orientation=self.convert_timestamp_orientation(
+                    metadata14_temporal.ts_orientation.name
+                ),
+                aggregation=metadata14_temporal.aggregation,
+            )
         return timeseries
 
     def convert_temporal(
@@ -216,14 +220,14 @@ class Metadata14To15Translation(Converter):
         if metadata14_temporal is not None:
             temporal = oem_v15.Temporal(
                 reference_date=metadata14_temporal.reference_date,
-                timeseries_collection=[self.convert_timeseries(metadata14_temporal)], 
-            ) #NOTE: assume there will be a single timeseries as input because OEM-v1.4 did not support multiple timeseries elements
+                timeseries_collection=[self.convert_timeseries(metadata14_temporal)],
+            )  # NOTE: assume there will be a single timeseries as input because OEM-v1.4 did not support multiple timeseries elements
         return temporal
 
     def convert_meta_comment(
         self, metadata14_meta_comment: structure.MetaComment
     ) -> oem_v15.MetaComment:
-        
+
         meta_comment = None
         if metadata14_meta_comment is not None:
             meta_comment = oem_v15.MetaComment(
@@ -236,7 +240,7 @@ class Metadata14To15Translation(Converter):
                 null=self.create_meta_comment_null(),
                 todo=self.create_meta_comment_todo(),
             )
-            
+
         return meta_comment
 
     def convert_ressources_field(self, metadata14_ressources_field: list = None):
@@ -279,7 +283,7 @@ class Metadata14To15Translation(Converter):
                 dialect=ressource.dialect,
             )
             ressources.append(single_ressource)
-        
+
         return ressources
 
     def build_metadata15(self, metadata: structure.OEPMetadata):
