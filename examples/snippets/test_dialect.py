@@ -129,7 +129,7 @@ def set_table_metadata(metadata):
         raise Exception(err)
 
 
-def save_json(data: json, save_at: pathlib.Path = "0_local_test/reports/", filename: str = "omi_processed_metadata.json"):
+def save_json(data: json, save_at: pathlib.Path = "examples/data/output/", filename: str = "omi_processed_metadata.json"):
 
     pathlib.Path(save_at).mkdir(parents=True, exist_ok=True)
     with open(f"{save_at}{filename}", "w", encoding="utf-8") as fp:
@@ -138,7 +138,7 @@ def save_json(data: json, save_at: pathlib.Path = "0_local_test/reports/", filen
 
 def run_oep_case():
     # _input_file = "tests/data/metadata_v15.json"
-    _input_file = "0_local_test/reports/omi_processed_metadata.json"
+    _input_file = "examples/data/metadata_v15.json"
 
     with open(_input_file, "rb") as inp:
         # file = inp.read()

@@ -86,7 +86,7 @@ def try_compile_metadata(inp):
 
 # use this instead of omis validation
 # this is what is happening on the oep before the metadata is saved to persistence
-def check_oemetadata_is_oep_compatible(_input_file = "0_local_test/metadata_v15.json"):  
+def check_oemetadata_is_oep_compatible(_input_file = "examples/data/metadata_v15.json"):  
 
     with open(_input_file, "rb") as inp:
         # file = inp.read()
