@@ -2,6 +2,8 @@ graft docs
 graft src
 graft ci
 graft tests
+graft examples
+graft scripts
 
 include .bumpversion.cfg
 include .coveragerc
