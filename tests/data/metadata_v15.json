@@ -37,7 +37,6 @@
         "publisherLogo": "https://reiner-lemoine-institut.de//wp-content/uploads/2015/09/rlilogo.png"
     },
     "spatial": {
-        "location": null,
         "extent": "europe",
         "resolution": "100 m"
     },
