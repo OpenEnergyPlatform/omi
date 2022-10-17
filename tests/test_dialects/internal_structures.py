@@ -546,8 +546,8 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
                     ),
                     oem_v15.Field(
                         name="year",
-                        description="Example value",
-                        field_type="double precision",
+                        description="Reference year",
+                        field_type="integer",
                         unit=None,
                         isAbout=[
                             oem_v15.IsAbout(
@@ -586,9 +586,7 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
                             )
                         ],
                         valueReference=[
-                            oem_v15.ValueReference(
-                                value="test", name="test", path="test"
-                            )
+                            oem_v15.ValueReference(value=None, name=None, path=None)
                         ],
                     ),
                 ],
