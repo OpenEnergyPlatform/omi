@@ -161,7 +161,7 @@
                         ],
                         "valueReference": [
                             {
-                                "value": "onshore ",
+                                "value": "onshore",
                                 "name": "onshore wind farm",
                                 "path": "https://openenergy-platform.org/ontology/oeo/OEO_00000311"
                             },
