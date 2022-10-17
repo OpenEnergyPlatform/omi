@@ -166,7 +166,7 @@
                                 "path": "https://openenergy-platform.org/ontology/oeo/OEO_00000311"
                             },
                             {
-                                "value": "offshore ",
+                                "value": "offshore",
                                 "name": "offshore wind farm",
                                 "path": "https://openenergy-platform.org/ontology/oeo/OEO_00000308"
                             }
