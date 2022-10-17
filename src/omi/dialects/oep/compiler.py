@@ -227,7 +227,7 @@ class JSONCompiler(Compiler):
                     title="Creative Commons Zero v1.0 Universal",
                     path="https://creativecommons.org/publicdomain/zero/1.0/",
                 ),
-            ),   
+            ),
         )
 
 
@@ -368,5 +368,14 @@ class JSONCompilerOEM15(JSONCompiler):
                     path="https://creativecommons.org/publicdomain/zero/1.0/",
                 ),
             ),
-            _comment=self._construct_dict(("_comment", metadata.comment)),
+            _comment=self._construct_dict( 
+                metadata=metadata.comment.metadata_info,
+                dates=metadata.comment.dates,
+                units=metadata.comment.units,
+                languages=metadata.comment.languages,
+                licenses=metadata.comment.licenses,
+                review=metadata.comment.review,
+                null=metadata.comment.null,
+                todo=metadata.comment.todo,
+            ),
         )
