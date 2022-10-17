@@ -391,7 +391,7 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
             logo="https://reiner-lemoine-institut.de//wp-content/uploads/2015/09/rlilogo.png"
         ),
     ),
-    spatial=oem_v15.Spatial(extent="europe", resolution="100 m"),
+    spatial=oem_v15.Spatial(location=None, extent="europe", resolution="100 m"),
     temporal=oem_v15.Temporal(
         reference_date=datetime.datetime(2016, 1, 1, 0, 0),
         timeseries_collection=[
