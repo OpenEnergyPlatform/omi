@@ -11,6 +11,7 @@ current (2022-XX-XX)
 
 * Fix but with oeo related isAbout and valueReference fields (PR#65)
 * Introduce github actions: Add automation worfklows for pypi publish for test and official (PR#67)
+* Introduce new directory and provide some use cases and example implementation for omi usage and improve general code quality (PR#61)
 
 0.0.7 (2022-06-02)
 ------------------
