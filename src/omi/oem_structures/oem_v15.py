@@ -15,6 +15,7 @@ be able to validate multiple OEMetadata versions.
 from datetime import datetime
 from enum import Enum
 from typing import Iterable
+
 from omi.structure import Compilable
 
 
