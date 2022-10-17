@@ -3,8 +3,8 @@ from collections import OrderedDict
 from datetime import datetime
 
 from omi import structure
-from omi.oem_structures import oem_v15
 from omi.dialects.base.compiler import Compiler
+from omi.oem_structures import oem_v15
 
 
 class JSONCompiler(Compiler):

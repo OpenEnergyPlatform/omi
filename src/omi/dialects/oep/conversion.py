@@ -12,15 +12,16 @@ BUGS:
 - value reference and is about got wrong name format in json
 """
 
-from datetime import datetime
 import json
 import logging
 import pathlib
+from datetime import datetime
 
-from omi.dialects.base.dialect import Dialect
-from omi.dialects import get_dialect
 from omi import structure
+from omi.dialects import get_dialect
+from omi.dialects.base.dialect import Dialect
 from omi.oem_structures import oem_v15
+
 
 # NOTE: Maybe change this to abstract class and implement methods in concrete child classes
 class Converter:
