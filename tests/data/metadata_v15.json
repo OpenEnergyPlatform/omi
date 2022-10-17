@@ -101,14 +101,12 @@
     "contributors": [
         {
             "title": "Ludee",
-            "email": null,
             "date": "2021-11-15",
             "object": "metadata",
             "comment": "Release metadata version OEP-1.5.0"
         },
         {
             "title": "Ludee",
-            "email": null,
             "date": "2022-02-15",
             "object": "metadata",
             "comment": "Release metadata version OEP-1.5.1"
@@ -127,18 +125,12 @@
                         "name": "id",
                         "description": "Unique identifier",
                         "type": "serial",
-                        "unit": null,
                         "isAbout": [
                             {
-                                "name": null,
-                                "path": null
                             }
                         ],
                         "valueReference": [
                             {
-                                "value": null,
-                                "name": null,
-                                "path": null
                             }
                         ]
                     },
@@ -146,7 +138,6 @@
                         "name": "name",
                         "description": "Example name",
                         "type": "text",
-                        "unit": null,
                         "isAbout": [
                             {
                                 "name": "written name",
@@ -155,9 +146,6 @@
                         ],
                         "valueReference": [
                             {
-                                "value": null,
-                                "name": null,
-                                "path": null
                             }
                         ]
                     },
@@ -165,7 +153,6 @@
                         "name": "type",
                         "description": "Type of wind farm",
                         "type": "text",
-                        "unit": null,
                         "isAbout": [
                             {
                                 "name": "wind farm",
@@ -189,7 +176,6 @@
                         "name": "year",
                         "description": "Reference year",
                         "type": "integer",
-                        "unit": null,
                         "isAbout": [
                             {
                                 "name": "year",
@@ -198,9 +184,6 @@
                         ],
                         "valueReference": [
                             {
-                                "value": null,
-                                "name": null,
-                                "path": null
                             }
                         ]
                     },
@@ -217,9 +200,6 @@
                         ],
                         "valueReference": [
                             {
-                                "value": null,
-                                "name": null,
-                                "path": null
                             }
                         ]
                     },
@@ -227,7 +207,6 @@
                         "name": "geom",
                         "description": "Geometry",
                         "type": "geometry(Point, 4326)",
-                        "unit": null,
                         "isAbout": [
                             {
                                 "name": "spatial region",
@@ -236,9 +215,6 @@
                         ],
                         "valueReference": [
                             {
-                                "value": null,
-                                "name": null,
-                                "path": null
                             }
                         ]
                     }
@@ -261,7 +237,6 @@
                 ]
             },
             "dialect": {
-                "delimiter": null,
                 "decimalSeparator": "."
             }
         }
