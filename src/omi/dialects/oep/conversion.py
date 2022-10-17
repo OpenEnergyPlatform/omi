@@ -6,6 +6,10 @@ The Converter class is the base class that provides base funtionality to enable 
 The Translation class includes all functionality to create missing fields and supply default, none or user input values for each new field.
 The translated metadata will be build and can be saved to a file by using convinience methodes provides by the converter or manually saved 
 to file using OMI's dialect15.compile_and_render().
+
+BUGS:
+- oeo keys are not included
+- value reference and is about got wrong name format in json
 """
 
 from datetime import datetime
@@ -34,9 +38,38 @@ class Converter:
     ) -> None:
         self.dialect_id = dielact_id
         self.metadata = metadata
+        self.omi_version = "OMI-v0.0.8"
 
     def validate_str_version_format(self):
         return NotImplementedError
+
+    def sanitize_oem(self, oemetadata: dict) -> oem_v15.OEPMetadata:
+        """
+        Remove all "" or " " values. Additionaly it is possible to specify a specific
+        field that will set to none. Key that got a none value will result in a json null
+        that will not be visible in a json document.
+
+        Args:
+            oemetadata (oem_v15.OEPMetadata): _description_
+
+        Returns:
+            oem_v15.OEPMetadata: _description_
+        """
+
+        omi_dialect = self.detect_oemetadata_dialect(oemetadata)
+        metadata = omi_dialect._parser().parse(oemetadata)
+        print(type(omi_dialect))
+
+        if (
+            metadata["metaMetadata"]["metadataVersion"] == "oep-v1.5.1"
+        ):  # NOTE hardcoded
+            oemetadata_obj: oem_v15.OEPMetadata
+            # sanitize ....
+        else:
+            oemetadata_obj: structure.OEPMetadata
+            # sanitize ....
+
+        return oemetadata_obj
 
     def format_version_string(self, version_string: str = None) -> str:
         if version_string is not None:
@@ -45,23 +78,40 @@ class Converter:
             self.dialect_id = parts[0] + "-v" + parts[1][:-2]
         return self.dialect_id
 
-    def detect_oemetadata_dialect(self) -> Dialect:
-        try:
-            version: str = self.metadata["metaMetadata"]["metadataVersion"]
-            self.dialect_id = self.format_version_string(version_string=version)
-            logging.info(f"The dectected dialect is: {self.dialect_id}")
-        except Exception as e:
-            logging.warning(
-                {
-                    "exception": f"{e}",
-                    "message": f"Could not detect the dialect based on the Oemetadata json string. The key related to meta-metadata information might not be present in the input metadata json file. Fallback to the default dialect: '{self.dialect_id}'.",
-                }
-            )
+    def detect_oemetadata_dialect(self, metadata=None) -> Dialect:
+        if metadata is None:
+            try:
+                version: str = self.metadata["metaMetadata"]["metadataVersion"]
+                self.dialect_id = self.format_version_string(version_string=version)
+                logging.info(f"The dectected dialect is: {self.dialect_id}")
+            except Exception as e:
+                logging.warning(
+                    {
+                        "exception": f"{e}",
+                        "message": f"Could not detect the dialect based on the Oemetadata json string. The key related to meta-metadata information might not be present in the input metadata json file. Fallback to the default dialect: '{self.dialect_id}'.",
+                    }
+                )
+        else:
+            try:
+                version: str = metadata["metaMetadata"]["metadataVersion"]
+                self.dialect_id = self.format_version_string(version_string=version)
+                logging.info(f"The dectected dialect is: {self.dialect_id}")
+            except Exception as e:
+                logging.warning(
+                    {
+                        "exception": f"{e}",
+                        "message": f"Could not detect the dialect based on the Oemetadata json string. The key related to meta-metadata information might not be present in the input metadata json file. Fallback to the default dialect: '{self.dialect_id}'.",
+                    }
+                )
+
         return get_dialect(identifier=self.dialect_id)
 
     # NOTE: Add omi version to user?
     def set_contribution(
-        self, metadata: oem_v15.OEPMetadata, user: str = "OMI", user_email: str = None
+        self,
+        metadata: oem_v15.OEPMetadata,
+        user: str = "OMI-v0.0.8",
+        user_email: str = None,
     ) -> oem_v15.OEPMetadata:
         to_metadata = "oep-v1.5.1"  # NOTE hardcoded
         contribution = oem_v15.Contribution(
@@ -147,6 +197,21 @@ class Metadata14To15Translation(Converter):
         new_ts = oem_v15.TimestampOrientation.create(ts)
         return new_ts
 
+    # NOTE maybe move timeseries element from convert temporal
+    def convert_timeseries(self, metadata14_temporal: structure.Temporal):
+        timeseries = None
+        if metadata14_temporal.ts_start and metadata14_temporal.ts_end is not None:
+            timeseries = oem_v15.Timeseries(
+                start=metadata14_temporal.ts_start,
+                end=metadata14_temporal.ts_end,
+                resolution=metadata14_temporal.ts_resolution,
+                ts_orientation=self.convert_timestamp_orientation(
+                    metadata14_temporal.ts_orientation.name
+                ),
+                aggregation=metadata14_temporal.aggregation,
+            )
+        return timeseries
+
     def convert_temporal(
         self,
         metadata14_temporal: structure.Temporal,
@@ -155,28 +220,15 @@ class Metadata14To15Translation(Converter):
         if metadata14_temporal is not None:
             temporal = oem_v15.Temporal(
                 reference_date=metadata14_temporal.reference_date,
-                timeseries_collection=[
-                    oem_v15.Timeseries(
-                        start=metadata14_temporal.ts_start,
-                        end=metadata14_temporal.ts_end,
-                        resolution=metadata14_temporal.ts_resolution,
-                        ts_orientation=self.convert_timestamp_orientation(
-                            metadata14_temporal.ts_orientation.name
-                        ),
-                        aggregation=metadata14_temporal.aggregation,
-                    )
-                ],
-            )
+                timeseries_collection=[self.convert_timeseries(metadata14_temporal)],
+            )  # NOTE: assume there will be a single timeseries as input because OEM-v1.4 did not support multiple timeseries elements
         return temporal
-
-    # NOTE maybe move timeseries element from convert temporal
-    def convert_timeseries(self):
-        NotImplementedError
 
     def convert_meta_comment(
         self, metadata14_meta_comment: structure.MetaComment
     ) -> oem_v15.MetaComment:
 
+        meta_comment = None
         if metadata14_meta_comment is not None:
             meta_comment = oem_v15.MetaComment(
                 metadata_info=metadata14_meta_comment.metadata_info,
@@ -188,8 +240,6 @@ class Metadata14To15Translation(Converter):
                 null=self.create_meta_comment_null(),
                 todo=self.create_meta_comment_todo(),
             )
-        else:
-            meta_comment = None
 
         return meta_comment
 
@@ -202,8 +252,8 @@ class Metadata14To15Translation(Converter):
                     name=field.name,
                     description=field.description,
                     field_type=field.type,
-                    is_about=[self.create_is_about(oem_v15.IsAbout)],
-                    value_reference=[
+                    isAbout=[self.create_is_about(oem_v15.IsAbout)],
+                    valueReference=[
                         self.create_value_reference(oem_v15.ValueReference)
                     ],
                     unit=field.unit,
@@ -217,8 +267,9 @@ class Metadata14To15Translation(Converter):
 
     def convert_ressource(self, metadata14_ressources: list):
         ressource: oem_v15.Resource
+        ressources = []
         for ressource in metadata14_ressources:
-            ressource = oem_v15.Resource(
+            single_ressource = oem_v15.Resource(
                 name=ressource.name,
                 path=ressource.path,
                 profile=ressource.profile,
@@ -231,7 +282,9 @@ class Metadata14To15Translation(Converter):
                 ),
                 dialect=ressource.dialect,
             )
-            return ressource
+            ressources.append(single_ressource)
+
+        return ressources
 
     def build_metadata15(self, metadata: structure.OEPMetadata):
         converted_metadata = oem_v15.OEPMetadata(
@@ -253,7 +306,7 @@ class Metadata14To15Translation(Converter):
             sources=metadata.sources,
             terms_of_use=metadata.license,
             contributions=metadata.contributions,
-            resources=[self.convert_ressource(metadata.resources)],
+            resources=self.convert_ressource(metadata.resources),
             databus_identifier=self.create_oeo_id(),  # NOTE add value from user input??
             databus_context=self.create_oeo_context(),  # NOTE add value from user input??
             review=metadata.review,
@@ -298,6 +351,6 @@ if __name__ == "__main__":
 
     # Run conversion with test data
     run_conversion(
-        to_metadata="1_test_scripts/metadata/conversion_out_oem151.json",
+        to_metadata="1_test_results/metadata/conversion_out_oem151.json",
         from_metadata="tests/data/metadata_v14.json",
     )
