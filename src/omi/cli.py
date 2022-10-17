@@ -52,7 +52,7 @@ def translate(f, t, o, file_path):
 @click.option(
     "-o",
     default=None,
-    help="Output file. Will be a a JSON conforming to the oemetadata v1.5 spec",
+    help="Output file. Will be a a JSON conforming to the oemetadata v1.5 spec.",
 )
 def convert(o, i):
     conversion.run_conversion(o, i)

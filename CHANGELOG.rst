@@ -9,6 +9,9 @@ current (2022-XX-XX)
 * Add conversion option to OMIs CLI application
 * Add conversion additional script that converts oemetadata from v1.4 to v1.5 without using OMI. thanks to @chrwm
 
+* Fix but with oeo related isAbout and valueReference fields (PR#65)
+* Introduce github actions: Add automation worfklows for pypi publish for test and official (PR#67)
+* Introduce new directory and provide some use cases and example implementation for omi usage and improve general code quality (PR#61)
 
 0.0.7 (2022-06-02)
 ------------------
