@@ -81,13 +81,20 @@ https://omi.readthedocs.io/
 Usage
 =====
 
+**Parse, Compile, Render, Convert and Validate**
+Omi can read(parse), compile, Render(json compilant), convert(convert metadata from v1.4 to v1.5 structure) and validate - a json 
+file or object that is compliant with the oemetadata spec. This is usefull to do various operations that help to integrate with - as 
+well as in interact with the oemetadata. Some parts of this tool might still be volatile but the code quality is conventionsly improved 
+as this module is a core component of the oeplatfroms metadata integration system.
+
+Check if omi is able to read a oemetadata file (for version 1.4 and 1.5)
 CLI - oemetadata version 1.5::
 
-    omi translate -f oep-v1.5
+    omi translate -f oep-v1.5 examples/data/metadata_v15.json
 
 CLI - oemetadata version 1.4::
 
-    omi translate -f oep-v1.4 -t oep-v1.4
+    omi translate -f oep-v1.4 -t oep-v1.4 examples/data/metadata_v14.json
 
 omi is able to read a JSON file and parse it into one of the internal Python structures (depending on the oemetadata version). 
 The OEPMetadata Python object can then be compiled and converted back to JSON. You can manipulate a successfully parsed 
@@ -100,9 +107,21 @@ Module usage::
     dialect1_5 = OEP_V_1_5_Dialect()
     parsed = dialect1_5.parse(input)
     print(parsed)
-    parsed.identifier = "anotehr_unique_id"
+    parsed.identifier = "another_unique_id"
     compiled = dialect1_5.compile(parsed)
     print(compiled)
+
+
+**Conversion**
+
+To ease the conversion of oemetadata from the outdated version 1.4 to the latest version, we provide
+conversion functionality. The following example shows how to convert the oemetadata from v1.4 to v1.5
+by using a CLI command.
+
+CLI - oemetadata conversion from v1.4 to v1.5::
+
+    omi convert -i {input/path} -o {output/path} 
+
 
 Development
 ===========

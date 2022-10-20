@@ -1,15 +1,16 @@
 import json
 from collections import OrderedDict
+from datetime import datetime
 
 from omi import structure
-from omi.oem_structures import oem_v15
 from omi.dialects.base.compiler import Compiler
+from omi.oem_structures import oem_v15
 
 
 class JSONCompiler(Compiler):
     __METADATA_VERSION = "OEP-1.4.0"
 
-    def _compile_date(self, date, format):
+    def _compile_date(self, date: datetime, format):
         if date:
             return date.strftime(format)
         else:
@@ -213,12 +214,12 @@ class JSONCompiler(Compiler):
             ("spatial", metadata.spatial),
             ("temporal", metadata.temporal),
             ("review", metadata.review),
-            ("_comment", metadata.comment),
             ("language", metadata.languages),
             ("sources", metadata.sources),
             ("licenses", metadata.license),
             ("contributors", metadata.contributions),
             ("resources", metadata.resources),
+            ("_comment", metadata.comment),
             metaMetadata=self._construct_dict(
                 ("metadataVersion", self.__METADATA_VERSION),
                 metadataLicense=self._construct_dict(
@@ -302,16 +303,16 @@ class JSONCompilerOEM15(JSONCompiler):
             ("timeseries", temporal.timeseries_collection),
         )
 
-    def visit_is_about(self, is_about: oem_v15.IsAbout, *args, **kwargs):
-        return self._construct_dict(("name", is_about.name), ("path", is_about.path))
+    def visit_isAbout(self, isAbout: oem_v15.IsAbout, *args, **kwargs):
+        return self._construct_dict(("name", isAbout.name), ("path", isAbout.path))
 
-    def visit_value_reference(
-        self, value_reference: oem_v15.ValueReference, *args, **kwargs
+    def visit_valueReference(
+        self, valueReference: oem_v15.ValueReference, *args, **kwargs
     ):
         return self._construct_dict(
-            ("value", value_reference.value),
-            ("name", value_reference.name),
-            ("path", value_reference.path),
+            ("value", valueReference.value),
+            ("name", valueReference.name),
+            ("path", valueReference.path),
         )
 
     def visit_field(self, field: oem_v15.Field, *args, **kwargs):
@@ -319,8 +320,8 @@ class JSONCompilerOEM15(JSONCompiler):
             ("name", field.name),
             ("description", field.description),
             ("type", field.type),
-            ("is_about", field.is_about),
-            ("value_reference", field.value_reference),
+            ("isAbout", field.isAbout),
+            ("valueReference", field.valueReference),
             ("unit", field.unit),
         )
 
@@ -345,6 +346,7 @@ class JSONCompilerOEM15(JSONCompiler):
             ("title", metadata.title),
             ("id", metadata.identifier),
             ("description", metadata.description),
+            ("language", metadata.languages),
             ("subject", metadata.subject),
             ("keywords", metadata.keywords),
             ("publicationDate", publication_date),
@@ -352,8 +354,6 @@ class JSONCompilerOEM15(JSONCompiler):
             ("spatial", metadata.spatial),
             ("temporal", metadata.temporal),
             ("review", metadata.review),
-            ("_comment", metadata.comment),
-            ("language", metadata.languages),
             ("sources", metadata.sources),
             ("licenses", metadata.license),
             ("contributors", metadata.contributions),
@@ -367,5 +367,15 @@ class JSONCompilerOEM15(JSONCompiler):
                     title="Creative Commons Zero v1.0 Universal",
                     path="https://creativecommons.org/publicdomain/zero/1.0/",
                 ),
+            ),
+            _comment=self._construct_dict( 
+                metadata=metadata.comment.metadata_info,
+                dates=metadata.comment.dates,
+                units=metadata.comment.units,
+                languages=metadata.comment.languages,
+                licenses=metadata.comment.licenses,
+                review=metadata.comment.review,
+                null=metadata.comment.null,
+                todo=metadata.comment.todo,
             ),
         )

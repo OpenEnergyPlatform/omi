@@ -15,6 +15,7 @@ be able to validate multiple OEMetadata versions.
 from datetime import datetime
 from enum import Enum
 from typing import Iterable
+
 from omi.structure import Compilable
 
 
@@ -167,7 +168,7 @@ class Contribution(Compilable):
 
 
 class IsAbout(Compilable):
-    __compiler_name__ = "is_about"
+    __compiler_name__ = "isAbout"
 
     def __init__(self, name: str = None, path: str = None):
         self.name = name
@@ -175,7 +176,7 @@ class IsAbout(Compilable):
 
 
 class ValueReference(Compilable):
-    __compiler_name__ = "value_reference"
+    __compiler_name__ = "valueReference"
 
     def __init__(self, value: str = None, name: str = None, path: str = None):
         self.value = value
@@ -191,16 +192,16 @@ class Field(Compilable):
         name: str = None,
         description: str = None,
         field_type: str = None,
-        is_about: Iterable[IsAbout] = None,
-        value_reference: Iterable[ValueReference] = None,
+        isAbout: Iterable[IsAbout] = None,
+        valueReference: Iterable[ValueReference] = None,
         unit: str = None,
         resource: "Resource" = None,
     ):
         self.name = name
         self.description = description
         self.type = field_type
-        self.is_about = is_about
-        self.value_reference = value_reference
+        self.isAbout = isAbout
+        self.valueReference = valueReference
         self.unit = unit
         self.resource = resource
 

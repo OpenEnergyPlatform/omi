@@ -30,13 +30,14 @@
         "homepage": "https://reiner-lemoine-institut.de/lod-geoss/",
         "documentation": "https://openenergy-platform.org/tutorials/jupyter/OEMetadata/",
         "sourceCode": "https://github.com/OpenEnergyPlatform/oemetadata/tree/master",
-        "contact": "https://github.com/Ludee",
+        "contact": "Ludee@email.de",
         "grantNo": "03EI1005",
         "fundingAgency": "Bundesministerium für Wirtschaft und Klimaschutz",
         "fundingAgencyLogo": "https://commons.wikimedia.org/wiki/File:BMWi_Logo_2021.svg#/media/File:BMWi_Logo_2021.svg",
         "publisherLogo": "https://reiner-lemoine-institut.de//wp-content/uploads/2015/09/rlilogo.png"
     },
     "spatial": {
+        "location": null,
         "extent": "europe",
         "resolution": "100 m"
     },
@@ -101,12 +102,14 @@
     "contributors": [
         {
             "title": "Ludee",
+            "email": null,
             "date": "2021-11-15",
             "object": "metadata",
             "comment": "Release metadata version OEP-1.5.0"
         },
         {
             "title": "Ludee",
+            "email": null,
             "date": "2022-02-15",
             "object": "metadata",
             "comment": "Release metadata version OEP-1.5.1"
@@ -125,12 +128,18 @@
                         "name": "id",
                         "description": "Unique identifier",
                         "type": "serial",
+                        "unit": null,
                         "isAbout": [
                             {
+                                "name": null,
+                                "path": null
                             }
                         ],
                         "valueReference": [
                             {
+                                "value": null,
+                                "name": null,
+                                "path": null
                             }
                         ]
                     },
@@ -138,6 +147,7 @@
                         "name": "name",
                         "description": "Example name",
                         "type": "text",
+                        "unit": null,
                         "isAbout": [
                             {
                                 "name": "written name",
@@ -146,6 +156,9 @@
                         ],
                         "valueReference": [
                             {
+                                "value": null,
+                                "name": null,
+                                "path": null
                             }
                         ]
                     },
@@ -153,6 +166,7 @@
                         "name": "type",
                         "description": "Type of wind farm",
                         "type": "text",
+                        "unit": null,
                         "isAbout": [
                             {
                                 "name": "wind farm",
@@ -161,12 +175,12 @@
                         ],
                         "valueReference": [
                             {
-                                "value": "onshore",
+                                "value": "onshore ",
                                 "name": "onshore wind farm",
                                 "path": "https://openenergy-platform.org/ontology/oeo/OEO_00000311"
                             },
                             {
-                                "value": "offshore",
+                                "value": "offshore ",
                                 "name": "offshore wind farm",
                                 "path": "https://openenergy-platform.org/ontology/oeo/OEO_00000308"
                             }
@@ -176,6 +190,7 @@
                         "name": "year",
                         "description": "Reference year",
                         "type": "integer",
+                        "unit": null,
                         "isAbout": [
                             {
                                 "name": "year",
@@ -184,6 +199,9 @@
                         ],
                         "valueReference": [
                             {
+                                "value": null,
+                                "name": null,
+                                "path": null
                             }
                         ]
                     },
@@ -200,6 +218,9 @@
                         ],
                         "valueReference": [
                             {
+                                "value": null,
+                                "name": null,
+                                "path": null
                             }
                         ]
                     },
@@ -207,6 +228,7 @@
                         "name": "geom",
                         "description": "Geometry",
                         "type": "geometry(Point, 4326)",
+                        "unit": null,
                         "isAbout": [
                             {
                                 "name": "spatial region",
@@ -215,6 +237,9 @@
                         ],
                         "valueReference": [
                             {
+                                "value": null,
+                                "name": null,
+                                "path": null
                             }
                         ]
                     }
@@ -237,6 +262,7 @@
                 ]
             },
             "dialect": {
+                "delimiter": null,
                 "decimalSeparator": "."
             }
         }
