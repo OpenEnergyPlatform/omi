@@ -16,7 +16,7 @@ class JSONCompiler(Compiler):
         else:
             return None
 
-    def _construct_dict(self, *args, omit_none=True, **kwargs):
+    def _construct_dict(self, *args, omit_none=False, **kwargs):
         """
         Accepts a list of arguments of shape (name: str, field: Compileable) and returns a dictionary that maps
         name -> self.visit(field). If `omit_none` is true, fields that are `None` are ignored.
@@ -368,7 +368,7 @@ class JSONCompilerOEM15(JSONCompiler):
                     path="https://creativecommons.org/publicdomain/zero/1.0/",
                 ),
             ),
-            _comment=self._construct_dict( 
+            _comment=self._construct_dict(
                 metadata=metadata.comment.metadata_info,
                 dates=metadata.comment.dates,
                 units=metadata.comment.units,
