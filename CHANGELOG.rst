@@ -5,6 +5,12 @@ Changelog
 current (2022-XX-XX)
 --------------------
 
+
+0.0.9 (2022-10-31)
+--------------------
+
+* Fix bug that is raised if the input oemetadata does not contain the key _comment (PR#74) 
+
 0.0.8 (2022-10-20)
 --------------------
 
