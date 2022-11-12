@@ -614,6 +614,16 @@ class JSONParser_1_5(JSONParser):
             **(parse_kwargs or {})
         )
 
+    def get_value_or_none(
+        self, element: dict, keys: list[str], get_return_default=None
+    ):
+        for key_name in keys:
+            _element = element.get(key_name, get_return_default)
+            if _element is None:
+                continue
+
+            return _element
+
     def parse_term_of_use(self, old_license: dict):
         return oem_v15.TermsOfUse(
             lic=oem_v15.License(
@@ -723,32 +733,101 @@ class JSONParser_1_5(JSONParser):
                 timeseries_collection=timeseries,
             )
 
+        def try_parse_sources_lincese_including_former_key_names(element: dict):
+            licenses_new = "licenses"
+            licenses_old = "license"
+
+            if isinstance(element.get(licenses_new), list):
+                return [self.parse_term_of_use(l) for l in element.get(licenses_new)]
+
+            if isinstance(element.get(licenses_old), str):
+                name = element.get(licenses_old)
+
+                # avoide empty structures like [{}]
+                if name is None:
+                    _result = []
+                else:
+                    _result = [oem_v15.License(identifier=name)]
+
+                return _result
+
+        def try_parse_source_including_former_key_names(key: dict):
+            # sources key name options - including key names pre oem v1.4
+            key_name_options = {
+                "title_equal": ["title", "name"],
+                "path_equal": ["path", "url"],
+                "licenses_equal": ["licenses", "license"],
+            }
+
+            source = oem_v15.Source(
+                title=self.get_value_or_none(
+                    element=key, keys=key_name_options.get("title_equal")
+                ),
+                description=key.get("description"),
+                path=self.get_value_or_none(
+                    element=key, keys=key_name_options.get("path_equal")
+                ),
+                licenses=try_parse_sources_lincese_including_former_key_names(
+                    element=key
+                ),
+            )
+
+            return source
+
         # filling the source section
-        old_sources = json_old.get("sources")
+        # expected to be a list but can also be a dict in old versions
+        old_sources: list = json_old.get("sources")
         if old_sources is None:
             sources = None
         else:
             sources = [
-                oem_v15.Source(
-                    title=old_source.get("title"),
-                    description=old_source.get("description"),
-                    path=old_source.get("path"),
-                    licenses=[
-                        self.parse_term_of_use(l)
-                        for l in old_source.get("licenses", [])
-                    ],
-                )
+                try_parse_source_including_former_key_names(key=old_source)
                 for old_source in old_sources
             ]
 
+        def parse_old_licenses_including_former_key_names(element: dict):
+            key_name_options = {
+                "licenses_equal": ["licenses", "license"],
+            }
+
+            return self.get_value_or_none(
+                element, key_name_options.get("licenses_equal")
+            )
+
+        def iterate_licence_influcding_former_structure(licences_element):
+            """
+            The lincences key was got a structural differnece in former oemetada versions.
+            In Version 1.3 the key was called lincense and was a singe object/dict, in the
+            current version this key is calles licences and is a list of objects/dicts.
+            Also the key names in the dicht are deviating.
+            """
+            if isinstance(licences_element, list):
+                _result = [
+                    self.parse_term_of_use(old_license) for old_license in old_licenses
+                ]
+
+            if isinstance(licences_element, dict):
+                _mapping_dromers_keys = {
+                    "name": licences_element.get("id"),
+                    "title": licences_element.get("name"),
+                    "path": licences_element.get("url"),
+                    "instruction": licences_element.get("instruction"),
+                    "attribution": licences_element.get("copyright"),
+                }
+
+                _result = [self.parse_term_of_use(old_license=_mapping_dromers_keys)]
+
+            return _result
+
         # filling the license section
-        old_licenses = json_old.get("licenses")
+        old_licenses = parse_old_licenses_including_former_key_names(element=json_old)
+        print(old_licenses)
         if old_licenses is None:
             licenses = None
         else:
-            licenses = [
-                self.parse_term_of_use(old_license) for old_license in old_licenses
-            ]
+            licenses = iterate_licence_influcding_former_structure(
+                licences_element=old_licenses
+            )
 
         # filling the contributers section
         old_contributors = json_old.get("contributors")
