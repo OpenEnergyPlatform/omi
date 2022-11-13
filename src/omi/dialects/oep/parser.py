@@ -807,7 +807,7 @@ class JSONParser_1_5(JSONParser):
                 ]
 
             if isinstance(licences_element, dict):
-                _mapping_dromers_keys = {
+                _mapping_former_keys = {
                     "name": licences_element.get("id"),
                     "title": licences_element.get("name"),
                     "path": licences_element.get("url"),
@@ -815,7 +815,7 @@ class JSONParser_1_5(JSONParser):
                     "attribution": licences_element.get("copyright"),
                 }
 
-                _result = [self.parse_term_of_use(old_license=_mapping_dromers_keys)]
+                _result = [self.parse_term_of_use(old_license=_mapping_former_keys)]
 
             return _result
 
