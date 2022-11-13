@@ -794,7 +794,7 @@ class JSONParser_1_5(JSONParser):
                 element, key_name_options.get("licenses_equal")
             )
 
-        def iterate_licence_including_former_structure(licences_element):
+        def parse_licence_including_former_structure(licences_element):
             """
             The lincences key was got a structural differnece in former oemetada versions.
             In Version 1.3 the key was called lincense and was a singe object/dict, in the
@@ -825,7 +825,7 @@ class JSONParser_1_5(JSONParser):
         if old_licenses is None:
             licenses = None
         else:
-            licenses = iterate_licence_including_former_structure(
+            licenses = parse_licence_including_former_structure(
                 licences_element=old_licenses
             )
 
