@@ -15,6 +15,7 @@ from omi.oem_structures import oem_v15
 
 from jsonschema import ValidationError, SchemaError
 from jsonschema import Draft7Validator, FormatChecker
+import jsonschema
 
 from enum import Enum
 
@@ -47,11 +48,22 @@ def create_report_json(error_data: list[dict], save_at: pathlib.Path = "reports/
         
         print(f"Created error report containing {len(error_data)} errors at: {save_at}{filename}")
 
+
+
 class JSONParser(Parser):
     # one_schema_was_valid = False
 
     def load_string(self, string: str, *args, **kwargs):
         return json.loads(string)
+
+    
+    def get_json_validator(schema: OEMETADATA_LATEST_SCHEMA):
+        with open(schema, "rb") as file:
+            schema = json.load(file)
+        jsonschema.Draft202012Validator.check_schema(schema)
+        validator = jsonschema.Draft202012Validator(schema=schema)
+        return validator
+
 
     def validate(
         self, jsn: dict, schemas: list[dict] = ALL_OEM_SCHEMAS
@@ -83,11 +95,10 @@ class JSONParser(Parser):
         # parameter or use the default (list of all available schemas).
         # Incase one wants to test multiple metadata with various versions.
         #############################
-        try:
-            isinstance(schemas, list)
-        except TypeError as e:
+
+        if not isinstance(schemas, list):
             logging.info("Schemas must be provides as list: [schmea1, schema2, ...]")
-            raise e("parameter 'schemas' must be of type list[dict].")
+            raise TypeError("parameter 'schemas' must be of type list[dict].")
         
         report = []
         for schema in schemas:
