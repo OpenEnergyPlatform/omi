@@ -58,7 +58,8 @@ class JSONParser(Parser):
     ):
         """
         Check whether the given dictionary adheres to the the json-schema
-        and oemetadata specification.
+        and oemetadata specification. If errors are found a jsonschema error 
+        report is created in directory reports/.
 
         Parameters
         ----------
@@ -71,7 +72,7 @@ class JSONParser(Parser):
         -------
           Nothing
         """
-        self.one_schema_was_valid = False
+
         # if all schemas are checked, continue until valid schema found
         # or use latest schema that faild
         # or detect schema version based on oemetadata metaMetadata[0].metadataVersion 
