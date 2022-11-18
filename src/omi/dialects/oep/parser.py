@@ -2,19 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import json
-import pathlib
 import logging
+import pathlib
 
-from dateutil.parser import parse as parse_date
-
-from omi import structure
-from omi.dialects.base.parser import Parser
-from omi.dialects.base.parser import ParserException
-from omi.oem_structures import oem_v15
-
-from jsonschema import ValidationError
 import jsonschema
-
+from dateutil.parser import parse as parse_date
+from jsonschema import ValidationError
 # oemetadata
 from metadata.latest.schema import OEMETADATA_LATEST_SCHEMA
 from metadata.v130.schema import OEMETADATA_V130_SCHEMA
@@ -22,6 +15,11 @@ from metadata.v140.schema import OEMETADATA_V140_SCHEMA
 from metadata.v141.schema import OEMETADATA_V141_SCHEMA
 from metadata.v150.schema import OEMETADATA_V150_SCHEMA
 from metadata.v151.schema import OEMETADATA_V151_SCHEMA
+
+from omi import structure
+from omi.dialects.base.parser import Parser
+from omi.dialects.base.parser import ParserException
+from omi.oem_structures import oem_v15
 
 ALL_OEM_SCHEMAS = [
     OEMETADATA_LATEST_SCHEMA,
