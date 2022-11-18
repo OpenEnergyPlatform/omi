@@ -15,6 +15,8 @@ from omi.dialects.base.parser import ParserException
 
 from metadata.latest.schema import OEMETADATA_LATEST_SCHEMA
 
+import json
+
 
 class ParserTest(unittest.TestCase):
     def test_parser_v1_3(self):
@@ -58,8 +60,8 @@ class ParserTest(unittest.TestCase):
         parser = JSONParser_1_5()
         _input_file = "tests/data/metadata_v15.json"
 
-        with open(_input_file, "rb", encoding='utf-8') as inp:
-            file = inp.read()
+        with open(_input_file, "r", encoding="utf-8") as f:
+            jsn = json.load(f)
 
         # file = parser.parse_from_file(_input_file)
-        parser.validate(file)
+        parser.validate(jsn)
