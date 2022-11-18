@@ -50,6 +50,8 @@ htmlcov
 .idea
 *.iml
 *.komodoproject
+/0_local_test
+/reports
 .vscode
 
 # Complexity
@@ -70,6 +72,7 @@ docs/_build
 .bootstrap
 .appveyor.token
 *.bak
+/1_env
 
 # Mypy Cache
 .mypy_cache/
