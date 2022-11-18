@@ -129,6 +129,7 @@ can be used to validate the user metadata. The dialect currently does not suppor
 validation. This will be updated soon.
 
 Module usage::
+    
     # You can import the JSONParser directly like this:
     import json
     from omi.dialects.oep.parser import JSONParser
