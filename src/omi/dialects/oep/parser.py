@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from base64 import encode
 import json
 import pathlib
 import logging
@@ -13,11 +12,8 @@ from omi.dialects.base.parser import Parser
 from omi.dialects.base.parser import ParserException
 from omi.oem_structures import oem_v15
 
-from jsonschema import ValidationError, SchemaError
-from jsonschema import Draft7Validator, FormatChecker
+from jsonschema import ValidationError
 import jsonschema
-
-from enum import Enum
 
 # oemetadata
 from metadata.latest.schema import OEMETADATA_LATEST_SCHEMA
