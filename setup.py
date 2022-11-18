@@ -24,7 +24,7 @@ def read(*names, **kwargs):
 
 setup(
     name="omi",
-    version="0.0.9",
+    version="0.1.0",
     license="AGPL-3.0",
     description="A library to process and translate open energy metadata.",
     long_description="%s\n%s"
@@ -70,7 +70,7 @@ setup(
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
     python_requires=">=3.5",
-    install_requires=["click", "rdfLib", "python-dateutil", "jsonschema", "oemetadata"], 
+    install_requires=["click", "rdfLib", "python-dateutil", "jsonschema", "oemetadata>=1.5.2"], 
     tests_require=["tox", "pytest"],
     extras_require={
         "dev": ["black", "isort", "pre-commit"]
