@@ -22,6 +22,7 @@ lib64
 venv*/
 pyvenv*/
 /0_env
+/1_env
 
 # Installer logs
 pip-log.txt
@@ -37,6 +38,7 @@ htmlcov
 
 # Test results and reports
 /1_test_results
+/0_local_test
 
 # Translations
 *.mo

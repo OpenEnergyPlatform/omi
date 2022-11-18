@@ -5,11 +5,20 @@ Changelog
 current (2022-XX-XX)
 --------------------
 
+
+0.0.9 (2022-10-31)
+--------------------
+
+* Fix bug that is raised if the input oemetadata does not contain the key _comment (PR#74) 
+
+0.0.8 (2022-10-20)
+--------------------
+
 * Add conversion to translate oemetadata from v1.4 to v1.5
 * Add conversion option to OMIs CLI application
 * Add conversion additional script that converts oemetadata from v1.4 to v1.5 without using OMI. thanks to @chrwm
 
-* Fix but with oeo related isAbout and valueReference fields (PR#65)
+* Fix oeo related isAbout and valueReference field names (PR#65)
 * Introduce github actions: Add automation worfklows for pypi publish for test and official (PR#67)
 * Introduce new directory and provide some use cases and example implementation for omi usage and improve general code quality (PR#61)
 * Reintroduce automated testing (CI) that icludes omi unit test (parser, compiler) and more (PR#69)
