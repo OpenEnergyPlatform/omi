@@ -4,7 +4,7 @@ Changelog
 
 current (2022-XX-XX)
 --------------------
-
+* Add validation and helper functionality - validation based on json schema and the oemetadata schema files that are published for each release (PR#63)
 
 0.0.9 (2022-10-31)
 --------------------
