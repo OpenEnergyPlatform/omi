@@ -25,13 +25,14 @@ from metadata.v130.schema import OEMETADATA_V130_SCHEMA
 from metadata.v140.schema import OEMETADATA_V140_SCHEMA
 from metadata.v141.schema import OEMETADATA_V141_SCHEMA
 from metadata.v150.schema import OEMETADATA_V150_SCHEMA
+from metadata.v151.schema import OEMETADATA_V151_SCHEMA
 
 ALL_OEM_SCHEMAS = [
     OEMETADATA_LATEST_SCHEMA,
-    OEMETADATA_V130_SCHEMA,
-    OEMETADATA_V140_SCHEMA,
-    OEMETADATA_V141_SCHEMA,
     OEMETADATA_V150_SCHEMA,
+    OEMETADATA_V141_SCHEMA,
+    OEMETADATA_V140_SCHEMA,
+    OEMETADATA_V130_SCHEMA,
 ]
 
 def parse_date_or_none(x, *args, **kwargs):
@@ -40,13 +41,20 @@ def parse_date_or_none(x, *args, **kwargs):
     else:
         return parse_date(x, *args, **kwargs)
 
+
 def create_report_json(error_data: list[dict], save_at: pathlib.Path = "reports/", filename: str = "report.json"):
-    if len(error_data) >= 1:
-        pathlib.Path(save_at).mkdir(parents=True, exist_ok=True)
-        with open(f"{save_at}{filename}", "w", encoding="utf-8") as fp:
-            json.dump(error_data, fp, indent=4, sort_keys=False)
+    # if len(error_data) >= 1:
+    pathlib.Path(save_at).mkdir(parents=True, exist_ok=True)
+    with open(f"{save_at}{filename}", "w", encoding="utf-8") as fp:
+        json.dump(error_data, fp, indent=4, sort_keys=False)
+    
+    print(f"Created error report containing {len(error_data)} errors at: {save_at}{filename}")
+    # else:
+    #     pathlib.Path(save_at).mkdir(parents=True, exist_ok=True)
+    #     with open(f"{save_at}{filename}", "w", encoding="utf-8") as fp:
+    #         json.dump(error_data, fp, indent=4, sort_keys=False)
         
-        print(f"Created error report containing {len(error_data)} errors at: {save_at}{filename}")
+    #     print(f"Created error report containing {len(error_data)} errors at: {save_at}{filename}")
 
 
 
@@ -56,79 +64,125 @@ class JSONParser(Parser):
     def load_string(self, string: str, *args, **kwargs):
         return json.loads(string)
 
-    
-    def get_json_validator(schema: OEMETADATA_LATEST_SCHEMA):
-        with open(schema, "rb") as file:
-            schema = json.load(file)
+
+    def get_json_validator(self, schema: OEMETADATA_LATEST_SCHEMA):
+        """
+        Get the jsonschema validator that matches the schema.
+        Also checks if the schmea is valid.
+
+        Args:
+            schema (OEMETADATA_LATEST_SCHEMA):
+
+        Returns:
+            validator: jsonschema.Draft202012Validator
+        """
         jsonschema.Draft202012Validator.check_schema(schema)
         validator = jsonschema.Draft202012Validator(schema=schema)
         return validator
 
 
+    def get_any_schema_valid(self, metadata: dict, schemas: list = ALL_OEM_SCHEMAS,):
+        """
+        Additional helper funtion - get any schema that is valid for the metadata.
+        Returns The first valid schema or None
+
+        Args:
+            schemas (list): _description_
+            metadata (dict): _description_
+
+        Returns:
+            _type_: _description_
+        """
+
+        valid_schemas = []
+        for schema in schemas:
+            if len(valid_schemas) <= 1:
+                continue
+            elif self.is_valid(inp=metadata, schema=schema):
+                valid_schemas.append(schema)
+        
+        if len(valid_schemas) >= 1:
+                valid_schemas= None
+        return valid_schemas
+    
+
+    def get_schema_by_metadata_version(self, metadata: dict):
+        oem_13 = ["1.3", "OEP-1.3"]
+        oem_14 = "OEP-1.4.0"
+        oem_141 = "OEP-1.4.1"
+        oem_15 = "OEP-1.5.0"
+        oem_151 = "OEP-1.5.1"
+
+        schema = None
+
+        if metadata.get("metadata_version"):
+            if metadata.get("metadata_version") in oem_13:
+                schema = OEMETADATA_V130_SCHEMA
+
+        if metadata.get("metaMetadata"):
+            if metadata.get("metaMetadata")["metadataVersion"] == oem_14:
+                schema = OEMETADATA_V140_SCHEMA
+            if metadata.get("metaMetadata")["metadataVersion"] == oem_141:
+                schema = OEMETADATA_V141_SCHEMA
+            if metadata.get("metaMetadata")["metadataVersion"] == oem_15:
+                schema = OEMETADATA_V150_SCHEMA
+            if metadata.get("metaMetadata")["metadataVersion"] == oem_151:
+                schema = OEMETADATA_V151_SCHEMA
+
+        # fallback to latest schema if metadata does not contian the exprected metadata version sting
+        if schema is None:
+            logging.info("Metadata does not contain the expected 'metaMetadata' or 'metadata_version' key. Fallback to latest schema.")
+            schema = OEMETADATA_LATEST_SCHEMA
+
+        
+        print(schema.get("$id"))
+        
+        return schema
+
+
     def validate(
-        self, jsn: dict, schemas: list[dict] = ALL_OEM_SCHEMAS
+        self, metadata: dict, schema: dict = None
     ):
         """
         Check whether the given dictionary adheres to the the json-schema
         and oemetadata specification. If errors are found a jsonschema error 
-        report is created in directory reports/.
+        report is created in directory 'reports/'.
 
         Parameters
         ----------
-        jsn
+        metadata
           The dictionary to validate
-        schema
+        schema: optional
           The jsonschema used for validation. 
-          Default is a list of all available verion specific schemas from oemetadata.
+          Default is None. 
         Returns
         -------
           Nothing
         """
 
-        # if all schemas are checked, continue until valid schema found
-        # or use latest schema that faild
-        # or detect schema version based on oemetadata metaMetadata[0].metadataVersion 
-        
-
-        #############################
-        # enable this function handle either a single schema passed as
-        # parameter or use the default (list of all available schemas).
-        # Incase one wants to test multiple metadata with various versions.
-        #############################
-
-        if not isinstance(schemas, list):
-            logging.info("Schemas must be provides as list: [schmea1, schema2, ...]")
-            raise TypeError("parameter 'schemas' must be of type list[dict].")
-        
         report = []
-        for schema in schemas:
-            # if not self.one_schema_was_valid:
-            # TODO: How to get the correct Validator based on the schema - dont like to use specific class
-            v = Draft7Validator(schema=schema, format_checker=FormatChecker()) 
-            v.check_schema
+        if not schema:
+            schema = self.get_schema_by_metadata_version(metadata=metadata)
+        validator = self.get_json_validator(schema)
         
-            for error in sorted(v.iter_errors(instance=jsn), key=str):
-                # https://python-jsonschema.readthedocs.io/en/stable/errors/#handling-validation-errors
-                error_dict = {
-                    "oemetadata schema version": schema.get("$id"),
-                    # "json path": error.json_path,
-                    "instance path": [i for i in error.absolute_path],
-                    "value that raised the error": error.instance,
-                    "error message": error.message,
-                    "schema_path": [i for i in error.schema_path],
-                }
-                report.append(error_dict)
-            # reset error collection if one schema was valid
-            # if sorted(v.iter_errors(instance=jsn), key=str) is None:
-            #     self.one_schema_was_valid = True
-            #     print(f"Valid with schema{schema.get('$id')}")
-            #     continue
+        for error in sorted(validator.iter_errors(instance=metadata), key=str):
+            # https://python-jsonschema.readthedocs.io/en/stable/errors/#handling-validation-errors
+            error_dict = {
+                "oemetadata schema version": schema.get("$id"),
+                "json path": error.absolute_path,
+                "instance path": [i for i in error.absolute_path],
+                "value that raised the error": error.instance,
+                "error message": error.message,
+                "schema_path": [i for i in error.schema_path],
+            }
+            report.append(error_dict)
 
         create_report_json(report)
        
 
-    def is_valid(self, inp: str or dict):
+    def is_valid(self, inp:dict, schema):
 
+        # 1 - valid JSON?
         if isinstance(inp, str):
             try:
                 jsn = json.loads(inp, encode="utf-8")
@@ -137,12 +191,14 @@ class JSONParser(Parser):
         else:
             jsn = inp
 
+        # 2 - valid OEMETADATA
         try:
-            self.validate(jsn)
+            validator = self.get_json_validator(schema)
+            validator.validate(jsn)
+            return True
         except ValidationError:
             return False
-        else:
-            return True
+            
 
 
 class JSONParser_1_3(JSONParser):
