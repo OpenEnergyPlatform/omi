@@ -127,9 +127,12 @@ CLI - oemetadata conversion from v1.4 to v1.5::
 The validation is based on `jsonschema`. We release a schema with each `oemetadata` release, that schema
 can be used to validate the user metadata. The dialect currently does not support direct access on to the
 validation. This will be updated soon.
+This will create a report.json containing information to debug possible errors. The parser.validate() takes
+two arguments the first one is the metadata and the second optional one is the schmea. By default (if no schema is passed)
+the validation will try to get the matching schema for the current metadata.
 
 Module usage::
-    
+
     # You can import the JSONParser directly like this:
     import json
     from omi.dialects.oep.parser import JSONParser
