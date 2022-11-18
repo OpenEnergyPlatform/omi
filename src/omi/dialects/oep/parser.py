@@ -31,6 +31,7 @@ ALL_OEM_SCHEMAS = [
     OEMETADATA_V130_SCHEMA,
 ]
 
+
 def parse_date_or_none(x, *args, **kwargs):
     if x is None:
         return None
@@ -38,20 +39,19 @@ def parse_date_or_none(x, *args, **kwargs):
         return parse_date(x, *args, **kwargs)
 
 
-def create_report_json(error_data: list[dict], save_at: pathlib.Path = "reports/", filename: str = "report.json"):
+def create_report_json(
+    error_data: list[dict],
+    save_at: pathlib.Path = "reports/",
+    filename: str = "report.json",
+):
     # if len(error_data) >= 1:
     pathlib.Path(save_at).mkdir(parents=True, exist_ok=True)
     with open(f"{save_at}{filename}", "w", encoding="utf-8") as fp:
         json.dump(error_data, fp, indent=4, sort_keys=False)
-    
-    print(f"Created error report containing {len(error_data)} errors at: {save_at}{filename}")
-    # else:
-    #     pathlib.Path(save_at).mkdir(parents=True, exist_ok=True)
-    #     with open(f"{save_at}{filename}", "w", encoding="utf-8") as fp:
-    #         json.dump(error_data, fp, indent=4, sort_keys=False)
-        
-    #     print(f"Created error report containing {len(error_data)} errors at: {save_at}{filename}")
 
+    print(
+        f"Created error report containing {len(error_data)} errors at: {save_at}{filename}"
+    )
 
 
 class JSONParser(Parser):
@@ -59,7 +59,6 @@ class JSONParser(Parser):
 
     def load_string(self, string: str, *args, **kwargs):
         return json.loads(string)
-
 
     def get_json_validator(self, schema: OEMETADATA_LATEST_SCHEMA):
         """
@@ -76,8 +75,11 @@ class JSONParser(Parser):
         validator = jsonschema.Draft202012Validator(schema=schema)
         return validator
 
-
-    def get_any_schema_valid(self, metadata: dict, schemas: list = ALL_OEM_SCHEMAS,):
+    def get_any_schema_valid(
+        self,
+        metadata: dict,
+        schemas: list = ALL_OEM_SCHEMAS,
+    ):
         """
         Additional helper funtion - get any schema that is valid for the metadata.
         Returns The first valid schema or None
@@ -96,11 +98,10 @@ class JSONParser(Parser):
                 continue
             elif self.is_valid(inp=metadata, schema=schema):
                 valid_schemas.append(schema)
-        
+
         if len(valid_schemas) >= 1:
-                valid_schemas= None
+            valid_schemas = None
         return valid_schemas
-    
 
     def get_schema_by_metadata_version(self, metadata: dict):
         oem_13 = ["1.3", "OEP-1.3"]
@@ -127,21 +128,19 @@ class JSONParser(Parser):
 
         # fallback to latest schema if metadata does not contian the exprected metadata version sting
         if schema is None:
-            logging.info("Metadata does not contain the expected 'metaMetadata' or 'metadata_version' key. Fallback to latest schema.")
+            logging.info(
+                "Metadata does not contain the expected 'metaMetadata' or 'metadata_version' key. Fallback to latest schema."
+            )
             schema = OEMETADATA_LATEST_SCHEMA
 
-        
         print(schema.get("$id"))
-        
+
         return schema
 
-
-    def validate(
-        self, metadata: dict, schema: dict = None
-    ):
+    def validate(self, metadata: dict, schema: dict = None):
         """
         Check whether the given dictionary adheres to the the json-schema
-        and oemetadata specification. If errors are found a jsonschema error 
+        and oemetadata specification. If errors are found a jsonschema error
         report is created in directory 'reports/'.
 
         Parameters
@@ -149,8 +148,8 @@ class JSONParser(Parser):
         metadata
           The dictionary to validate
         schema: optional
-          The jsonschema used for validation. 
-          Default is None. 
+          The jsonschema used for validation.
+          Default is None.
         Returns
         -------
           Nothing
@@ -160,7 +159,7 @@ class JSONParser(Parser):
         if not schema:
             schema = self.get_schema_by_metadata_version(metadata=metadata)
         validator = self.get_json_validator(schema)
-        
+
         for error in sorted(validator.iter_errors(instance=metadata), key=str):
             # https://python-jsonschema.readthedocs.io/en/stable/errors/#handling-validation-errors
             error_dict = {
@@ -174,9 +173,8 @@ class JSONParser(Parser):
             report.append(error_dict)
 
         create_report_json(report)
-       
 
-    def is_valid(self, inp:dict, schema):
+    def is_valid(self, inp: dict, schema):
 
         # 1 - valid JSON?
         if isinstance(inp, str):
@@ -194,7 +192,6 @@ class JSONParser(Parser):
             return True
         except ValidationError:
             return False
-            
 
 
 class JSONParser_1_3(JSONParser):
@@ -422,7 +419,7 @@ class JSONParser_1_4(JSONParser):
                 )
             temporal = structure.Temporal(
                 reference_date=parse_date_or_none(inp_temporal.get("referenceDate")),
-                **timeseries
+                **timeseries,
             )
 
         # filling the source section
@@ -733,7 +730,6 @@ class JSONParser_1_4(JSONParser):
 
 
 class JSONParser_1_5(JSONParser):
-
     def parse_from_string(
         self,
         string: str,
@@ -756,7 +752,7 @@ class JSONParser_1_5(JSONParser):
         return self.parse(
             self.load_string(string, *(load_args or []), **(load_kwargs or {})),
             *(parse_args or []),
-            **(parse_kwargs or {})
+            **(parse_kwargs or {}),
         )
 
     def parse_term_of_use(self, old_license: dict):
