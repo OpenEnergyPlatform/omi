@@ -142,6 +142,10 @@ Module usage::
 
     parser = JSONParser()
     parser.validate(metadata)
+    
+    # check if your metadata is valid for the given schmea 
+    schema = ... get a schema or import form oemetadata module
+    parser.is_valid(metadata, schema)
 
 
 Development
