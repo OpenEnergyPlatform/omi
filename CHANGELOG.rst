@@ -4,6 +4,7 @@ Changelog
 
 current (2022-XX-XX)
 --------------------
+* update parser for v15 to handle former v13 key names (PR#77)
 
 0.1.0 (2022-11-18)
 --------------------
