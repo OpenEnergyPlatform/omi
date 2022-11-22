@@ -617,6 +617,19 @@ class JSONParser_1_5(JSONParser):
     def get_value_or_none(
         self, element: dict, keys: list[str], get_return_default=None
     ):
+        """
+        Get the value for a key in a dict - but try multiple key names, in
+        case they have changed in eralryer oemetadata versions.
+
+        Args:
+            element (dict): dict element of the input metadata
+            keys (list[str]): list of key name options
+            get_return_default (_type_, optional): A default return vlaue if key is not present. Defaults to None.
+
+        Returns:
+            any: By default it is the value at the key or None - but can be any as the value is not strict.
+        """
+
         for key_name in keys:
             _element = element.get(key_name, get_return_default)
             if _element is None:
@@ -635,8 +648,13 @@ class JSONParser_1_5(JSONParser):
             attribution=old_license.get("attribution"),
         )
 
-    def parse_timeseries(self, old_timeseries: dict):
-        pass
+    def ensure_json_keys_lowercase(json_old: dict):
+        element = json_old  # element must be part of json_old not hole json_old
+        if isinstance(element, dict):
+            pass
+
+        if isinstance(element, list):
+            pass
 
     def parse(self, json_old: dict, *args, **kwargs):
         """_summary_
@@ -751,7 +769,7 @@ class JSONParser_1_5(JSONParser):
 
                 return _result
 
-        def try_parse_source_including_former_key_names(key: dict):
+        def parse_source_including_former_key_names(key: dict):
             # sources key name options - including key names pre oem v1.4
             key_name_options = {
                 "title_equal": ["title", "name"],
@@ -781,11 +799,15 @@ class JSONParser_1_5(JSONParser):
             sources = None
         else:
             sources = [
-                try_parse_source_including_former_key_names(key=old_source)
+                parse_source_including_former_key_names(key=old_source)
                 for old_source in old_sources
             ]
 
         def parse_old_licenses_including_former_key_names(element: dict):
+            """
+            Parse license from imput data - also handle key name variations from
+            early oemetadata versions.
+            """
             key_name_options = {
                 "licenses_equal": ["licenses", "license"],
             }
@@ -837,7 +859,9 @@ class JSONParser_1_5(JSONParser):
             contributors = [
                 oem_v15.Contribution(
                     contributor=oem_v15.Person(
-                        name=old_contributor.get("title"),
+                        name=self.get_value_or_none(
+                            element=old_contributor, keys=["title", "name"]
+                        ),
                         email=old_contributor.get("email"),
                     ),
                     date=parse_date_or_none(old_contributor.get("date")),
