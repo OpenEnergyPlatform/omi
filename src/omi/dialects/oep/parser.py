@@ -8,6 +8,7 @@ import pathlib
 import jsonschema
 from dateutil.parser import parse as parse_date
 from jsonschema import ValidationError
+
 # oemetadata
 from metadata.latest.schema import OEMETADATA_LATEST_SCHEMA
 from metadata.v130.schema import OEMETADATA_V130_SCHEMA
@@ -904,7 +905,8 @@ class JSONParser_1_5(JSONParser):
                 if name is None:
                     _result = []
                 else:
-                    _result = [oem_v15.License(identifier=name)]
+                    from_13_license = oem_v15.License(name=name)
+                    _result = [oem_v15.TermsOfUse(lic=from_13_license)]
 
                 return _result
 
@@ -924,9 +926,7 @@ class JSONParser_1_5(JSONParser):
                 path=self.get_any_value_not_none(
                     element=key, keys=key_name_options.get("path_equal")
                 ),
-                licenses=parse_sources_lincese_including_former_key_names(
-                    element=key
-                ),
+                licenses=parse_sources_lincese_including_former_key_names(element=key),
             )
 
             return source
@@ -1106,6 +1106,7 @@ class JSONParser_1_5(JSONParser):
                         primary_key=resource["schema"].get("primaryKey"),
                         foreign_keys=foreign_keys,
                     )
+                
                 old_dialect = resource.get("dialect")
                 if old_dialect is None:
                     dialect = None
@@ -1171,101 +1172,6 @@ class JSONParser_1_5(JSONParser):
             comment=comment,
         )
         return metadata
-
-    def assert_1_5_metastring(self, json_string: str):
-        """Checks string conformity to OEP Metadata Standard Version 1.5
-
-        Parameters
-        ----------
-        json_string: str
-            The JSON string to be checked.
-
-        Returns
-        -------
-        bool
-            True if valid, Raises Exception otherwise.
-        """
-
-        keys = [
-            "title",
-            "description",
-            "language",
-            "spatial",
-            "temporal",
-            "sources",
-            "license",
-            "contributions",
-            "resources",
-            "metadata_version",
-        ]
-        subkeys_spatial = ["location", "extent", "resolution"]
-        subkeys_timeseries = [
-            "start",
-            "end",
-            "resolution",
-            "alignment",
-            "aggregationType",
-        ]
-        subkeys_temporal = ["reference_date", "timeseries"]
-        subkeys_license = ["id", "name", "version", "url", "instruction", "copyright"]
-        object_subkeys = {
-            "spatial": subkeys_spatial,
-            "temporal": subkeys_temporal,
-            "license": subkeys_license,
-        }
-        subkeys_sources = [
-            "name",
-            "description",
-            "url",
-            "license",
-            "copyright",
-        ]  # in list of objects
-        subkeys_contributors = [
-            "name",
-            "email",
-            "date",
-            "comment",
-        ]  # in list of objects
-        subkeys_resources = ["name", "format", "fields"]  # in list of objects
-        list_subkeys = {
-            "sources": subkeys_sources,
-            "contributions": subkeys_contributors,
-            "resources": subkeys_resources,
-        }
-        subkeys_resources_fields = ["name", "description", "unit"]  # in list of objects
-
-        json_dict = json.loads(json_string)
-        try:
-            # check if all top level keys are present
-            for i in keys:
-                if not i in json_dict.keys():
-                    raise Exception(
-                        'The String did not contain the key "{0}"'.format(i)
-                    )
-            # check for all keys in second level objects
-            for key in object_subkeys:
-                for subkey in object_subkeys[key]:
-                    if not subkey in json_dict[key]:
-                        raise Exception(
-                            'The "{0}" object did not contain a "{1}" key'.format(
-                                key, subkey
-                            )
-                        )
-            # check for all objects in lists if they contain all required keys
-            for key in list_subkeys:
-                for list_element in json_dict[key]:
-                    for subkey in list_subkeys[key]:
-                        if not subkey in list_element:
-                            raise Exception(
-                                'An object in "{0}" is missing a "{1}" key'.format(
-                                    key, subkey
-                                )
-                            )
-        except Exception as error:
-            print(
-                "The input String does not conform to metadatastring version 1.3 standard"
-            )
-            print(error)
 
     # TODO make function check all subkeys as well
     def has_rogue_keys(self, json_string):
