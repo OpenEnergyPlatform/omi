@@ -97,16 +97,16 @@ class License(Compilable):
         self,
         name: str = None,
         title: str = None,
-        instruction: str = None,
         path: str = None,
-        attribution: str = None,
+        # instruction: str = None,
+        # attribution: str = None,
         # other_references: Iterable[str] = None,
     ):
         self.name = name
         self.title = title
         self.path = path
-        self.instruction = instruction
-        self.attribution = attribution
+        # self.instruction = instruction
+        # self.attribution = attribution
         # self.other_references = other_references
 
     @staticmethod
@@ -122,9 +122,10 @@ class TermsOfUse(Compilable):
     def __init__(
         self, instruction: str = None, attribution: str = None, lic: License = None
     ):
+        self.license = lic
         self.instruction = instruction
         self.attribution = attribution
-        self.license = lic
+        
 
 
 class Source(Compilable):
