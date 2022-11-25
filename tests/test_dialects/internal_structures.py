@@ -359,6 +359,19 @@ metadata_v_1_4 = s.OEPMetadata(
 )
 
 ############################################### oem v151 #########################################################
+cc010_v15 = oem_v15.License(
+    name="CC0-1.0",
+    title="Creative Commons Zero v1.0 Universal",
+    path="https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+)
+
+odbl10_v15 = oem_v15.License(
+    name="ODbL-1.0",
+    title="Open Data Commons Open Database License 1.0",
+    path="https://opendatacommons.org/licenses/odbl/1.0/",
+)
+
+
 metadata_v_1_5 = oem_v15.OEPMetadata(
     name="oep_metadata_table_example_v151",
     title="Example title for metadata example - Version 1.5.1",
@@ -446,7 +459,7 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
             path="https://github.com/OpenEnergyPlatform",
             licenses=[
                 oem_v15.TermsOfUse(
-                    lic=cc010,
+                    lic=cc010_v15,
                     instruction="You are free: To Share, To Create, To Adapt",
                     attribution="© Reiner Lemoine Institut",
                 )
@@ -458,7 +471,7 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
             path="https://www.openstreetmap.org/",
             licenses=[
                 oem_v15.TermsOfUse(
-                    lic=odbl10,
+                    lic=odbl10_v15,
                     instruction="You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
                     attribution="© OpenStreetMap contributors",
                 )
@@ -467,7 +480,7 @@ metadata_v_1_5 = oem_v15.OEPMetadata(
     ],
     terms_of_use=[
         oem_v15.TermsOfUse(
-            lic=odbl10,
+            lic=odbl10_v15,
             instruction="You are free: To Share, To Create, To Adapt; As long as you: Attribute, Share-Alike, Keep open!",
             attribution="© Reiner Lemoine Institut © OpenStreetMap contributors",
         )
