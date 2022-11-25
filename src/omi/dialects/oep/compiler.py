@@ -241,7 +241,7 @@ class JSONCompilerOEM15(JSONCompiler):
                                 the metadata structure.
     """
 
-    __METADATA_VERSION = "OEP-1.5.1"
+    __METADATA_VERSION = "OEP-1.5.2"
 
     def visit(self, obj, *args, **kwargs):
         """
