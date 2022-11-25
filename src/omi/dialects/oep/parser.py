@@ -753,7 +753,7 @@ class JSONParser_1_5(JSONParser):
             **(parse_kwargs or {}),
         )
 
-    def get_value_or_none(
+    def get_any_value_not_none(
         self, element: dict, keys: list[str], get_return_default=None
     ):
         """
@@ -779,8 +779,8 @@ class JSONParser_1_5(JSONParser):
     def parse_term_of_use(self, old_license: dict):
         return oem_v15.TermsOfUse(
             lic=oem_v15.License(
-                identifier=old_license.get("name"),
-                name=old_license.get("title"),
+                name=old_license.get("name"),
+                title=old_license.get("title"),
                 path=old_license.get("path"),
             ),
             instruction=old_license.get("instruction"),
@@ -890,7 +890,7 @@ class JSONParser_1_5(JSONParser):
                 timeseries_collection=timeseries,
             )
 
-        def try_parse_sources_lincese_including_former_key_names(element: dict):
+        def parse_sources_lincese_including_former_key_names(element: dict):
             licenses_new = "licenses"
             licenses_old = "license"
 
@@ -917,14 +917,14 @@ class JSONParser_1_5(JSONParser):
             }
 
             source = oem_v15.Source(
-                title=self.get_value_or_none(
+                title=self.get_any_value_not_none(
                     element=key, keys=key_name_options.get("title_equal")
                 ),
                 description=key.get("description"),
-                path=self.get_value_or_none(
+                path=self.get_any_value_not_none(
                     element=key, keys=key_name_options.get("path_equal")
                 ),
-                licenses=try_parse_sources_lincese_including_former_key_names(
+                licenses=parse_sources_lincese_including_former_key_names(
                     element=key
                 ),
             )
@@ -951,7 +951,7 @@ class JSONParser_1_5(JSONParser):
                 "licenses_equal": ["licenses", "license"],
             }
 
-            return self.get_value_or_none(
+            return self.get_any_value_not_none(
                 element, key_name_options.get("licenses_equal")
             )
 
@@ -998,7 +998,7 @@ class JSONParser_1_5(JSONParser):
             contributors = [
                 oem_v15.Contribution(
                     contributor=oem_v15.Person(
-                        name=self.get_value_or_none(
+                        name=self.get_any_value_not_none(
                             element=old_contributor, keys=["title", "name"]
                         ),
                         email=old_contributor.get("email"),
@@ -1017,7 +1017,7 @@ class JSONParser_1_5(JSONParser):
         # Code added to raise exception when resource is empty
         else:
             if len(old_resources) == 0:
-                raise ParserException("Resource field doesn't have any child entity")
+                raise ParserException("Resources field is empty!")
             resources = []
             for resource in old_resources:
                 old_schema = resource.get("schema")
@@ -1028,6 +1028,7 @@ class JSONParser_1_5(JSONParser):
                     old_fields = old_schema.get("fields")
                     if old_fields is None:
                         fields = None
+                        logging.info(f"Parse fields from: {old_fields}")
                     else:
                         fields = []
 
