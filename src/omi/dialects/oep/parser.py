@@ -132,9 +132,6 @@ class JSONParser(Parser):
                 "Metadata does not contain the expected 'metaMetadata' or 'metadata_version' key. Fallback to latest schema."
             )
             schema = OEMETADATA_LATEST_SCHEMA
-
-        print(schema.get("$id"))
-
         return schema
 
     def validate(self, metadata: dict, schema: dict = None):
