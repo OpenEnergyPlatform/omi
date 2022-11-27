@@ -147,7 +147,7 @@ Module usage::
     schema = ... get a schema or import form oemetadata module
     parser.is_valid(metadata, schema)
 
-**Additional Fields - not related to the OEMetadata speification**
+**Additional Fields - not related to the OEMetadata specification**
 
 Sometimes it is necessary to store additional key-value pairs along with the keys included in the OEMetadata specification.
 OMI's compiler methods are capable of handling additional arguments or key-value arguments, but this must be 
