@@ -151,7 +151,12 @@ Module usage::
 
 Sometimes it is necessary to store additional key-value pairs along with the keys included in the OEMetadata specification.
 OMI's compiler methods are capable of handling additional arguments or key-value arguments, but this must be 
-be explicitly specified. To add additional key-value pairs, you must: 
+be explicitly specified. 
+
+To add additional key-value pairs, you must: 
+
+    NOTE: If you save the renderer return value in a json file and try to parse the file, the extra field is not included.
+          You must read the json file using Python and then add the extra field back oemetadata object as shown below. 
 
 1 Parse the oemetadata from json file / variable into omis internal structure::
 
