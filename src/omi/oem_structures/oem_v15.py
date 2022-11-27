@@ -96,18 +96,18 @@ class License(Compilable):
     def __init__(
         self,
         name: str = None,
-        identifier: str = None,
-        text: str = None,
+        title: str = None,
         path: str = None,
-        other_references: Iterable[str] = None,
-        comment: str = None,
+        # instruction: str = None,
+        # attribution: str = None,
+        # other_references: Iterable[str] = None,
     ):
         self.name = name
+        self.title = title
         self.path = path
-        self.identifier = identifier
-        self.other_references = other_references
-        self.text = text
-        self.comment = comment
+        # self.instruction = instruction
+        # self.attribution = attribution
+        # self.other_references = other_references
 
     @staticmethod
     def instance_name_from_id(identifier: str):
@@ -122,9 +122,10 @@ class TermsOfUse(Compilable):
     def __init__(
         self, instruction: str = None, attribution: str = None, lic: License = None
     ):
+        self.license = lic
         self.instruction = instruction
         self.attribution = attribution
-        self.license = lic
+        
 
 
 class Source(Compilable):
