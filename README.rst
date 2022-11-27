@@ -153,18 +153,18 @@ Sometimes it is necessary to store additional key-value pairs along with the key
 OMI's compiler methods are capable of handling additional arguments or key-value arguments, but this must be 
 be explicitly specified. To add additional key-value pairs, you must: 
 
-1 Parse the oemetadata json file into omis internal structure::
+1 Parse the oemetadata from json file / variable into omis internal structure::
 
     from omi.dialects.oep.dialect import OEP_V_1_5_Dialect
 
     min_inp = '{"id":"unique_id"} # or read from json file
     minimal_oemetadata15 = OEP_V_1_5_Dialect.parse(min_inp)
 
-2 Now you can get(from json file)/define the additional key-value data::
+2 Now you can get(from json file)/define the additional data::
 
     data = "test"
 
-3 And add it to the OEMetadata object that was parsed in step 1::
+3 And add it to the OEMetadata object that was parsed in step 1 by ading a key-value argument::
 
     compiled = OEP_V_1_5_Dialect.compile(minimal_oemetadata15, _additionalField=data)
     rendered = OEP_V_1_5_Dialect.render(compiled)
