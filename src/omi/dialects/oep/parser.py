@@ -8,7 +8,6 @@ import pathlib
 import jsonschema
 from dateutil.parser import parse as parse_date
 from jsonschema import ValidationError
-
 # oemetadata
 from metadata.latest.schema import OEMETADATA_LATEST_SCHEMA
 from metadata.v130.schema import OEMETADATA_V130_SCHEMA
@@ -54,7 +53,9 @@ def create_report_json(
 
 
 class JSONParser(Parser):
-    # one_schema_was_valid = False
+    
+    def normalize_key_names_of_input(iput: dict):
+        pass
 
     def load_string(self, string: str, *args, **kwargs):
         return json.loads(string)
