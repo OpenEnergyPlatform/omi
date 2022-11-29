@@ -162,7 +162,7 @@ class JSONParser(Parser):
             # https://python-jsonschema.readthedocs.io/en/stable/errors/#handling-validation-errors
             error_dict = {
                 "oemetadata schema version": schema.get("$id"),
-                "json path": error.absolute_path,
+                # "json path": error.absolute_path,
                 "instance path": [i for i in error.absolute_path],
                 "value that raised the error": error.instance,
                 "error message": error.message,
