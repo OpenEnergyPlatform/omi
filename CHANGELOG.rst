@@ -4,6 +4,9 @@ Changelog
 
 current (2022-XX-XX)
 --------------------
+
+0.1.1 (2022-11-29)
+--------------------
 * update parser for v15 to handle former v13 key names, also update outdated License (data-)class in oem_v15 structure. (PR#77)
 * change the validation to return a report and enable report file creation option to the arguments of validation method. (PR#81)
 
