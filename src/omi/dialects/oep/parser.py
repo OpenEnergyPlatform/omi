@@ -1022,7 +1022,6 @@ class JSONParser_1_5(JSONParser):
 
         # filling the license section
         old_licenses = parse_old_licenses_including_former_key_names(element=json_old)
-        print(old_licenses)
         if old_licenses is None:
             licenses = None
         else:
