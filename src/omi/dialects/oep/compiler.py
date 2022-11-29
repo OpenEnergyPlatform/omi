@@ -241,7 +241,7 @@ class JSONCompilerOEM15(JSONCompiler):
                                 the metadata structure.
     """
 
-    __METADATA_VERSION = "OEP-1.5.1"
+    __METADATA_VERSION = "OEP-1.5.2"
 
     def visit(self, obj, *args, **kwargs):
         """
@@ -301,6 +301,13 @@ class JSONCompilerOEM15(JSONCompiler):
         return self._construct_dict(
             ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d")),
             ("timeseries", temporal.timeseries_collection),
+        )
+    
+    def visit_license(self, lic: oem_v15.License, *args, **kwargs):
+        return self._construct_dict(
+            ("name", lic.name),
+            ("title", lic.title),
+            ("path", lic.path),
         )
 
     def visit_isAbout(self, isAbout: oem_v15.IsAbout, *args, **kwargs):
@@ -378,4 +385,5 @@ class JSONCompilerOEM15(JSONCompiler):
                 null="If not applicable use: null",
                 todo="If a value is not yet available, use: todo",
             ),
+            **kwargs
         )

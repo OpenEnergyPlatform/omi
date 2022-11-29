@@ -147,6 +147,32 @@ Module usage::
     schema = ... get a schema or import form oemetadata module
     parser.is_valid(metadata, schema)
 
+**Additional Fields - not related to the OEMetadata specification**
+
+Sometimes it is necessary to store additional key-value pairs along with the keys included in the OEMetadata specification.
+OMI's compiler methods are capable of handling additional arguments or key-value arguments, but this must be 
+be explicitly specified. 
+
+To add additional key-value pairs, you must: 
+
+    NOTE: If you save the renderer return value in a json file and try to parse the file, the extra field is not included.
+          You must read the json file using Python and then add the extra field back oemetadata object as shown below. 
+
+1 Parse the oemetadata from json file / variable into omis internal structure::
+
+    from omi.dialects.oep.dialect import OEP_V_1_5_Dialect
+
+    min_inp = '{"id":"unique_id"} # or read from json file
+    minimal_oemetadata15 = OEP_V_1_5_Dialect.parse(min_inp)
+
+2 Now you can get(from json file)/define the additional data::
+
+    data = "test"
+
+3 And add it to the OEMetadata object that was parsed in step 1 by ading a key-value argument::
+
+    compiled = OEP_V_1_5_Dialect.compile(minimal_oemetadata15, _additionalField=data)
+    rendered = OEP_V_1_5_Dialect.render(compiled)
 
 Development
 ===========
