@@ -23,6 +23,7 @@ from omi.oem_structures import oem_v15
 
 ALL_OEM_SCHEMAS = [
     OEMETADATA_LATEST_SCHEMA,
+    OEMETADATA_V151_SCHEMA,
     OEMETADATA_V150_SCHEMA,
     OEMETADATA_V141_SCHEMA,
     OEMETADATA_V140_SCHEMA,
@@ -134,7 +135,7 @@ class JSONParser(Parser):
             schema = OEMETADATA_LATEST_SCHEMA
         return schema
 
-    def validate(self, metadata: dict, schema: dict = None):
+    def validate(self, metadata: dict, schema: dict = None, save_report=True):
         """
         Check whether the given dictionary adheres to the the json-schema
         and oemetadata specification. If errors are found a jsonschema error
@@ -169,7 +170,10 @@ class JSONParser(Parser):
             }
             report.append(error_dict)
 
-        create_report_json(report)
+        if save_report:
+            create_report_json(report)
+
+        return report
 
     def is_valid(self, inp: dict, schema):
 
@@ -192,15 +196,25 @@ class JSONParser(Parser):
 
 
 class JSONParser_1_3(JSONParser):
-    def is_valid(self, inp: str):
-        if not super(self, JSONParser_1_3).is_valid(inp):
-            return False
-        try:
-            self.assert_1_3_metastring(inp)
-        except:
-            return False
+    def is_valid(self, inp: dict, schema=OEMETADATA_V130_SCHEMA):
+
+        # 1 - valid JSON?
+        if isinstance(inp, str):
+            try:
+                jsn = json.loads(inp, encode="utf-8")
+            except ValueError:
+                return False
         else:
+            jsn = inp
+
+        # 2 - valid OEMETADATA
+        try:
+            validator = self.get_json_validator(schema)
+            validator.validate(jsn)
             return True
+        except ValidationError:
+            return False
+
 
     def parse(self, json_old, *args, **kwargs):
         # context section
@@ -333,15 +347,24 @@ class JSONParser_1_3(JSONParser):
 
 
 class JSONParser_1_4(JSONParser):
-    def is_valid(self, inp: str):
-        if not super(self, JSONParser_1_4).is_valid(inp):
-            return False
-        try:
-            self.assert_1_3_metastring(inp)
-        except:
-            return False
+    def is_valid(self, inp: dict, schema=OEMETADATA_V141_SCHEMA):
+
+        # 1 - valid JSON?
+        if isinstance(inp, str):
+            try:
+                jsn = json.loads(inp, encode="utf-8")
+            except ValueError:
+                return False
         else:
+            jsn = inp
+
+        # 2 - valid OEMETADATA
+        try:
+            validator = self.get_json_validator(schema)
+            validator.validate(jsn)
             return True
+        except ValidationError:
+            return False
 
     def parse_term_of_use(self, old_license: dict):
         return structure.TermsOfUse(
@@ -727,6 +750,25 @@ class JSONParser_1_4(JSONParser):
 
 
 class JSONParser_1_5(JSONParser):
+    def is_valid(self, inp: dict, schema=OEMETADATA_LATEST_SCHEMA):
+
+        # 1 - valid JSON?
+        if isinstance(inp, str):
+            try:
+                jsn = json.loads(inp, encode="utf-8")
+            except ValueError:
+                return False
+        else:
+            jsn = inp
+
+        # 2 - valid OEMETADATA
+        try:
+            validator = self.get_json_validator(schema)
+            validator.validate(jsn)
+            return True
+        except ValidationError:
+            return False
+
     def parse_from_string(
         self,
         string: str,
