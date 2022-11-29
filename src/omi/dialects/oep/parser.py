@@ -39,7 +39,7 @@ def parse_date_or_none(x, *args, **kwargs):
 
 
 def create_report_json(
-    error_data: list[dict],
+    error_data, # type list[dict]
     save_at: pathlib.Path = "reports/",
     filename: str = "report.json",
 ):
@@ -795,7 +795,7 @@ class JSONParser_1_5(JSONParser):
         )
 
     def get_any_value_not_none(
-        self, element: dict, keys: list[str], get_return_default=None
+        self, element: dict, keys, get_return_default=None #keys: list[str] - reove as not support by py3.8
     ):
         """
         Get the value for a key in a dict - but try multiple key names, in
