@@ -1,15 +1,15 @@
-from datetime import datetime
+import datetime
 
 from omi import structure
 from omi.dialects.base.compiler import Compiler
 from omi.oem_structures import oem_v15
 
 
-def compile_date_or_none(date: datetime, format):
-    if date:
+def compile_date_or_none(date, format):
+    if isinstance(date, (datetime.datetime, datetime.date)):
         return date.strftime(format)
     else:
-        return None
+        return date
 
 
 class JSONCompiler(Compiler):
