@@ -5,11 +5,14 @@ from omi.dialects.base.compiler import Compiler
 from omi.oem_structures import oem_v15
 
 
-def compile_date_or_none(date, format):
-    if isinstance(date, (datetime.datetime, datetime.date)):
-        return date.strftime(format)
+def compile_date_or_none(x, format=None):
+    if isinstance(x, (datetime.datetime, datetime.date)):
+        if format:
+            return x.strftime(format)
+        else:
+            return x.isoformat()
     else:
-        return date
+        return x
 
 
 class JSONCompiler(Compiler):

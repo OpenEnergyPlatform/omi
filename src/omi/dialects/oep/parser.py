@@ -36,8 +36,10 @@ ALL_OEM_SCHEMAS = [
 def parse_date_or_none(x):
     if x is None:
         pass
-    elif isinstance(x, (int, float)):
+    elif type(x) == int:
         # e.g just a year or a unix timestamp
+        # NOTE: isinstance(x, int) is also True for a bool,
+        # which we dont want
         pass
     elif isinstance(x, str):
         # IMPORTANT NOTE: only use dateutil.parser if date part is complete
@@ -45,12 +47,19 @@ def parse_date_or_none(x):
         # fill in the missing month/day from the current date!
         # in this case, we keep the string, if it is at least is the correct pattern
 
-        # something date like (with month and day)
-        if re.match("^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}.*", x):
-            x = dateutil.parser.parse(x)
-        elif re.match("^[0-9]{4}(|-[0-9]{1,2})$", x):
+        if re.match("^[123][0-9]{3}(|-[0-9]{1,2})$", x):
             # only year or year-month: keep string
             pass
+        elif re.match("^[123][0-9]{3}-[0-9]{1,2}-[0-9]{1,2}", x):
+            try:
+                date_time = dateutil.parser.parse(x)
+            except Exception:
+                raise ParserException(f"invalid value for date: {x}")
+            if re.match("^[123][0-9]{3}-[0-9]{1,2}-[0-9]{1,2}$", x):
+                # date only
+                x = date_time.date()
+            else:
+                x = date_time
         else:
             raise ParserException(f"invalid value for date: {x}")
     else:
