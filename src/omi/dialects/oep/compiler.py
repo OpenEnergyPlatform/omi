@@ -1,5 +1,3 @@
-import json
-from collections import OrderedDict
 from datetime import datetime
 
 from omi import structure
@@ -7,14 +5,15 @@ from omi.dialects.base.compiler import Compiler
 from omi.oem_structures import oem_v15
 
 
+def compile_date_or_none(date: datetime, format):
+    if date:
+        return date.strftime(format)
+    else:
+        return None
+
+
 class JSONCompiler(Compiler):
     __METADATA_VERSION = "OEP-1.4.0"
-
-    def _compile_date(self, date: datetime, format):
-        if date:
-            return date.strftime(format)
-        else:
-            return None
 
     def _construct_dict(self, *args, omit_none=True, **kwargs):
         """
@@ -61,7 +60,7 @@ class JSONCompiler(Compiler):
             ("email", contribution.contributor.email),
             ("object", contribution.object),
             ("comment", contribution.comment),
-            ("date", self._compile_date(contribution.date, "%Y-%m-%d")),
+            ("date", compile_date_or_none(contribution.date, "%Y-%m-%d")),
         )
 
     def visit_language(self, language: structure.Language, *args, **kwargs):
@@ -90,11 +89,14 @@ class JSONCompiler(Compiler):
         start = None
         end = None
         if temporal.ts_start is not None:
-            start = self._compile_date(temporal.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
+            start = compile_date_or_none(temporal.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
         if temporal.ts_end is not None:
-            end = self._compile_date(temporal.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
+            end = compile_date_or_none(temporal.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
         return self._construct_dict(
-            ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d")),
+            (
+                "referenceDate",
+                compile_date_or_none(temporal.reference_date, "%Y-%m-%d"),
+            ),
             timeseries=self._construct_dict(
                 ("start", start),
                 ("end", end),
@@ -202,7 +204,9 @@ class JSONCompiler(Compiler):
     def visit_metadata(self, metadata: structure.OEPMetadata, *args, **kwargs):
         publication_date = None
         if metadata.publication_date is not None:
-            publication_date = self._compile_date(metadata.publication_date, "%Y-%m-%d")
+            publication_date = compile_date_or_none(
+                metadata.publication_date, "%Y-%m-%d"
+            )
         return self._construct_dict(
             ("name", metadata.name),
             ("title", metadata.title),
@@ -286,9 +290,9 @@ class JSONCompilerOEM15(JSONCompiler):
         start = None
         end = None
         if timeseries.ts_start is not None:
-            start = self._compile_date(timeseries.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
+            start = compile_date_or_none(timeseries.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
         if timeseries.ts_end is not None:
-            end = self._compile_date(timeseries.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
+            end = compile_date_or_none(timeseries.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
         return self._construct_dict(
             ("start", start),
             ("end", end),
@@ -299,7 +303,10 @@ class JSONCompilerOEM15(JSONCompiler):
 
     def visit_temporal(self, temporal: oem_v15.Temporal, *args, **kwargs):
         return self._construct_dict(
-            ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d")),
+            (
+                "referenceDate",
+                compile_date_or_none(temporal.reference_date, "%Y-%m-%d"),
+            ),
             ("timeseries", temporal.timeseries_collection),
         )
 
@@ -347,7 +354,9 @@ class JSONCompilerOEM15(JSONCompiler):
     def visit_metadata(self, metadata: oem_v15.OEPMetadata, *args, **kwargs):
         publication_date = None
         if metadata.publication_date is not None:
-            publication_date = self._compile_date(metadata.publication_date, "%Y-%m-%d")
+            publication_date = compile_date_or_none(
+                metadata.publication_date, "%Y-%m-%d"
+            )
         return self._construct_dict(
             ("name", metadata.name),
             ("title", metadata.title),
