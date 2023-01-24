@@ -92,9 +92,9 @@ class JSONCompiler(Compiler):
         start = None
         end = None
         if temporal.ts_start is not None:
-            start = compile_date_or_none(temporal.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
+            start = compile_date_or_none(temporal.ts_start)
         if temporal.ts_end is not None:
-            end = compile_date_or_none(temporal.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
+            end = compile_date_or_none(temporal.ts_end)
         return self._construct_dict(
             (
                 "referenceDate",
@@ -293,9 +293,9 @@ class JSONCompilerOEM15(JSONCompiler):
         start = None
         end = None
         if timeseries.ts_start is not None:
-            start = compile_date_or_none(timeseries.ts_start, "%Y-%m-%dT%H:%M%z")[:-2]
+            start = compile_date_or_none(timeseries.ts_start)
         if timeseries.ts_end is not None:
-            end = compile_date_or_none(timeseries.ts_end, "%Y-%m-%dT%H:%M%z")[:-2]
+            end = compile_date_or_none(timeseries.ts_end)
         return self._construct_dict(
             ("start", start),
             ("end", end),
