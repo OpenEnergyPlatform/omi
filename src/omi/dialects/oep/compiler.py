@@ -302,7 +302,7 @@ class JSONCompilerOEM15(JSONCompiler):
             ("referenceDate", self._compile_date(temporal.reference_date, "%Y-%m-%d")),
             ("timeseries", temporal.timeseries_collection),
         )
-    
+
     def visit_license(self, lic: oem_v15.License, *args, **kwargs):
         return self._construct_dict(
             ("name", lic.name),

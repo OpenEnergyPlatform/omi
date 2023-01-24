@@ -38,6 +38,7 @@ def parse_date_or_none(x, *args, **kwargs):
         return parse_date(x, *args, **kwargs)
 
 
+
 def create_report_json(
     error_data, # type list[dict]
     save_at: pathlib.Path = "reports/",
