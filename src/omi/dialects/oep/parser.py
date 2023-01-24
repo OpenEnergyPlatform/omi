@@ -9,7 +9,6 @@ import re
 import dateutil
 import jsonschema
 from jsonschema import ValidationError
-
 # oemetadata
 from metadata.latest.schema import OEMETADATA_LATEST_SCHEMA
 from metadata.v130.schema import OEMETADATA_V130_SCHEMA
