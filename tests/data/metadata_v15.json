@@ -44,15 +44,15 @@
         "referenceDate": "2016-01-01",
         "timeseries": [
             {
-                "start": "2017-01-01T00:00+01",
-                "end": "2017-12-31T23:00+01",
+                "start": "2017-01-01T00:00:00+01:00",
+                "end": "2017-12-31T23:00:00+01:00",
                 "resolution": "1 h",
                 "alignment": "left",
                 "aggregationType": "sum"
             },
             {
-                "start": "2018-01-01T00:00+01",
-                "end": "2019-06-01T23:00+01",
+                "start": "2018-01-01T00:00:00+01:00",
+                "end": "2019-06-01T23:00:00+01:00",
                 "resolution": "15 min",
                 "alignment": "right",
                 "aggregationType": "sum"
@@ -126,12 +126,10 @@
                         "description": "Unique identifier",
                         "type": "serial",
                         "isAbout": [
-                            {
-                            }
+                            {}
                         ],
                         "valueReference": [
-                            {
-                            }
+                            {}
                         ]
                     },
                     {
@@ -145,8 +143,7 @@
                             }
                         ],
                         "valueReference": [
-                            {
-                            }
+                            {}
                         ]
                     },
                     {
@@ -183,8 +180,7 @@
                             }
                         ],
                         "valueReference": [
-                            {
-                            }
+                            {}
                         ]
                     },
                     {
@@ -199,8 +195,7 @@
                             }
                         ],
                         "valueReference": [
-                            {
-                            }
+                            {}
                         ]
                     },
                     {
@@ -214,8 +209,7 @@
                             }
                         ],
                         "valueReference": [
-                            {
-                            }
+                            {}
                         ]
                     }
                 ],

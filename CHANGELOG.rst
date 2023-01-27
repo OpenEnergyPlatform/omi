@@ -5,6 +5,10 @@ Changelog
 current (2022-XX-XX)
 --------------------
 
+0.1.2 (2023-01-27)
+--------------------
+* Fix datetime parser (PR#87)
+
 0.1.1 (2022-11-29)
 --------------------
 * update parser for v15 to handle former v13 key names, also update outdated License (data-)class in oem_v15 structure. (PR#77)

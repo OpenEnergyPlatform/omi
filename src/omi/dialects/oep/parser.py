@@ -4,9 +4,10 @@
 import json
 import logging
 import pathlib
+import re
 
+import dateutil
 import jsonschema
-from dateutil.parser import parse as parse_date
 from jsonschema import ValidationError
 # oemetadata
 from metadata.latest.schema import OEMETADATA_LATEST_SCHEMA
@@ -31,15 +32,42 @@ ALL_OEM_SCHEMAS = [
 ]
 
 
-def parse_date_or_none(x, *args, **kwargs):
+def parse_date_or_none(x):
     if x is None:
-        return None
+        pass
+    elif type(x) == int:
+        # e.g just a year or a unix timestamp
+        # NOTE: isinstance(x, int) is also True for a bool,
+        # which we dont want
+        pass
+    elif isinstance(x, str):
+        # IMPORTANT NOTE: only use dateutil.parser if date part is complete
+        # if you parse something like '2020' or '2020-01', it will silently
+        # fill in the missing month/day from the current date!
+        # in this case, we keep the string, if it is at least is the correct pattern
+
+        if re.match("^[123][0-9]{3}(|-[0-9]{1,2})$", x):
+            # only year or year-month: keep string
+            pass
+        elif re.match("^[123][0-9]{3}-[0-9]{1,2}-[0-9]{1,2}", x):
+            try:
+                date_time = dateutil.parser.parse(x)
+            except Exception:
+                raise ParserException(f"invalid value for date: {x}")
+            if re.match("^[123][0-9]{3}-[0-9]{1,2}-[0-9]{1,2}$", x):
+                # date only
+                x = date_time.date()
+            else:
+                x = date_time
+        else:
+            raise ParserException(f"invalid value for date: {x}")
     else:
-        return parse_date(x, *args, **kwargs)
+        raise ParserException(f"invalid type for date: {type(x)}")
+    return x
 
 
 def create_report_json(
-    error_data, # type list[dict]
+    error_data,  # type list[dict]
     save_at: pathlib.Path = "reports/",
     filename: str = "report.json",
 ):
@@ -54,7 +82,6 @@ def create_report_json(
 
 
 class JSONParser(Parser):
-    
     def normalize_key_names_of_input(iput: dict):
         pass
 
@@ -214,7 +241,6 @@ class JSONParser_1_3(JSONParser):
             return True
         except ValidationError:
             return False
-
 
     def parse(self, json_old, *args, **kwargs):
         # context section
@@ -795,7 +821,10 @@ class JSONParser_1_5(JSONParser):
         )
 
     def get_any_value_not_none(
-        self, element: dict, keys, get_return_default=None #keys: list[str] - reove as not support by py3.8
+        self,
+        element: dict,
+        keys,
+        get_return_default=None,  # keys: list[str] - reove as not support by py3.8
     ):
         """
         Get the value for a key in a dict - but try multiple key names, in
@@ -1145,7 +1174,7 @@ class JSONParser_1_5(JSONParser):
                         primary_key=resource["schema"].get("primaryKey"),
                         foreign_keys=foreign_keys,
                     )
-                
+
                 old_dialect = resource.get("dialect")
                 if old_dialect is None:
                     dialect = None
