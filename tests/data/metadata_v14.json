@@ -32,8 +32,8 @@
     "temporal": {
         "referenceDate": "2016-01-01",
         "timeseries": {
-            "start": "2017-01-01T00:00+01",
-            "end": "2017-12-31T23:00+01",
+            "start": "2017-01-01T00:00:00+01:00",
+            "end": "2017-12-31T23:00:00+01:00",
             "resolution": "1 h",
             "alignment": "left",
             "aggregationType": "sum"

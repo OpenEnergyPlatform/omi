@@ -23,6 +23,7 @@ venv*/
 pyvenv*/
 /0_env
 /1_env
+env*/
 
 # Installer logs
 pip-log.txt
@@ -50,6 +51,8 @@ htmlcov
 .idea
 *.iml
 *.komodoproject
+/0_local_test
+/reports
 .vscode
 
 # Complexity
@@ -70,6 +73,11 @@ docs/_build
 .bootstrap
 .appveyor.token
 *.bak
+/1_env
 
 # Mypy Cache
 .mypy_cache/
+
+
+# manual testing scripts
+/local_test

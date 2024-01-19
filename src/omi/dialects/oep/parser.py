@@ -2,57 +2,245 @@
 # -*- coding: utf-8 -*-
 
 import json
+import logging
+import pathlib
+import re
 
-from dateutil.parser import parse as parse_date
+import dateutil
+import jsonschema
+from jsonschema import ValidationError
+# oemetadata
+from metadata.latest.schema import OEMETADATA_LATEST_SCHEMA
+from metadata.v130.schema import OEMETADATA_V130_SCHEMA
+from metadata.v140.schema import OEMETADATA_V140_SCHEMA
+from metadata.v141.schema import OEMETADATA_V141_SCHEMA
+from metadata.v150.schema import OEMETADATA_V150_SCHEMA
+from metadata.v151.schema import OEMETADATA_V151_SCHEMA
 
 from omi import structure
 from omi.dialects.base.parser import Parser
 from omi.dialects.base.parser import ParserException
 from omi.oem_structures import oem_v15
 
+ALL_OEM_SCHEMAS = [
+    OEMETADATA_LATEST_SCHEMA,
+    OEMETADATA_V151_SCHEMA,
+    OEMETADATA_V150_SCHEMA,
+    OEMETADATA_V141_SCHEMA,
+    OEMETADATA_V140_SCHEMA,
+    OEMETADATA_V130_SCHEMA,
+]
 
-def parse_date_or_none(x, *args, **kwargs):
+
+def parse_date_or_none(x):
     if x is None:
-        return None
+        pass
+    elif type(x) == int:
+        # e.g just a year or a unix timestamp
+        # NOTE: isinstance(x, int) is also True for a bool,
+        # which we dont want
+        pass
+    elif isinstance(x, str):
+        # IMPORTANT NOTE: only use dateutil.parser if date part is complete
+        # if you parse something like '2020' or '2020-01', it will silently
+        # fill in the missing month/day from the current date!
+        # in this case, we keep the string, if it is at least is the correct pattern
+
+        if re.match("^[123][0-9]{3}(|-[0-9]{1,2})$", x):
+            # only year or year-month: keep string
+            pass
+        elif re.match("^[123][0-9]{3}-[0-9]{1,2}-[0-9]{1,2}", x):
+            try:
+                date_time = dateutil.parser.parse(x)
+            except Exception:
+                raise ParserException(f"invalid value for date: {x}")
+            if re.match("^[123][0-9]{3}-[0-9]{1,2}-[0-9]{1,2}$", x):
+                # date only
+                x = date_time.date()
+            else:
+                x = date_time
+        else:
+            raise ParserException(f"invalid value for date: {x}")
     else:
-        return parse_date(x, *args, **kwargs)
+        raise ParserException(f"invalid type for date: {type(x)}")
+    return x
+
+
+def create_report_json(
+    error_data,  # type list[dict]
+    save_at: pathlib.Path = "reports/",
+    filename: str = "report.json",
+):
+    # if len(error_data) >= 1:
+    pathlib.Path(save_at).mkdir(parents=True, exist_ok=True)
+    with open(f"{save_at}{filename}", "w", encoding="utf-8") as fp:
+        json.dump(error_data, fp, indent=4, sort_keys=False)
+
+    print(
+        f"Created error report containing {len(error_data)} errors at: {save_at}{filename}"
+    )
 
 
 class JSONParser(Parser):
+    def normalize_key_names_of_input(iput: dict):
+        pass
+
     def load_string(self, string: str, *args, **kwargs):
         return json.loads(string)
 
-    def is_valid(self, inp: str):
-        """Checks the validity of a JSON string
+    def get_json_validator(self, schema: OEMETADATA_LATEST_SCHEMA):
+        """
+        Get the jsonschema validator that matches the schema.
+        Also checks if the schmea is valid.
+
+        Args:
+            schema (OEMETADATA_LATEST_SCHEMA):
+
+        Returns:
+            validator: jsonschema.Draft202012Validator
+        """
+        jsonschema.Draft202012Validator.check_schema(schema)
+        validator = jsonschema.Draft202012Validator(schema=schema)
+        return validator
+
+    def get_any_schema_valid(
+        self,
+        metadata: dict,
+        schemas: list = ALL_OEM_SCHEMAS,
+    ):
+        """
+        Additional helper funtion - get any schema that is valid for the metadata.
+        Returns The first valid schema or None
+
+        Args:
+            schemas (list): _description_
+            metadata (dict): _description_
+
+        Returns:
+            _type_: _description_
+        """
+
+        valid_schemas = []
+        for schema in schemas:
+            if len(valid_schemas) <= 1:
+                continue
+            elif self.is_valid(inp=metadata, schema=schema):
+                valid_schemas.append(schema)
+
+        if len(valid_schemas) >= 1:
+            valid_schemas = None
+        return valid_schemas
+
+    def get_schema_by_metadata_version(self, metadata: dict):
+        oem_13 = ["1.3", "OEP-1.3"]
+        oem_14 = "OEP-1.4.0"
+        oem_141 = "OEP-1.4.1"
+        oem_15 = "OEP-1.5.0"
+        oem_151 = "OEP-1.5.1"
+
+        schema = None
+
+        if metadata.get("metadata_version"):
+            if metadata.get("metadata_version") in oem_13:
+                schema = OEMETADATA_V130_SCHEMA
+
+        if metadata.get("metaMetadata"):
+            if metadata.get("metaMetadata")["metadataVersion"] == oem_14:
+                schema = OEMETADATA_V140_SCHEMA
+            if metadata.get("metaMetadata")["metadataVersion"] == oem_141:
+                schema = OEMETADATA_V141_SCHEMA
+            if metadata.get("metaMetadata")["metadataVersion"] == oem_15:
+                schema = OEMETADATA_V150_SCHEMA
+            if metadata.get("metaMetadata")["metadataVersion"] == oem_151:
+                schema = OEMETADATA_V151_SCHEMA
+
+        # fallback to latest schema if metadata does not contian the exprected metadata version sting
+        if schema is None:
+            logging.info(
+                "Metadata does not contain the expected 'metaMetadata' or 'metadata_version' key. Fallback to latest schema."
+            )
+            schema = OEMETADATA_LATEST_SCHEMA
+        return schema
+
+    def validate(self, metadata: dict, schema: dict = None, save_report=True):
+        """
+        Check whether the given dictionary adheres to the the json-schema
+        and oemetadata specification. If errors are found a jsonschema error
+        report is created in directory 'reports/'.
 
         Parameters
         ----------
-        inp: str
-            The JSON string to be checked.
-
+        metadata
+          The dictionary to validate
+        schema: optional
+          The jsonschema used for validation.
+          Default is None.
         Returns
         -------
-        bool
-            True if valid JSON, False otherwise.
+          Nothing
         """
 
+        report = []
+        if not schema:
+            schema = self.get_schema_by_metadata_version(metadata=metadata)
+        validator = self.get_json_validator(schema)
+
+        for error in sorted(validator.iter_errors(instance=metadata), key=str):
+            # https://python-jsonschema.readthedocs.io/en/stable/errors/#handling-validation-errors
+            error_dict = {
+                "oemetadata schema version": schema.get("$id"),
+                # "json path": error.absolute_path,
+                "instance path": [i for i in error.absolute_path],
+                "value that raised the error": error.instance,
+                "error message": error.message,
+                "schema_path": [i for i in error.schema_path],
+            }
+            report.append(error_dict)
+
+        if save_report:
+            create_report_json(report)
+
+        return report
+
+    def is_valid(self, inp: dict, schema):
+
+        # 1 - valid JSON?
+        if isinstance(inp, str):
+            try:
+                jsn = json.loads(inp, encode="utf-8")
+            except ValueError:
+                return False
+        else:
+            jsn = inp
+
+        # 2 - valid OEMETADATA
         try:
-            json.loads(inp)
-        except ValueError:
+            validator = self.get_json_validator(schema)
+            validator.validate(jsn)
+            return True
+        except ValidationError:
             return False
-        return True
 
 
 class JSONParser_1_3(JSONParser):
-    def is_valid(self, inp: str):
-        if not super(self, JSONParser_1_3).is_valid(inp):
-            return False
-        try:
-            self.assert_1_3_metastring(inp)
-        except:
-            return False
+    def is_valid(self, inp: dict, schema=OEMETADATA_V130_SCHEMA):
+
+        # 1 - valid JSON?
+        if isinstance(inp, str):
+            try:
+                jsn = json.loads(inp, encode="utf-8")
+            except ValueError:
+                return False
         else:
+            jsn = inp
+
+        # 2 - valid OEMETADATA
+        try:
+            validator = self.get_json_validator(schema)
+            validator.validate(jsn)
             return True
+        except ValidationError:
+            return False
 
     def parse(self, json_old, *args, **kwargs):
         # context section
@@ -185,15 +373,24 @@ class JSONParser_1_3(JSONParser):
 
 
 class JSONParser_1_4(JSONParser):
-    def is_valid(self, inp: str):
-        if not super(self, JSONParser_1_4).is_valid(inp):
-            return False
-        try:
-            self.assert_1_3_metastring(inp)
-        except:
-            return False
+    def is_valid(self, inp: dict, schema=OEMETADATA_V141_SCHEMA):
+
+        # 1 - valid JSON?
+        if isinstance(inp, str):
+            try:
+                jsn = json.loads(inp, encode="utf-8")
+            except ValueError:
+                return False
         else:
+            jsn = inp
+
+        # 2 - valid OEMETADATA
+        try:
+            validator = self.get_json_validator(schema)
+            validator.validate(jsn)
             return True
+        except ValidationError:
+            return False
 
     def parse_term_of_use(self, old_license: dict):
         return structure.TermsOfUse(
@@ -268,7 +465,7 @@ class JSONParser_1_4(JSONParser):
                 )
             temporal = structure.Temporal(
                 reference_date=parse_date_or_none(inp_temporal.get("referenceDate")),
-                **timeseries
+                **timeseries,
             )
 
         # filling the source section
@@ -579,15 +776,24 @@ class JSONParser_1_4(JSONParser):
 
 
 class JSONParser_1_5(JSONParser):
-    def is_valid(self, inp: str):
-        if not super(self, JSONParser_1_5).is_valid(inp):
-            return False
-        try:
-            self.assert_1_5_metastring(inp)
-        except:
-            return False
+    def is_valid(self, inp: dict, schema=OEMETADATA_LATEST_SCHEMA):
+
+        # 1 - valid JSON?
+        if isinstance(inp, str):
+            try:
+                jsn = json.loads(inp, encode="utf-8")
+            except ValueError:
+                return False
         else:
+            jsn = inp
+
+        # 2 - valid OEMETADATA
+        try:
+            validator = self.get_json_validator(schema)
+            validator.validate(jsn)
             return True
+        except ValidationError:
+            return False
 
     def parse_from_string(
         self,
@@ -611,22 +817,53 @@ class JSONParser_1_5(JSONParser):
         return self.parse(
             self.load_string(string, *(load_args or []), **(load_kwargs or {})),
             *(parse_args or []),
-            **(parse_kwargs or {})
+            **(parse_kwargs or {}),
         )
+
+    def get_any_value_not_none(
+        self,
+        element: dict,
+        keys,
+        get_return_default=None,  # keys: list[str] - reove as not support by py3.8
+    ):
+        """
+        Get the value for a key in a dict - but try multiple key names, in
+        case they have changed in eralryer oemetadata versions.
+
+        Args:
+            element (dict): dict element of the input metadata
+            keys (list[str]): list of key name options
+            get_return_default (_type_, optional): A default return vlaue if key is not present. Defaults to None.
+
+        Returns:
+            any: By default it is the value at the key or None - but can be any as the value is not strict.
+        """
+
+        for key_name in keys:
+            _element = element.get(key_name, get_return_default)
+            if _element is None:
+                continue
+
+            return _element
 
     def parse_term_of_use(self, old_license: dict):
         return oem_v15.TermsOfUse(
             lic=oem_v15.License(
-                identifier=old_license.get("name"),
-                name=old_license.get("title"),
+                name=old_license.get("name"),
+                title=old_license.get("title"),
                 path=old_license.get("path"),
             ),
             instruction=old_license.get("instruction"),
             attribution=old_license.get("attribution"),
         )
 
-    def parse_timeseries(self, old_timeseries: dict):
-        pass
+    def ensure_json_keys_lowercase(json_old: dict):
+        element = json_old  # element must be part of json_old not hole json_old
+        if isinstance(element, dict):
+            pass
+
+        if isinstance(element, list):
+            pass
 
     def parse(self, json_old: dict, *args, **kwargs):
         """_summary_
@@ -723,32 +960,103 @@ class JSONParser_1_5(JSONParser):
                 timeseries_collection=timeseries,
             )
 
+        def parse_sources_lincese_including_former_key_names(element: dict):
+            licenses_new = "licenses"
+            licenses_old = "license"
+
+            if isinstance(element.get(licenses_new), list):
+                return [self.parse_term_of_use(l) for l in element.get(licenses_new)]
+
+            if isinstance(element.get(licenses_old), str):
+                name = element.get(licenses_old)
+
+                # avoide empty structures like [{}]
+                if name is None:
+                    _result = []
+                else:
+                    from_13_license = oem_v15.License(name=name)
+                    _result = [oem_v15.TermsOfUse(lic=from_13_license)]
+
+                return _result
+
+        def parse_source_including_former_key_names(key: dict):
+            # sources key name options - including key names pre oem v1.4
+            key_name_options = {
+                "title_equal": ["title", "name"],
+                "path_equal": ["path", "url"],
+                "licenses_equal": ["licenses", "license"],
+            }
+
+            source = oem_v15.Source(
+                title=self.get_any_value_not_none(
+                    element=key, keys=key_name_options.get("title_equal")
+                ),
+                description=key.get("description"),
+                path=self.get_any_value_not_none(
+                    element=key, keys=key_name_options.get("path_equal")
+                ),
+                licenses=parse_sources_lincese_including_former_key_names(element=key),
+            )
+
+            return source
+
         # filling the source section
-        old_sources = json_old.get("sources")
+        # expected to be a list but can also be a dict in old versions
+        old_sources: list = json_old.get("sources")
         if old_sources is None:
             sources = None
         else:
             sources = [
-                oem_v15.Source(
-                    title=old_source.get("title"),
-                    description=old_source.get("description"),
-                    path=old_source.get("path"),
-                    licenses=[
-                        self.parse_term_of_use(l)
-                        for l in old_source.get("licenses", [])
-                    ],
-                )
+                parse_source_including_former_key_names(key=old_source)
                 for old_source in old_sources
             ]
 
+        def parse_old_licenses_including_former_key_names(element: dict):
+            """
+            Parse license from imput data - also handle key name variations from
+            early oemetadata versions.
+            """
+            key_name_options = {
+                "licenses_equal": ["licenses", "license"],
+            }
+
+            return self.get_any_value_not_none(
+                element, key_name_options.get("licenses_equal")
+            )
+
+        def parse_licence_including_former_structure(licences_element):
+            """
+            The lincences key was got a structural differnece in former oemetada versions.
+            In Version 1.3 the key was called lincense and was a singe object/dict, in the
+            current version this key is calles licences and is a list of objects/dicts.
+            Also the key names in the dicht are deviating.
+            """
+            if isinstance(licences_element, list):
+                _result = [
+                    self.parse_term_of_use(old_license) for old_license in old_licenses
+                ]
+
+            if isinstance(licences_element, dict):
+                _mapping_former_keys = {
+                    "name": licences_element.get("id"),
+                    "title": licences_element.get("name"),
+                    "path": licences_element.get("url"),
+                    "instruction": licences_element.get("instruction"),
+                    "attribution": licences_element.get("copyright"),
+                }
+
+                _result = [self.parse_term_of_use(old_license=_mapping_former_keys)]
+
+            return _result
+
         # filling the license section
-        old_licenses = json_old.get("licenses")
+        old_licenses = parse_old_licenses_including_former_key_names(element=json_old)
         if old_licenses is None:
             licenses = None
         else:
-            licenses = [
-                self.parse_term_of_use(old_license) for old_license in old_licenses
-            ]
+            licenses = parse_licence_including_former_structure(
+                licences_element=old_licenses
+            )
 
         # filling the contributers section
         old_contributors = json_old.get("contributors")
@@ -758,7 +1066,9 @@ class JSONParser_1_5(JSONParser):
             contributors = [
                 oem_v15.Contribution(
                     contributor=oem_v15.Person(
-                        name=old_contributor.get("title"),
+                        name=self.get_any_value_not_none(
+                            element=old_contributor, keys=["title", "name"]
+                        ),
                         email=old_contributor.get("email"),
                     ),
                     date=parse_date_or_none(old_contributor.get("date")),
@@ -775,7 +1085,7 @@ class JSONParser_1_5(JSONParser):
         # Code added to raise exception when resource is empty
         else:
             if len(old_resources) == 0:
-                raise ParserException("Resource field doesn't have any child entity")
+                raise ParserException("Resources field is empty!")
             resources = []
             for resource in old_resources:
                 old_schema = resource.get("schema")
@@ -786,6 +1096,7 @@ class JSONParser_1_5(JSONParser):
                     old_fields = old_schema.get("fields")
                     if old_fields is None:
                         fields = None
+                        logging.info(f"Parse fields from: {old_fields}")
                     else:
                         fields = []
 
@@ -863,6 +1174,7 @@ class JSONParser_1_5(JSONParser):
                         primary_key=resource["schema"].get("primaryKey"),
                         foreign_keys=foreign_keys,
                     )
+
                 old_dialect = resource.get("dialect")
                 if old_dialect is None:
                     dialect = None
@@ -928,101 +1240,6 @@ class JSONParser_1_5(JSONParser):
             comment=comment,
         )
         return metadata
-
-    def assert_1_5_metastring(self, json_string: str):
-        """Checks string conformity to OEP Metadata Standard Version 1.5
-
-        Parameters
-        ----------
-        json_string: str
-            The JSON string to be checked.
-
-        Returns
-        -------
-        bool
-            True if valid, Raises Exception otherwise.
-        """
-
-        keys = [
-            "title",
-            "description",
-            "language",
-            "spatial",
-            "temporal",
-            "sources",
-            "license",
-            "contributions",
-            "resources",
-            "metadata_version",
-        ]
-        subkeys_spatial = ["location", "extent", "resolution"]
-        subkeys_timeseries = [
-            "start",
-            "end",
-            "resolution",
-            "alignment",
-            "aggregationType",
-        ]
-        subkeys_temporal = ["reference_date", "timeseries"]
-        subkeys_license = ["id", "name", "version", "url", "instruction", "copyright"]
-        object_subkeys = {
-            "spatial": subkeys_spatial,
-            "temporal": subkeys_temporal,
-            "license": subkeys_license,
-        }
-        subkeys_sources = [
-            "name",
-            "description",
-            "url",
-            "license",
-            "copyright",
-        ]  # in list of objects
-        subkeys_contributors = [
-            "name",
-            "email",
-            "date",
-            "comment",
-        ]  # in list of objects
-        subkeys_resources = ["name", "format", "fields"]  # in list of objects
-        list_subkeys = {
-            "sources": subkeys_sources,
-            "contributions": subkeys_contributors,
-            "resources": subkeys_resources,
-        }
-        subkeys_resources_fields = ["name", "description", "unit"]  # in list of objects
-
-        json_dict = json.loads(json_string)
-        try:
-            # check if all top level keys are present
-            for i in keys:
-                if not i in json_dict.keys():
-                    raise Exception(
-                        'The String did not contain the key "{0}"'.format(i)
-                    )
-            # check for all keys in second level objects
-            for key in object_subkeys:
-                for subkey in object_subkeys[key]:
-                    if not subkey in json_dict[key]:
-                        raise Exception(
-                            'The "{0}" object did not contain a "{1}" key'.format(
-                                key, subkey
-                            )
-                        )
-            # check for all objects in lists if they contain all required keys
-            for key in list_subkeys:
-                for list_element in json_dict[key]:
-                    for subkey in list_subkeys[key]:
-                        if not subkey in list_element:
-                            raise Exception(
-                                'An object in "{0}" is missing a "{1}" key'.format(
-                                    key, subkey
-                                )
-                            )
-        except Exception as error:
-            print(
-                "The input String does not conform to metadatastring version 1.3 standard"
-            )
-            print(error)
 
     # TODO make function check all subkeys as well
     def has_rogue_keys(self, json_string):
