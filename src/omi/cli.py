@@ -29,12 +29,14 @@ def grp():
 @click.option("-f", help="Dialect identifier of the input")
 @click.option("-t", default="oep-v1.5", help="Dialect identifier to translate to")
 @click.option("-o", default=None, help="Output file")
+@click.option("-omit_nones", default=True, help="Use to either keep or omit all null / none values from the json.")
 @click.argument("file_path")
-def translate(f, t, o, file_path):
+def translate(f, t, o, omit_nones, file_path):
     with open(file_path, "r", encoding="utf-8") as infile:
         from_dialect = get_dialect(f)()
         obj = from_dialect.parse(infile.read())
         to_dialect = get_dialect(t)()
+        to_dialect._compiler.OMIT_NONE_FIELDS = omit_nones
         s = to_dialect.compile_and_render(obj)
         if o:
             with open(o, "w", encoding="utf-8") as outfile:
