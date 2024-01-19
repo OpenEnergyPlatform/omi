@@ -18,7 +18,7 @@ def compile_date_or_none(x, format=None):
 class JSONCompiler(Compiler):
     __METADATA_VERSION = "OEP-1.4.0"
 
-    def _construct_dict(self, *args, omit_none=True, **kwargs):
+    def _construct_dict(self, *args, omit_none=False, **kwargs):
         """
         Accepts a list of arguments of shape (name: str, field: Compileable) and returns a dictionary that maps
         name -> self.visit(field). If `omit_none` is true, fields that are `None` are ignored.
