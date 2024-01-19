@@ -50,5 +50,6 @@ new metadata format by using the respective dialect
 .. doctest::
 
     >>> dialect1_4 = OEP_V_1_4_Dialect()
+    >>> dialect1_4._compiler.OMIT_NONE_FIELDS = True
     >>> dialect1_4.compile(parsed)
     {'id': 'unique_id', 'metaMetadata': {'metadataVersion': 'OEP-1.4.0', 'metadataLicense': {'name': 'CC0-1.0', 'title': 'Creative Commons Zero v1.0 Universal', 'path': 'https://creativecommons.org/publicdomain/zero/1.0/'}}}
