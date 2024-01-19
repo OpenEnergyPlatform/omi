@@ -23,6 +23,7 @@ venv*/
 pyvenv*/
 /0_env
 /1_env
+env*/
 
 # Installer logs
 pip-log.txt
@@ -76,3 +77,7 @@ docs/_build
 
 # Mypy Cache
 .mypy_cache/
+
+
+# manual testing scripts
+/local_test
