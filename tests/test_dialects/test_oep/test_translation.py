@@ -10,6 +10,8 @@ from .test_compiler import assert_equal
 def test_translation_1_3_to_1_4():
     parser = JSONParser_1_3()
     compiler = JSONCompiler()
+    # omit none values as expected result also does not include None´s
+    compiler.OMIT_NONE_FIELDS = True
     with open("tests/data/metadata_v13_minimal.json", "r") as _input_file:
         input_string = _input_file.read()
         # Step 1: Parse JSON to internal structure

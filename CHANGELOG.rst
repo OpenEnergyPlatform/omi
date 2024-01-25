@@ -2,8 +2,13 @@
 Changelog
 =========
 
-current (2022-XX-XX)
+current (2024-XX-XX)
 --------------------
+* 
+
+0.2.0 (2024-01-25)
+--------------------
+* Introduce OMIT_NONE_FIELDS in JSONCompiler class to ease removing / keeping none values in the metadata. By default None values are kept. (#72)[https://github.com/OpenEnergyPlatform/omi/pull/72]
 
 0.1.2 (2023-01-27)
 --------------------

@@ -5,6 +5,7 @@ on:
     branches: 
       - test-release
       - 'release/*'
+      - 'release-*'
 
 jobs:
   build-n-publish:

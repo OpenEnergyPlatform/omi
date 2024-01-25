@@ -7,6 +7,8 @@ from ..internal_structures import metadata_v_1_4, metadata_v_1_5
 
 def test_compiler_v1_5():
     compiler = JSONCompilerOEM15()
+    # omit none values as expected result also does not include None´s
+    compiler.OMIT_NONE_FIELDS = True
     with open("tests/data/metadata_v15.json", "r", encoding="utf-8") as _input_file:
         expected_result = json.load(_input_file)
         result = compiler.visit(metadata_v_1_5)
@@ -15,6 +17,8 @@ def test_compiler_v1_5():
 
 def test_compiler_v1_4():
     compiler = JSONCompiler()
+    # omit none values as expected result also does not include None´s
+    compiler.OMIT_NONE_FIELDS = True
     with open("tests/data/metadata_v14.json", "r", encoding="utf-8") as _input_file:
         expected_result = json.load(_input_file)
         result = compiler.visit(metadata_v_1_4)
