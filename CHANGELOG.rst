@@ -6,6 +6,10 @@ current (2024-XX-XX)
 --------------------
 * 
 
+0.2.1 (2024-01-26)
+--------------------
+* Reorder metadata fields after the json input was compiled & prevent removing context fields if they are Null (#96)[https://github.com/OpenEnergyPlatform/omi/pull/96]
+
 0.2.0 (2024-01-25)
 --------------------
 * Introduce OMIT_NONE_FIELDS in JSONCompiler class to ease removing / keeping none values in the metadata. By default None values are kept. (#72)[https://github.com/OpenEnergyPlatform/omi/pull/72]
