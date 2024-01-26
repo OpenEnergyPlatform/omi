@@ -1,5 +1,5 @@
-import logging
 import datetime
+import logging
 
 from omi import structure
 from omi.dialects.base.compiler import Compiler
