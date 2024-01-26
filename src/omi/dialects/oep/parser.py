@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import json
 import logging
 import pathlib
@@ -32,7 +31,7 @@ ALL_OEM_SCHEMAS = [
 ]
 
 
-def parse_date_or_none(x):
+def parse_date_or_none(x, fieldname=None, element=None):
     if x is None:
         pass
     elif type(x) == int:
@@ -53,16 +52,22 @@ def parse_date_or_none(x):
             try:
                 date_time = dateutil.parser.parse(x)
             except Exception:
-                raise ParserException(f"invalid value for date: {x}")
+                raise ParserException(
+                    f"In fields {fieldname} {element} element is a invalid value for date: {x}"
+                )
             if re.match("^[123][0-9]{3}-[0-9]{1,2}-[0-9]{1,2}$", x):
                 # date only
                 x = date_time.date()
             else:
                 x = date_time
         else:
-            raise ParserException(f"invalid value for date: {x}")
+            raise ParserException(
+                f"In fields {fieldname} {element} element is a invalid value for date: {x}"
+            )
     else:
-        raise ParserException(f"invalid type for date: {type(x)}")
+        raise ParserException(
+            f"In fields {fieldname} {element} element is a invalid type for date: {type(x)}"
+        )
     return x
 
 
@@ -203,11 +208,10 @@ class JSONParser(Parser):
         return report
 
     def is_valid(self, inp: dict, schema):
-
         # 1 - valid JSON?
         if isinstance(inp, str):
             try:
-                jsn = json.loads(inp, encode="utf-8")
+                jsn = json.loads(inp)
             except ValueError:
                 return False
         else:
@@ -224,7 +228,6 @@ class JSONParser(Parser):
 
 class JSONParser_1_3(JSONParser):
     def is_valid(self, inp: dict, schema=OEMETADATA_V130_SCHEMA):
-
         # 1 - valid JSON?
         if isinstance(inp, str):
             try:
@@ -327,7 +330,9 @@ class JSONParser_1_3(JSONParser):
         else:
             resources = []
             if len(old_resources) == 0:
-                raise ParserException("Resource field doesn't have any child entity")
+                raise ParserException(
+                    "The field Resource field is empty! Please provide a description of your data resources e.g. a table schema."
+                )
             for resource in old_resources:
                 old_fields = resource.get("fields")
                 if old_fields is None:
@@ -374,7 +379,6 @@ class JSONParser_1_3(JSONParser):
 
 class JSONParser_1_4(JSONParser):
     def is_valid(self, inp: dict, schema=OEMETADATA_V141_SCHEMA):
-
         # 1 - valid JSON?
         if isinstance(inp, str):
             try:
@@ -406,13 +410,14 @@ class JSONParser_1_4(JSONParser):
     def parse(self, json_old: dict, *args, **kwargs):
         # context section
         if "id" not in json_old:
-            raise ParserException("metadata string does not contain an id")
+            raise ParserException(
+                "The metadata string does not contain an id. This field is required."
+            )
 
         inp_context = json_old.get("context")
         if inp_context is None:
             context = None
         else:
-
             funding_agency = None
             if "fundingAgency" in inp_context:
                 funding_agency = structure.Agency(
@@ -506,11 +511,13 @@ class JSONParser_1_4(JSONParser):
                         name=old_contributor.get("title"),
                         email=old_contributor.get("email"),
                     ),
-                    date=parse_date_or_none(old_contributor.get("date")),
+                    date=parse_date_or_none(
+                        old_contributor.get("date"), f"{cont_element}contributors.data"
+                    ),
                     obj=old_contributor.get("object"),
                     comment=old_contributor.get("comment"),
                 )
-                for old_contributor in old_contributors
+                for cont_element, old_contributor in enumerate(old_contributors)
             ]
 
         # extending with script-user information
@@ -777,7 +784,6 @@ class JSONParser_1_4(JSONParser):
 
 class JSONParser_1_5(JSONParser):
     def is_valid(self, inp: dict, schema=OEMETADATA_LATEST_SCHEMA):
-
         # 1 - valid JSON?
         if isinstance(inp, str):
             try:
@@ -828,12 +834,12 @@ class JSONParser_1_5(JSONParser):
     ):
         """
         Get the value for a key in a dict - but try multiple key names, in
-        case they have changed in eralryer oemetadata versions.
+        case they have changed in earlier oemetadata versions.
 
         Args:
             element (dict): dict element of the input metadata
             keys (list[str]): list of key name options
-            get_return_default (_type_, optional): A default return vlaue if key is not present. Defaults to None.
+            get_return_default (_type_, optional): A default return value if key is not present. Defaults to None.
 
         Returns:
             any: By default it is the value at the key or None - but can be any as the value is not strict.
@@ -900,7 +906,6 @@ class JSONParser_1_5(JSONParser):
         if inp_context is None:
             context = None
         else:
-
             funding_agency = None
             if "fundingAgency" in inp_context:
                 funding_agency = oem_v15.Agency(
@@ -1024,25 +1029,25 @@ class JSONParser_1_5(JSONParser):
                 element, key_name_options.get("licenses_equal")
             )
 
-        def parse_licence_including_former_structure(licences_element):
+        def parse_license_including_former_structure(licenses_element):
             """
             The lincences key was got a structural differnece in former oemetada versions.
             In Version 1.3 the key was called lincense and was a singe object/dict, in the
             current version this key is calles licences and is a list of objects/dicts.
             Also the key names in the dicht are deviating.
             """
-            if isinstance(licences_element, list):
+            if isinstance(licenses_element, list):
                 _result = [
                     self.parse_term_of_use(old_license) for old_license in old_licenses
                 ]
 
-            if isinstance(licences_element, dict):
+            if isinstance(licenses_element, dict):
                 _mapping_former_keys = {
-                    "name": licences_element.get("id"),
-                    "title": licences_element.get("name"),
-                    "path": licences_element.get("url"),
-                    "instruction": licences_element.get("instruction"),
-                    "attribution": licences_element.get("copyright"),
+                    "name": licenses_element.get("id"),
+                    "title": licenses_element.get("name"),
+                    "path": licenses_element.get("url"),
+                    "instruction": licenses_element.get("instruction"),
+                    "attribution": licenses_element.get("copyright"),
                 }
 
                 _result = [self.parse_term_of_use(old_license=_mapping_former_keys)]
@@ -1054,8 +1059,8 @@ class JSONParser_1_5(JSONParser):
         if old_licenses is None:
             licenses = None
         else:
-            licenses = parse_licence_including_former_structure(
-                licences_element=old_licenses
+            licenses = parse_license_including_former_structure(
+                licenses_element=old_licenses
             )
 
         # filling the contributers section
@@ -1071,11 +1076,13 @@ class JSONParser_1_5(JSONParser):
                         ),
                         email=old_contributor.get("email"),
                     ),
-                    date=parse_date_or_none(old_contributor.get("date")),
+                    date=parse_date_or_none(
+                        old_contributor.get("date"), "contributors.data", cont_element
+                    ),
                     obj=old_contributor.get("object"),
                     comment=old_contributor.get("comment"),
                 )
-                for old_contributor in old_contributors
+                for cont_element, old_contributor in enumerate(old_contributors)
             ]
 
         # extending with script-user information
@@ -1085,7 +1092,9 @@ class JSONParser_1_5(JSONParser):
         # Code added to raise exception when resource is empty
         else:
             if len(old_resources) == 0:
-                raise ParserException("Resources field is empty!")
+                raise ParserException(
+                    "The resources field is empty! Please provide a description of you data resources e.g. a table schema. See https://github.com/OpenEnergyPlatform/oemetadata/blob/master/metadata/latest/metadata_key_description.md#resource-keys."
+                )
             resources = []
             for resource in old_resources:
                 old_schema = resource.get("schema")
@@ -1145,7 +1154,10 @@ class JSONParser_1_5(JSONParser):
                     for fk in old_foreign_keys:
                         old_reference = fk.get("reference")
                         if old_reference is None:
-                            raise ParserException("Foreign key without reference:", fk)
+                            raise ParserException(
+                                "The Foreign key you provided is missing reference information:",
+                                fk,
+                            )
                         source_fields = [
                             field_dict[field_name]
                             for field_name in fk.get("fields", [])

@@ -4,7 +4,7 @@ Changelog
 
 current (2024-XX-XX)
 --------------------
-* 
+* Reorder metadata fields after the json input was compiled & prevent removing context fields if they are Null (#96)[https://github.com/OpenEnergyPlatform/omi/pull/96]
 
 0.2.0 (2024-01-25)
 --------------------
