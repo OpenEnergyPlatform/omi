@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from omi import structure
 from omi.dialects.base.compiler import Compiler
@@ -51,22 +52,33 @@ class JSONCompiler(Compiler):
             ("grantNo", context.grant_number),
         )
         if context.funding_agency is not None:
-            if context.funding_agency.name is not None:
-                result["fundingAgency"] = context.funding_agency.name
-            if context.funding_agency.logo is not None:
-                result["fundingAgencyLogo"] = context.funding_agency.logo
+            result["fundingAgency"] = context.funding_agency.name
+            result["fundingAgencyLogo"] = context.funding_agency.logo
         if context.publisher is not None:
             result["publisherLogo"] = context.publisher.logo
+        logging.info(
+            f"The context is parsed from file with the following values: {context}"
+        )
+        logging.info(
+            f"The context class is compiled to the following python dict: {result}"
+        )
         return result
 
     def visit_contribution(self, contribution: structure.Contribution, *args, **kwargs):
-        return self._construct_dict(
+        result = self._construct_dict(
             ("title", contribution.contributor.name),
             ("email", contribution.contributor.email),
             ("object", contribution.object),
             ("comment", contribution.comment),
             ("date", compile_date_or_none(contribution.date, "%Y-%m-%d")),
         )
+        logging.info(
+            f"The contributions are parsed from file with the following values: {contribution}"
+        )
+        logging.info(
+            f"The contributions class is compiled to the following python dict: {result}"
+        )
+        return result
 
     def visit_language(self, language: structure.Language, *args, **kwargs):
         return str(language)
@@ -133,7 +145,7 @@ class JSONCompiler(Compiler):
         return self._construct_dict(
             ("instruction", terms_of_use.instruction),
             ("attribution", terms_of_use.attribution),
-            **license_kwargs
+            **license_kwargs,
         )
 
     def visit_resource(self, resource: structure.Resource, *args, **kwargs):
@@ -367,20 +379,20 @@ class JSONCompilerOEM15(JSONCompiler):
             ("title", metadata.title),
             ("id", metadata.identifier),
             ("description", metadata.description),
-            ("language", metadata.languages),
             ("subject", metadata.subject),
+            ("language", metadata.languages),
             ("keywords", metadata.keywords),
             ("publicationDate", publication_date),
             ("context", metadata.context),
             ("spatial", metadata.spatial),
             ("temporal", metadata.temporal),
-            ("review", metadata.review),
             ("sources", metadata.sources),
             ("licenses", metadata.license),
             ("contributors", metadata.contributions),
             ("resources", metadata.resources),
             ("@id", metadata.databus_identifier),
             ("@context", metadata.databus_context),
+            ("review", metadata.review),
             metaMetadata=self._construct_dict(
                 ("metadataVersion", self.__METADATA_VERSION),
                 metadataLicense=self._construct_dict(
@@ -399,5 +411,5 @@ class JSONCompilerOEM15(JSONCompiler):
                 null="If not applicable use: null",
                 todo="If a value is not yet available, use: todo",
             ),
-            **kwargs
+            **kwargs,
         )
