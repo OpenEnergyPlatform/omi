@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import logging
 
 import json
-import logging
 import pathlib
 import re
 
