@@ -32,7 +32,7 @@ search = "Unreleased"
 filename = "README.rst"
 
 [[tool.bumpversion.files]]
-filename = "docs/conf.py
+filename = "docs/conf.py"
 
 [[tool.bumpversion.files]]
 filename = "omi/__init__.py"
