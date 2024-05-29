@@ -9,6 +9,8 @@ from dataclasses import dataclass
 import jsonschema
 from metadata import v152, v160
 
+from omi.base import extract_metadata_version
+
 # Order matters! First entry equals latest version of metadata format
 METADATA_FORMATS = {"OEP": ["OEP-1.6.0", "OEP-1.5.2"], "INSPIRE": []}
 METADATA_VERSIONS = {version: md_format for md_format, versions in METADATA_FORMATS.items() for version in versions}
@@ -41,32 +43,9 @@ def validate_metadata(metadata: dict) -> None:
     None
         if metadata schema is valid. Otherwise it raises an exception.
     """
-    metadata_version = __extract_metadata_version(metadata)
+    metadata_version = extract_metadata_version(metadata)
     metadata_schema = get_metadata_schema(metadata_version)
     jsonschema.validate(metadata, metadata_schema.schema)
-
-
-def __extract_metadata_version(metadata: dict) -> str:
-    """
-    Extract metadata version from metadata.
-
-    Parameters
-    ----------
-    metadata: dict
-        Metadata
-
-    Returns
-    -------
-    str
-        Metadata version as string
-    """
-    # For OEP metadata
-    try:
-        return metadata["metaMetadata"]["metadataVersion"]
-    except KeyError:
-        pass
-    msg = "Could not extract metadata version from metadata."
-    raise ValidationError(msg)
 
 
 def get_metadata_schema(metadata_version: str) -> MetadataSchema:
