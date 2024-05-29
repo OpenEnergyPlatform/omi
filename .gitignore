@@ -81,3 +81,4 @@ docs/_build
 
 # manual testing scripts
 /local_test
+/.venv/
