@@ -6,11 +6,16 @@ import json
 import pathlib
 from dataclasses import dataclass
 
+import jsonschema
 from metadata import v152, v160
 
 # Order matters! First entry equals latest version of metadata format
 METADATA_FORMATS = {"OEP": ["OEP-1.6.0", "OEP-1.5.2"], "INSPIRE": []}
 METADATA_VERSIONS = {version: md_format for md_format, versions in METADATA_FORMATS.items() for version in versions}
+
+
+class ValidationError(Exception):
+    """Exception raised when a validation fails."""
 
 
 @dataclass
@@ -20,6 +25,48 @@ class MetadataSchema:
     schema: dict
     template: dict | None = None
     example: dict | None = None
+
+
+def validate_metadata(metadata: dict) -> None:
+    """
+    Validate metadata against related metadata schema.
+
+    Parameters
+    ----------
+    metadata: dict
+        Metadata
+
+    Returns
+    -------
+    None
+        if metadata schema is valid. Otherwise it raises an exception.
+    """
+    metadata_version = __extract_metadata_version(metadata)
+    metadata_schema = get_metadata_schema(metadata_version)
+    jsonschema.validate(metadata, metadata_schema.schema)
+
+
+def __extract_metadata_version(metadata: dict) -> str:
+    """
+    Extract metadata version from metadata.
+
+    Parameters
+    ----------
+    metadata: dict
+        Metadata
+
+    Returns
+    -------
+    str
+        Metadata version as string
+    """
+    # For OEP metadata
+    try:
+        return metadata["metaMetadata"]["metadataVersion"]
+    except KeyError:
+        pass
+    msg = "Could not extract metadata version from metadata."
+    raise ValidationError(msg)
 
 
 def get_metadata_schema(metadata_version: str) -> MetadataSchema:
@@ -45,14 +92,14 @@ def get_metadata_schema(metadata_version: str) -> MetadataSchema:
         Metadata schema holding (at least) JSON schema for given metadata version.
     """
     if metadata_version not in METADATA_VERSIONS:
-        raise ValueError(f"Metadata format for metadata version {metadata_version} could not be found.")
+        raise ValidationError(f"Metadata format for metadata version {metadata_version} could not be found.")
     metadata_format = METADATA_VERSIONS[metadata_version]
 
-    metadata_schema_functions = {"OEP": get_metadata_schema_for_oep}
+    metadata_schema_functions = {"OEP": __get_metadata_schema_for_oep}
     return metadata_schema_functions[metadata_format](metadata_version)
 
 
-def get_metadata_schema_for_oep(metadata_version: str) -> MetadataSchema:
+def __get_metadata_schema_for_oep(metadata_version: str) -> MetadataSchema:
     """
     Return OEP metadata schema for given metadata version.
 
