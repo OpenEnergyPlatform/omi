@@ -1,4 +1,5 @@
 """Tests for OMIs conversion module."""
+import pytest
 
 from omi import base, conversion, validation
 
@@ -44,3 +45,10 @@ def test_conversion_chain():
     converted_metadata = conversion.convert_metadata(metadata, "e")
     assert base.extract_metadata_version(converted_metadata) == "e"
     assert converted_metadata["value"] == 10 * 3 * 5
+
+
+def test_invalid_conversion():
+    """Test if conversion error is raised for invalid conversion chain."""
+    metadata = {"metaMetadata": {"metadataVersion": "OEP-1.5.2"}}
+    with pytest.raises(conversion.ConversionError, match="No conversion chain found from OEP-1.5.2 to OEP-1.5.0."):
+        conversion.convert_metadata(metadata, "OEP-1.5.0")
