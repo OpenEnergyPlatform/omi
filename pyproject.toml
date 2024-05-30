@@ -17,6 +17,7 @@ rdfLib = "^7.0.0"
 python-dateutil = "^2.9.0"
 jsonschema = "^4.22.0"
 oemetadata = ">=1.5.2"
+frictionless = "^5.17.0"
 
 [tool.poetry.group.dev.dependencies]
 tox = "^4.15.0"

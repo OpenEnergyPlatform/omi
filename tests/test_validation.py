@@ -6,7 +6,7 @@ import pathlib
 import pytest
 from jsonschema.exceptions import ValidationError
 
-from omi import validation
+from omi import base, validation
 
 UNSUPPORTED_OEP_METADATA_EXAMPLE_FILE = (
     pathlib.Path(__file__).parent / "test_data" / "unsupported_oep_metadata_example.json"
@@ -18,7 +18,7 @@ def test_validation_of_oep_metadata():
     """Test successful validation of OEP metadata."""
     versions = ("OEP-1.5.2", "OEP-1.6.0")
     for version in versions:
-        metadata_schema = validation.get_metadata_schema(version)
+        metadata_schema = base.get_metadata_specification(version)
         validation.validate_metadata(metadata_schema.example)
 
 
@@ -35,7 +35,7 @@ def test_unsupported_oep_metadata_version():
     with UNSUPPORTED_OEP_METADATA_EXAMPLE_FILE.open("r") as f:
         unsupported_oep_metadata = json.load(f)
     with pytest.raises(
-        validation.ValidationError,
+        base.MetadataError,
         match="Metadata format for metadata version OEP-1.5.1 could not be found.",
     ):
         validation.validate_metadata(unsupported_oep_metadata)
@@ -44,7 +44,7 @@ def test_unsupported_oep_metadata_version():
 def test_metadata_schema_for_oep_version():
     """Test schema, template and example for OEP metadata."""
     version = "OEP-1.5.2"
-    schema = validation.get_metadata_schema(version)
+    schema = base.get_metadata_specification(version)
     assert schema.schema["description"] == "Open Energy Plaftorm (OEP) metadata schema v1.5.2"
     assert schema.template["name"] is None
     assert schema.example["name"] == "oep_metadata_table_example_v152"
@@ -53,7 +53,7 @@ def test_metadata_schema_for_oep_version():
 def test_metadata_schema_not_found():
     """Test failing schema for invalid metadata version."""
     with pytest.raises(
-        validation.ValidationError,
+        base.MetadataError,
         match="Metadata format for metadata version OEP-1.5.0 could not be found.",
     ):
-        validation.get_metadata_schema("OEP-1.5.0")
+        base.get_metadata_specification("OEP-1.5.0")
