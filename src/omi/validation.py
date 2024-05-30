@@ -74,8 +74,7 @@ def get_metadata_schema(metadata_version: str) -> MetadataSchema:
         raise ValidationError(f"Metadata format for metadata version {metadata_version} could not be found.")
     metadata_format = METADATA_VERSIONS[metadata_version]
 
-    metadata_schema_functions = {"OEP": __get_metadata_schema_for_oep}
-    return metadata_schema_functions[metadata_format](metadata_version)
+    return METADATA_SCHEMAS[metadata_format](metadata_version)
 
 
 def __get_metadata_schema_for_oep(metadata_version: str) -> MetadataSchema:
@@ -100,3 +99,6 @@ def __get_metadata_schema_for_oep(metadata_version: str) -> MetadataSchema:
         with (module_path / f"{item}.json").open("r") as f:
             schema[item] = json.loads(f.read())
     return MetadataSchema(**schema)
+
+
+METADATA_SCHEMAS = {"OEP": __get_metadata_schema_for_oep}
