@@ -1,4 +1,5 @@
 """Conversion module for OMI to update metadata to different versions."""
+from __future__ import annotations
 
 from copy import deepcopy
 
@@ -56,7 +57,7 @@ def __get_conversion_chain(source_version: str, target_version: str) -> list[str
         List of conversion chain from source version to target version
     """
 
-    def get_chain(current_version: str) -> list[str]:
+    def get_chain(current_version: str) -> list[str] | None:
         for source, target in METADATA_CONVERSIONS:
             if source != current_version:
                 continue
