@@ -1,5 +1,6 @@
 """Module to inspect data and create metadata from it."""
 
+from collections.abc import Callable
 from typing import Any
 
 from frictionless import Detector, Dialect, Resource
@@ -15,6 +16,8 @@ class InspectionError(Exception):
 def infer_metadata(data: Any, metadata_format: str) -> dict:  # noqa: ANN401
     """
     Guess metadata from data in given metadata format.
+
+    Note: It expects semicolon-delimited data.
 
     Parameters
     ----------
@@ -33,12 +36,12 @@ def infer_metadata(data: Any, metadata_format: str) -> dict:  # noqa: ANN401
     if template_metadata is None:
         raise InspectionError(f"No metadata template for metadata format {metadata_format} found.")
 
-    fields = __guess_fields_from_data(data)
-    inferred_metadata = METADATA_TEMPLATE_ENGINE[metadata_format](template_metadata, fields)
+    fields, resource = __guess_fields_from_data(data)
+    inferred_metadata = METADATA_TEMPLATE_ENGINE[metadata_format](template_metadata, fields, resource)
     return inferred_metadata
 
 
-def __guess_fields_from_data(data: Any) -> list[dict[str, str]]:  # noqa: ANN401
+def __guess_fields_from_data(data: Any) -> tuple[list[dict[str, str]], Resource]:  # noqa: ANN401
     """
     Field names and types of data columns are detected by Frictionless.
 
@@ -51,6 +54,8 @@ def __guess_fields_from_data(data: Any) -> list[dict[str, str]]:  # noqa: ANN401
     -------
     list[dict[str, str]]
         List of fields holding name and type as strings
+    Resource
+        Extracted resource
     """
     csv_control = CsvControl(delimiter=";")
     dialect = Dialect(controls=[csv_control])
@@ -64,14 +69,65 @@ def __guess_fields_from_data(data: Any) -> list[dict[str, str]]:  # noqa: ANN401
         detector=detector,
     )
     # Must be run, before schema can be inspected
-    resource.read_rows()
+    resource.infer()
     fields = resource.schema.to_dict()["fields"]
-    return fields
+    return fields, resource
 
 
-def __apply_fields_to_oep_metadata_template(metadata: dict, fields: list[dict[str, Any]]) -> dict:
+def __apply_fields_to_oep_metadata_template(metadata: dict, fields: list[dict[str, str]], resource: Resource) -> dict:
+    """
+    Apply fields to metadata template for OEP metadata.
+
+    Parameters
+    ----------
+    metadata: dict
+        Metadata template
+    fields: list[dict[str, str]]
+        List of fields holding name and type as strings
+    resource: Resource
+        Extracted frictionless resource holding data
+
+    Returns
+    -------
+    dict
+        OEP metadata template holding guessed fields
+    """
+    type_mapping = {str(str): "string", str(int): "integer", str(float): "float"}
+
+    def convert_field(field: dict[str, str]) -> dict[str, str]:
+        """
+        Convert frictionless field types to OEP types.
+
+        This only includes conversion of number to float and detection of subtypes in arrays
+        (currently, only string, integer and float are detected as subtypes).
+
+        Parameters
+        ----------
+        field: dict[str, str]
+            Frictionless field description
+
+        Returns
+        -------
+        dict[str, str]
+            Field description with OEP supported types
+        """
+        if field["type"] == "number":
+            return {"name": field["name"], "type": "float"}
+        if field["type"] == "array":
+            for row in rows:
+                if len(row[field["name"]]) == 0:
+                    continue
+                item_type = str(type(row[field["name"]][0]))
+                return {"name": field["name"], "type": f"array {type_mapping[item_type]}"}
+            # All arrays are empty - so no further subtype can be detected
+            return {"name": field["name"], "type": "array"}
+        return field
+
+    rows = resource.read_rows()
+    fields = [convert_field(field) for field in fields]
+
     metadata["resources"][0]["schema"]["fields"] = fields
     return metadata
 
 
-METADATA_TEMPLATE_ENGINE = {"OEP": __apply_fields_to_oep_metadata_template}
+METADATA_TEMPLATE_ENGINE: dict[str, Callable] = {"OEP": __apply_fields_to_oep_metadata_template}
