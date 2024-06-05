@@ -6,7 +6,10 @@ import json
 import pathlib
 from dataclasses import dataclass
 
+import requests
 from metadata import v152, v160
+
+from .settings import OEP_URL
 
 # Order matters! First entry equals latest version of metadata format
 METADATA_FORMATS = {"OEP": ["OEP-1.6.0", "OEP-1.5.2"], "INSPIRE": []}
@@ -24,6 +27,31 @@ class MetadataSpecification:
     schema: dict
     template: dict | None = None
     example: dict | None = None
+
+
+def get_metadata_from_oep_table(oep_table: str, oep_schema: str = "model_draft") -> dict:
+    """
+    Get metadata from OEP table.
+
+    Parameters
+    ----------
+    oep_table: str
+        OEP table name
+    oep_schema: str
+        OEP schema name
+
+    Returns
+    -------
+    dict
+        Metadata in OEMetadata format
+    """
+    response = requests.get(f"{OEP_URL}/api/v0/schema/{oep_schema}/tables/{oep_table}/meta/", timeout=90)
+    if response.status_code != requests.codes.ok:
+        raise MetadataError(f"Could not retrieve metadata from OEP table '{oep_schema}.{oep_table}'.")
+    metadata = response.json()
+    if not metadata:
+        raise MetadataError(f"Metadata from '{oep_schema}.{oep_table}' is empty.")
+    return metadata
 
 
 def extract_metadata_version(metadata: dict) -> str:

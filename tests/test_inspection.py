@@ -4,7 +4,7 @@ import pathlib
 
 from omi import inspection
 
-CSV_DATA_FILE = pathlib.Path(__file__).parent / "test_data" / "data.csv"
+CSV_DATA_FILE = pathlib.Path(__file__).parent / "test_data" / "inspection" / "data.csv"
 
 
 def test_inspection():
