@@ -1,0 +1,47 @@
+{
+    "title": "title",
+    "id": "http://such.tld/name",
+    "description": "These metadata say they're v1.5.0 but 'isAbout' is only defined in version 1.5.2 or later.",
+    "publicationDate": "First of June 2024",
+    "licenses": [
+        {
+            "name": "ODbL-1.0",
+            "title": "Open Data Commons Open Database License 1.0"
+        }
+    ],
+    "resources": [
+        {
+            "profile": "tabular-data-resource",
+            "name": "very.name",
+            "path": "http://such.tld/name",
+            "format": "PostgreSQL",
+            "encoding": "UTF-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "id",
+                        "description": "Unique identifier",
+                        "type": "serial"
+                    },
+                    {
+                        "name": "name",
+                        "description": "Example name",
+                        "type": "text",
+                        "isAbout": [
+                            {
+                                "name": "written name",
+                                "path": "https://openenergy-platform.org/ontology/oeo/IAO_0000590"
+                            }
+                        ]
+                    }
+                ],
+                "primaryKey": [
+                    "id"
+                ]
+            }
+        }
+    ],
+    "metaMetadata": {
+        "metadataVersion": "OEP-1.5.0"
+    }
+}
