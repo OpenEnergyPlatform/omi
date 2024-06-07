@@ -54,7 +54,7 @@ def get_metadata_from_oep_table(oep_table: str, oep_schema: str = "model_draft")
     return metadata
 
 
-def extract_metadata_version(metadata: dict) -> str:
+def get_metadata_version(metadata: dict) -> str:
     """
     Extract metadata version from metadata.
 

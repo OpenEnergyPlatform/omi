@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 
-from omi.base import extract_metadata_version
+from omi.base import get_metadata_version
 
 
 class ConversionError(Exception):
@@ -26,11 +26,11 @@ def convert_metadata(metadata: dict, target_version: str) -> dict:
     dict
         Updated metadata
     """
-    metadata_version = extract_metadata_version(metadata)
+    metadata_version = get_metadata_version(metadata)
     conversion_chain = __get_conversion_chain(metadata_version, target_version)
     converted_metadata = deepcopy(metadata)
     for next_version in conversion_chain[1:]:
-        current_version = extract_metadata_version(converted_metadata)
+        current_version = get_metadata_version(converted_metadata)
         converted_metadata = METADATA_CONVERSIONS[(current_version, next_version)](converted_metadata)
     return converted_metadata
 

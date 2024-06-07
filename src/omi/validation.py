@@ -20,9 +20,9 @@ from frictionless.fields import (
 from omi import license
 from omi.base import (
     MetadataError,
-    extract_metadata_version,
     get_metadata_from_oep_table,
     get_metadata_specification,
+    get_metadata_version,
 )
 from omi.settings import OEP_URL
 
@@ -61,7 +61,7 @@ def validate_metadata(metadata: dict) -> None:
     None
         if metadata schema is valid. Otherwise it raises an exception.
     """
-    metadata_version = extract_metadata_version(metadata)
+    metadata_version = get_metadata_version(metadata)
     metadata_schema = get_metadata_specification(metadata_version)
     jsonschema.validate(metadata, metadata_schema.schema)
     license.validate_oemetadata_licenses(metadata)
