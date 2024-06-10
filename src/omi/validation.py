@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import warnings
+
 import jsonschema
 import pandas as pd
 import requests
@@ -208,6 +210,89 @@ def validate_data_against_metadata(
             return report
         raise ValidationError(f"Data validation failed. Reason: {report.tasks[0].errors}")
     return None
+
+
+def validate_oep_table_against_metadata(  # noqa: C901
+    oep_table: str,
+    oep_schema: str,
+    metadata: dict | None = None,
+) -> None:
+    """
+    Validate OEP table against given metadata.
+
+    Parameters
+    ----------
+    oep_table: str
+        OEP table name
+    oep_schema: str
+        OEP schema name
+    metadata: dict | None
+        Metadata in OEMetadata format. If no metadata is given, metadata defined for OEP table on OEP is used.
+
+    Raises
+    ------
+    ValidationError
+        if OEP table schema does not fit metadata schema.
+
+    Returns
+    -------
+    None
+        if everything is valid. Otherwise, it raises an exception.
+    """
+    if metadata is None:
+        metadata = get_metadata_from_oep_table(oep_table, oep_schema)
+
+    # First check if metadata is even valid:
+    validate_metadata(metadata)
+
+    errors = []
+
+    # Check resource name:
+    if "resources" not in metadata:
+        warnings.warn("No resource section defined in metadata. Cannot compare schema definitions.", stacklevel=1)
+    if len(metadata["resources"]) > 1:
+        warnings.warn(
+            "Found more than one resource in metadata. Can only compare single resource with oep table definition.",
+            stacklevel=1,
+        )
+    if "name" not in metadata["resources"][0]:
+        raise ValidationError(
+            f"Metadata resource has no name. It should be one of '{oep_table}', or '{oep_schema}.{oep_table}'.",
+        )
+    if (
+        metadata["resources"][0]["name"] != oep_table
+        and metadata["resources"][0]["name"] != f"{oep_schema}.{oep_table}"
+    ):
+        raise ValidationError(
+            f"Name '{metadata['resources'][0]['name']}' of metadata resource does not fit to oep table name. "
+            f"It should be one of '{oep_table}', or '{oep_schema}.{oep_table}'.",
+        )
+
+    # Compare fields and related types:
+    oep_table_fields = __get_fields_from_oep_table(oep_table, oep_schema)
+    metadata_fields = __get_fields_from_metadata(metadata)
+    # Map fields to same field type format (using frictionless format as comparison format)
+    mapped_oep_table_fields = {
+        field.name: field.type for field in __map_fields_to_frictionless_fields(oep_table_fields)
+    }
+    mapped_metadata_fields = {field.name: field.type for field in __map_fields_to_frictionless_fields(metadata_fields)}
+    for field_name, field_type in mapped_oep_table_fields.items():
+        if field_name not in metadata_fields:
+            errors.append(
+                f"Field '{field_name}' from OEP table '{oep_schema}.{oep_table}' is missing in metadata schema.",
+            )
+            continue
+        if field_type != mapped_metadata_fields[field_name]:
+            errors.append(
+                f"Field type '{oep_table_fields[field_name]}' from OEP table field '{field_name}' "
+                f"differs from type '{metadata_fields[field_name]}' defined in metadata schema.",
+            )
+    for field_name in metadata_fields:
+        if field_name not in oep_table_fields:
+            errors.append(f"Field '{field_name}' not defined in OEP table '{oep_schema}.{oep_table}'.")  # noqa: PERF401
+    if not errors:
+        return
+    raise ValidationError(errors)
 
 
 def __validate_data_against_schema(data: pd.DataFrame, fields: dict[str, str]) -> Report:

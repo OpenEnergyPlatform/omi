@@ -1,0 +1,244 @@
+{
+ "name": "x2x_p2gas_soec_1",
+ "title": "sedos_x2x_p2gas_soec_1",
+ "id": null,
+ "description": "Techno-economic parameter for SOEC hydrogen electrolyzers.",
+ "subject": [
+  {
+   "name": "water electrolyser",
+   "path": "http://openenergy-platform.org/ontology/oeo/OEO_00010021"
+  }
+ ],
+ "language": [
+  "en-GB"
+ ],
+ "keywords": [
+  "SEDOS",
+  "AP5",
+  "X2X",
+  "oedatamodel-parameter",
+  "input_data"
+ ],
+ "publicationDate": "2024-04-08",
+ "context": {
+  "homepage": "https://sedos-project.github.io/.github/",
+  "documentation": "https://sedos-project.github.io/.github/",
+  "sourceCode": "https://github.com/sedos-project",
+  "contact": "g.mueller@fz-juelich.de",
+  "grantNo": "03EI1040D",
+  "fundingAgency": "Bundesministerium für Wirtschaft und Klimaschutz (BMWK)",
+  "fundingAgencyLogo": "https://en.wikipedia.org/wiki/Federal_Ministry_for_Economic_Affairs_and_Climate_Action#/media/File:BMWi_Logo_2021.svg"
+ },
+ "spatial": {
+  "location": "global",
+  "extent": null,
+  "resolution": null
+ },
+ "temporal": {
+  "referenceDate": null,
+  "timeseries": [
+   {
+    "start": null,
+    "end": null,
+    "resolution": null,
+    "alignment": null,
+    "aggregationType": null
+   }
+  ]
+ },
+ "sources": [
+  {
+   "title": "Technology Data for Renewable Fuels",
+   "description": null,
+   "path": "https://ens.dk/sites/ens.dk/files/Analyser/technology_data_for_renewable_fuels.pdf",
+   "licenses": [
+    {
+     "instruction": "You are free to: Share, Adapt. You must give appropriate credit.",
+     "attribution": "© Danish Energy Agency 2017.",
+     "name": "CC-BY-4.0 DEED",
+     "title": null,
+     "path": "https://creativecommons.org/licenses/by/4.0/"
+    }
+   ]
+  }
+ ],
+ "licenses": [
+  {
+   "instruction": "You are free: To Share, To Create, To Adapt",
+   "attribution": null,
+   "name": "CC0-1.0",
+   "title": "Creative Commons Zero v1.0 Universal",
+   "path": "https://creativecommons.org/publicdomain/zero/1.0/legalcode"
+  }
+ ],
+ "contributors": [
+  {
+   "title": "Gian Müller, FZJ",
+   "email": "g.mueller@fz-juelich.de",
+   "object": "data and metadata",
+   "comment": "Data for SOEC electrolyser process.",
+   "date": "2024-04-08"
+  }
+ ],
+ "resources": [
+  {
+   "profile": "tabular-data-resource",
+   "name": "model_draft.x2x_p2gas_soec_1",
+   "path": null,
+   "format": "PostgreSQL",
+   "encoding": "UTF-8",
+   "schema": {
+    "primaryKey": [
+     "id"
+    ],
+    "foreignKeys": [],
+    "fields": [
+     {
+      "name": "id",
+      "description": "Unique identifier",
+      "type": "bigint",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": null
+     },
+     {
+      "name": "region",
+      "description": "Country or region",
+      "type": "text",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": null
+     },
+     {
+      "name": "year",
+      "description": "Year",
+      "type": "integer",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": "a"
+     },
+     {
+      "name": "conversion_factor_sec_elec",
+      "description": "Commodity conversion factor of electricity",
+      "type": "float array",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": "MWh/MWh"
+     },
+     {
+      "name": "conversion_factor_sec_heat_high",
+      "description": "Commodity conversion factor of high temperature heat",
+      "type": "float array",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": "MWh/MWh"
+     },
+     {
+      "name": "conversion_factor_sec_hydrogen_orig",
+      "description": "Commodity conversion factor of hydrogen",
+      "type": "float array",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": "MWh/MWh"
+     },
+     {
+      "name": "cost_inv_p",
+      "description": "Investment cost per capacity for SOEC electrolysis",
+      "type": "float array",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": "EUR/MW"
+     },
+     {
+      "name": "cost_fix_p",
+      "description": "Fixed operation and maintenance costs for SOEC electrolysis.",
+      "type": "float array",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": "EUR/MW*a"
+     },
+     {
+      "name": "lifetime",
+      "description": "Lifetime in operation.",
+      "type": "float array",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": "a"
+     },
+     {
+      "name": "wacc",
+      "description": "Percentage of costs for capital after taxes. Used to calculate annuity factor for investment costs.",
+      "type": "text",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": "%"
+     },
+     {
+      "name": "bandwidth_type",
+      "description": "Bandwidth Type",
+      "type": "json",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": null
+     },
+     {
+      "name": "version",
+      "description": "Version",
+      "type": "text",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": null
+     },
+     {
+      "name": "method",
+      "description": "Method",
+      "type": "json",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": null
+     },
+     {
+      "name": "source",
+      "description": "Source",
+      "type": "json",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": null
+     },
+     {
+      "name": "comment",
+      "description": "Comment",
+      "type": "text",
+      "isAbout": [],
+      "valueReference": [],
+      "unit": null
+     }
+    ]
+   },
+   "dialect": {
+    "delimiter": ";",
+    "decimalSeparator": "."
+   }
+  }
+ ],
+ "@id": null,
+ "@context": "https://raw.githubusercontent.com/OpenEnergyPlatform/oemetadata/develop/metadata/latest/context.json",
+ "metaMetadata": {
+  "metadataVersion": "OEP-1.5.2",
+  "metadataLicense": {
+   "name": "CC0-1.0",
+   "title": "Creative Commons Zero v1.0 Universal",
+   "path": "https://creativecommons.org/publicdomain/zero/1.0/"
+  }
+ },
+ "_comment": {
+  "metadata": "Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/oemetadata)",
+  "dates": "Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
+  "units": "Use a space between numbers and units (100 m)",
+  "languages": "Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
+  "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
+  "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/blob/master/data-review/manual/review_manual.md)",
+  "null": "If not applicable use: null",
+  "todo": "If a value is not yet available, use: todo"
+ }
+}
