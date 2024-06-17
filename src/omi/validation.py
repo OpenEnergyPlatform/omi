@@ -365,13 +365,18 @@ def __validate_data_against_schema(data: pd.DataFrame, fields: dict[str, str]) -
     Report
         Frictionless report of validated data
     """
+    # Check if all fields oin metadata are represented in data
+    for field in fields:
+        if field not in data.columns:
+            raise ValidationError(f"Could not find column '{field}' in data.")
+
     ordered_fields = {}
     for field in data.columns:
         if field not in fields:
             raise ValidationError(f"Could not find field '{field}' in schema.")
         ordered_fields[field] = fields[field]
     frictionless_fields = __map_fields_to_frictionless_fields(ordered_fields)
-    schema = Schema(fields=frictionless_fields)
+    schema = Schema(fields=frictionless_fields, primary_key=["id"])
     resource = Resource(
         data=data,
         profile="tabular-data-resource",

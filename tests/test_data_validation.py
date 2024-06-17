@@ -61,6 +61,39 @@ def test_data_validation_invalid_report():
     assert not report.valid
 
 
+def test_invalid_data():
+    """Test invalid data validation with example files."""
+    metadata_file = pathlib.Path(__file__).parent / "test_data" / "validation" / "metadata_for_data_csv.json"
+    with metadata_file.open("r") as f:
+        metadata = json.load(f)
+
+    invalid_data_file = (
+        pathlib.Path(__file__).parent / "test_data" / "validation" / "invalid_data" / "missing_column.csv"
+    )
+    invalid_data = pd.read_csv(invalid_data_file, delimiter=";")
+    with pytest.raises(validation.ValidationError, match="Could not find column 'method' in data."):
+        validation.validate_data(invalid_data, metadata=metadata)
+
+    invalid_data_file = pathlib.Path(__file__).parent / "test_data" / "validation" / "invalid_data" / "extra_column.csv"
+    invalid_data = pd.read_csv(invalid_data_file, delimiter=";")
+    with pytest.raises(validation.ValidationError, match="Could not find field 'added_column' in schema."):
+        validation.validate_data(invalid_data, metadata=metadata)
+
+    invalid_data_file = (
+        pathlib.Path(__file__).parent / "test_data" / "validation" / "invalid_data" / "invalid_datatype.csv"
+    )
+    invalid_data = pd.read_csv(invalid_data_file, delimiter=";")
+    with pytest.raises(validation.ValidationError, match="type-error"):
+        validation.validate_data(invalid_data, metadata=metadata)
+
+    invalid_data_file = (
+        pathlib.Path(__file__).parent / "test_data" / "validation" / "invalid_data" / "duplicate_primary_keys.csv"
+    )
+    invalid_data = pd.read_csv(invalid_data_file, delimiter=";")
+    with pytest.raises(validation.ValidationError, match="primary-key"):
+        validation.validate_data(invalid_data, metadata=metadata)
+
+
 def test_invalid_arguments_to_validation_function():
     """Test different invalid function calls to validation function."""
     with pytest.raises(validation.ValidationError, match="Data must be given as pandas.DataFrame."):
