@@ -12,9 +12,6 @@ Contents
    contributing
    authors
    changelog
-   internal_structure
-   dialect
-   oep_metadata
 
 Indices and tables
 ==================
