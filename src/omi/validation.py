@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import warnings
 
 import jsonschema
@@ -49,30 +50,35 @@ class ValidationError(Exception):
     """Exception raised when a validation fails."""
 
 
-def validate_metadata(metadata: dict) -> None:
+def validate_metadata(metadata: dict | str) -> None:
     """
     Validate metadata against related metadata schema.
 
     Parameters
     ----------
-    metadata: dict
-        Metadata
+    metadata: dict | str
+        Metadata as dict or as JSON string
 
     Returns
     -------
     None
         if metadata schema is valid. Otherwise it raises an exception.
     """
+    if isinstance(metadata, str):
+        metadata = parse_metadata(metadata)
     metadata_version = get_metadata_version(metadata)
     metadata_schema = get_metadata_specification(metadata_version)
-    jsonschema.validate(metadata, metadata_schema.schema)
+    try:
+        jsonschema.validate(metadata, metadata_schema.schema)
+    except jsonschema.exceptions.ValidationError as ve:
+        raise ValidationError(f"Error validating metadata against related metadata schema: {ve.message}") from ve
     license.validate_oemetadata_licenses(metadata)
 
 
 def validate_data(
     data: pd.DataFrame,
     *,
-    metadata: dict | None = None,
+    metadata: dict | str | None = None,
     oep_table: str | None = None,
     oep_schema: str | None = None,
     return_report: bool = False,
@@ -84,7 +90,7 @@ def validate_data(
     ----------
     data: pd.DataFrame
         Data to validate
-    metadata: dict | None
+    metadata: dict | str | None
         Metadata in OEMetadata format. If given, data is validated against metadata schema.
     oep_table: str | None
         Table name on OEP. If given, data is validated against OEP table.
@@ -122,6 +128,8 @@ def validate_data(
         )
 
     if metadata:
+        if isinstance(metadata, str):
+            metadata = parse_metadata(metadata)
         return validate_data_against_metadata(data, metadata, return_report=return_report)
     return validate_data_against_oep_table(data, oep_table, oep_schema, return_report=return_report)
 
@@ -182,7 +190,7 @@ def validate_data_against_oep_table(
 
 def validate_data_against_metadata(
     data: pd.DataFrame,
-    metadata: dict,
+    metadata: dict | str,
     *,
     return_report: bool = True,
 ) -> None | Report:
@@ -193,7 +201,7 @@ def validate_data_against_metadata(
     ----------
     data: pandas.DataFrame
         Data to validate
-    metadata: dict
+    metadata: dict | str
         Metadata in OEMetadata format.
     return_report: bool
         If set to True, report is returned instead of raising an error.
@@ -203,6 +211,8 @@ def validate_data_against_metadata(
     Report
         Frictionless report if `return_report` is set to True, otherwise None is returned.
     """
+    if isinstance(metadata, str):
+        metadata = parse_metadata(metadata)
     metadata_fields = __get_fields_from_metadata(metadata)
     report = __validate_data_against_schema(data, metadata_fields)
     if not report.valid:
@@ -215,7 +225,7 @@ def validate_data_against_metadata(
 def validate_oep_table_against_metadata(  # noqa: C901
     oep_table: str,
     oep_schema: str,
-    metadata: dict | None = None,
+    metadata: dict | str | None = None,
 ) -> None:
     """
     Validate OEP table against given metadata.
@@ -226,7 +236,7 @@ def validate_oep_table_against_metadata(  # noqa: C901
         OEP table name
     oep_schema: str
         OEP schema name
-    metadata: dict | None
+    metadata: dict | str | None
         Metadata in OEMetadata format. If no metadata is given, metadata defined for OEP table on OEP is used.
 
     Raises
@@ -239,6 +249,8 @@ def validate_oep_table_against_metadata(  # noqa: C901
     None
         if everything is valid. Otherwise, it raises an exception.
     """
+    if isinstance(metadata, str):
+        metadata = parse_metadata(metadata)
     if metadata is None:
         metadata = get_metadata_from_oep_table(oep_table, oep_schema)
 
@@ -293,6 +305,48 @@ def validate_oep_table_against_metadata(  # noqa: C901
     if not errors:
         return
     raise ValidationError(errors)
+
+
+def parse_metadata(metadata_string: str) -> dict:
+    """
+    Parse metadata string into a dictionary.
+
+    Parameters
+    ----------
+    metadata_string: str
+        Metadata given as JSOn string
+
+    Returns
+    -------
+    dict
+        Metadata as dictionary
+    """
+
+    def dict_raise_on_duplicates(ordered_pairs: dict) -> dict:
+        """
+        Reject duplicate keys.
+
+        From https://stackoverflow.com/a/14902564/5804947
+        """
+        d = {}
+        for k, v in ordered_pairs:
+            if k in d:
+                raise ValidationError(f"Duplicate keys in metadata: '{k}'")
+            d[k] = v
+        return d
+
+    try:
+        json.loads(metadata_string, object_pairs_hook=dict_raise_on_duplicates)
+    except json.JSONDecodeError as jde:
+        start = max(0, jde.pos - 10)
+        end = min(len(metadata_string), jde.pos + 10)
+        context = metadata_string[start:end]
+        error_message = (
+            f"Failed to decode JSON: "
+            f"{jde.msg} at line {jde.lineno}, column {jde.colno}, position {jde.pos}. "
+            f"Context around this position: '{context}'"
+        )
+        raise ValidationError(error_message) from jde
 
 
 def __validate_data_against_schema(data: pd.DataFrame, fields: dict[str, str]) -> Report:

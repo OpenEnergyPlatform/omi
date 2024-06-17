@@ -2,17 +2,16 @@
 
 import json
 import pathlib
+import re
 
-import jsonschema
 import pytest
-from jsonschema.exceptions import ValidationError
 
-from omi import base, validation
+from omi import base, license, validation
 
 TEST_VALIDATION_DATA_PATH = pathlib.Path(__file__).parent / "test_data" / "validation"
+INVALID_METADAT_PATH = TEST_VALIDATION_DATA_PATH / "invalid_metadata"
 
 UNSUPPORTED_OEP_METADATA_EXAMPLE_FILE = TEST_VALIDATION_DATA_PATH / "unsupported_oep_metadata_example.json"
-INVALID_OEP_METADATA_EXAMPLE_FILE = TEST_VALIDATION_DATA_PATH / "invalid_oep_metadata_example.json"
 
 
 def test_validation_of_oep_metadata():
@@ -23,12 +22,52 @@ def test_validation_of_oep_metadata():
         validation.validate_metadata(metadata_schema.example)
 
 
-def test_invalid_oep_metadata_version():
-    """Test if validation error is raised for invalid OEP metadata."""
-    with INVALID_OEP_METADATA_EXAMPLE_FILE.open("r") as f:
+def test_invalid_oep_metadata():
+    """Test if validation error is raised for different invalid OEP metadata."""
+    with (INVALID_METADAT_PATH / "additional_key.json").open("r") as f:
         invalid_oep_metadata = json.load(f)
-    with pytest.raises(ValidationError):
-        validation.validate_metadata(invalid_oep_metadata)
+        # `re.escape` must be used, otherwise quotes around 'universe' are not detected correctly
+        with pytest.raises(
+            validation.ValidationError,
+            match=re.escape("Additional properties are not allowed ('universe' was unexpected)"),
+        ):
+            validation.validate_metadata(invalid_oep_metadata)
+
+    with (INVALID_METADAT_PATH / "missing_fields.json").open("r") as f:
+        invalid_oep_metadata = json.load(f)
+        with pytest.raises(license.LicenseError, match="No license information available in the metadata."):
+            validation.validate_metadata(invalid_oep_metadata)
+
+    with (INVALID_METADAT_PATH / "wrongly_placed_null_value.json").open("r") as f:
+        invalid_oep_metadata = json.load(f)
+        with pytest.raises(validation.ValidationError, match="None is not of type 'object'"):
+            validation.validate_metadata(invalid_oep_metadata)
+
+
+def test_invalid_oep_metadata_caused_by_invalid_json():
+    """Test if validation error is raised for invalid OEP metadata due to invalid JSOn syntax."""
+    with (INVALID_METADAT_PATH / "duplicate_key.json").open("r") as f:
+        invalid_metadata_string = f.read()
+        with pytest.raises(validation.ValidationError, match="Duplicate keys in metadata: 'description'"):
+            validation.validate_metadata(invalid_metadata_string)
+
+    with (INVALID_METADAT_PATH / "wrong_json_syntax.json").open("r") as f:
+        invalid_metadata_string = f.read()
+        with pytest.raises(validation.ValidationError, match="Failed to decode JSON: Expecting value"):
+            validation.validate_metadata(invalid_metadata_string)
+
+    with (INVALID_METADAT_PATH / "wrong_nesting.json").open("r") as f:
+        invalid_metadata_string = f.read()
+        with pytest.raises(
+            validation.ValidationError,
+            match="Failed to decode JSON: Expecting property name enclosed in double quotes",
+        ):
+            validation.validate_metadata(invalid_metadata_string)
+
+    with (INVALID_METADAT_PATH / "wrong_structure.json").open("r") as f:
+        invalid_metadata_string = f.read()
+        with pytest.raises(validation.ValidationError, match="Failed to decode JSON: Expecting ',' delimiter"):
+            validation.validate_metadata(invalid_metadata_string)
 
 
 def test_unsupported_oep_metadata_version():
@@ -71,7 +110,7 @@ def test_metadata_against_oep_table():
 def test_metadata_against_oep_table_using_metadata_from_oep():
     """Test OEP table definition against OEP metadata, where metadata is taken from OEP."""
     table = "x2x_p2gas_soec_1"
-    with pytest.raises(jsonschema.exceptions.ValidationError, match="None is not of type 'object'"):
+    with pytest.raises(validation.ValidationError, match="None is not of type 'object'"):
         validation.validate_oep_table_against_metadata(oep_table=table, oep_schema="model_draft")
 
 
