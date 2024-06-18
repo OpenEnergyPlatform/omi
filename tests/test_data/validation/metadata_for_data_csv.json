@@ -193,7 +193,6 @@
   ],
   "@id":null,
   "@context":"https://raw.githubusercontent.com/OpenEnergyPlatform/oemetadata/develop/metadata/latest/context.json",
-  "review":null,
   "metaMetadata":{
     "metadataVersion":"OEP-1.5.2",
     "metadataLicense":{

@@ -73,6 +73,7 @@ def validate_metadata(metadata: dict | str) -> None:
     except jsonschema.exceptions.ValidationError as ve:
         raise ValidationError(f"Error validating metadata against related metadata schema: {ve.message}") from ve
     license.validate_oemetadata_licenses(metadata)
+    __validate_optional_fields_in_metadata(metadata, metadata_schema.schema)
 
 
 def validate_data(
@@ -384,6 +385,38 @@ def __validate_data_against_schema(data: pd.DataFrame, fields: dict[str, str]) -
     )
     report = resource.validate()
     return report
+
+
+def __validate_optional_fields_in_metadata(metadata: dict, schema: dict) -> None:
+    """
+    Validate optional fields in metadata dictionary based on schema. Raise warnings if optional fields are missing.
+
+    Parameters
+    ----------
+    metadata: dict
+        Metadata as dictionary to check optional fields
+    schema: dict
+        JSONSchema for checking optional fields
+
+    Returns
+    -------
+    None
+    """
+
+    def check_properties(sub_meta: dict, sub_schema: dict, current_path: str) -> None:
+        """Check optional fields in metadata dictionary iteratively."""
+        if "properties" not in sub_schema:
+            return
+        for field in sub_schema["properties"]:
+            if ("required" not in sub_schema or field not in sub_schema["required"]) and field not in sub_meta:
+                if current_path == "":
+                    current_path = "top level"
+                warnings.warn(f"Optional field '{field}' not found in metadata at {current_path}.", stacklevel=2)
+            if field in sub_meta:
+                new_path = field if current_path == "" else f"{current_path}.{field}"
+                check_properties(sub_meta[field], sub_schema["properties"][field], new_path)
+
+    check_properties(metadata, schema, "")
 
 
 def __map_fields_to_frictionless_fields(fields: dict[str, str]) -> list[Field]:
