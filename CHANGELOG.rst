@@ -4,7 +4,7 @@ Changelog
 
 current
 --------------------
-*
+* Fully rewrite OMI and implement the json schema spec only, remove python class based parsing (#104)[https://github.com/OpenEnergyPlatform/omi/pull/104]
 
 0.2.1 (2024-01-26)
 --------------------
