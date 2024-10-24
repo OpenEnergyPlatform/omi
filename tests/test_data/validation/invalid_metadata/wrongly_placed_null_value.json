@@ -1,0 +1,36 @@
+{
+    "title": "title",
+    "id": "http://such.tld/name",
+    "description": "These Metadata use a null value instead of a second object in fields.",
+    "licenses": [
+        {
+            "name": "ODbL-1.0",
+            "title": "Open Data Commons Open Database License 1.0"
+        }
+    ],
+    "resources": [
+        {
+            "profile": "tabular-data-resource",
+            "name": "very.name",
+            "path": "http://such.tld/name",
+            "format": "PostgreSQL",
+            "encoding": "UTF-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "id",
+                        "description": "Unique identifier",
+                        "type": "serial"
+                    },
+                    null
+                ],
+                "primaryKey": [
+                    "id"
+                ]
+            }
+        }
+    ],
+    "metaMetadata": {
+        "metadataVersion": "OEP-1.6.0"
+    }
+}

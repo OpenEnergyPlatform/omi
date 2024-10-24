@@ -1,0 +1,3 @@
+string;integer;number;array string;array integer;array float;object;date;bool
+gas;55;0.5;["helo", "none"];[1, 2, 3];[1.5, 1.3, 1.8];{"a": 300, "b": "hello"};2024-01-01;True
+wind;18;1.8;["tut", "tut", "tut"];[3, 6, 3];[4.55, 44.7, 23.999];{"c": 2, "d": 4};2024-02-02;False

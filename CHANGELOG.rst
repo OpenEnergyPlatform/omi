@@ -2,9 +2,9 @@
 Changelog
 =========
 
-current (2024-XX-XX)
+current
 --------------------
-* 
+* Fully rewrite OMI and implement the json schema spec only, remove python class based parsing (#104)[https://github.com/OpenEnergyPlatform/omi/pull/104]
 
 0.2.1 (2024-01-26)
 --------------------
@@ -30,7 +30,7 @@ current (2024-XX-XX)
 0.0.9 (2022-10-31)
 --------------------
 
-* Fix bug that is raised if the input oemetadata does not contain the key _comment (PR#74) 
+* Fix bug that is raised if the input oemetadata does not contain the key _comment (PR#74)
 
 0.0.8 (2022-10-20)
 --------------------

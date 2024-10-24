@@ -1,0 +1,33 @@
+{
+    "title": "title",
+    "description": "These Metadata are missing a license and an id.",
+    "resources": [
+        {
+            "profile": "tabular-data-resource",
+            "name": "very.name",
+            "path": "http://such.tld/name",
+            "format": "PostgreSQL",
+            "encoding": "UTF-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "id",
+                        "description": "Unique identifier",
+                        "type": "serial"
+                    },
+                    {
+                        "name": "name",
+                        "description": "Example name",
+                        "type": "text"
+                    }
+                ],
+                "primaryKey": [
+                    "id"
+                ]
+            }
+        }
+    ],
+    "metaMetadata": {
+        "metadataVersion": "OEP-1.6.0"
+    }
+}
