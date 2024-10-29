@@ -2,6 +2,10 @@
 Open Energy Family - Open Metadata Integration OMI
 ==================================================
 
+A library to process and translate and work with the open energy metadata.
+
+* Free software: AGPL-3.0
+
 Overview
 ========
 
@@ -22,17 +26,9 @@ Overview
     :target: https://readthedocs.org/projects/omi
     :alt: Documentation Status
 
-.. |travis| image:: https://travis-ci.org/OpenEnergyPlatform/omi.svg?branch=master
-    :alt: Travis-CI Build Status
-    :target: https://travis-ci.org/OpenEnergyPlatform/omi
-
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/OpenEnergyPlatform/omi?branch=master&svg=true
-    :alt: AppVeyor Build Status
-    :target: https://ci.appveyor.com/project/OpenEnergyPlatform/omi
-
-.. |requires| image:: https://requires.io/github/OpenEnergyPlatform/omi/requirements.svg?branch=master
-    :alt: Requirements Status
-    :target: https://requires.io/github/OpenEnergyPlatform/omi/requirements/?branch=master
+.. |Automated Test| image:: https://github.com/OpenEnergyPlatform/omi/actions/workflows/automated-testing.yml/badge.svg
+    :target: https://github.com/OpenEnergyPlatform/omi/actions/workflows/automated-testing.yml
+    :alt: Test status
 
 .. |codecov| image:: https://codecov.io/github/OpenEnergyPlatform/omi/coverage.svg?branch=master
     :alt: Coverage Status
@@ -61,10 +57,6 @@ Overview
 
 .. end-badges
 
-A library to process and translate open energy metadata.
-
-* Free software: AGPL-3.0
-
 Installation
 ============
 
@@ -75,42 +67,20 @@ Installation
 Documentation
 =============
 
-
+Documentation for OMI versions up to 0.2:
 https://omi.readthedocs.io/
+
+Documentation for reworked OMI versions starting from 1.0 you can find in the README document. Later on we migrate the documentation to mkdocs.
 
 Usage
 =====
 
-**Parse, Compile, Render, Convert and Validate**
-Omi can read(parse), compile, Render(json compilant), convert(convert metadata from v1.4 to v1.5 structure) and validate - a json
-file or object that is compliant with the oemetadata spec. This is usefull to do various operations that help to integrate with - as
-well as in interact with the oemetadata. Some parts of this tool might still be volatile but the code quality is conventionsly improved
-as this module is a core component of the oeplatfroms metadata integration system.
+You can use omi as python module and import its functionality into your codebase or use the cli capabilities. OMI provides tooling for validation
+of oemetdata JSON documents using JSON-Schema. It also include helpers to generate the tabular data resource definition to seep up the metadata
+creation and helps to select a open license by checking the license identifier against the SPDX license list.
 
-Check if omi is able to read a oemetadata file (for version 1.4 and 1.5)
-CLI - oemetadata version 1.5::
-
-    omi translate -f oep-v1.5 examples/data/metadata_v15.json
-
-CLI - oemetadata version 1.4::
-
-    omi translate -f oep-v1.4 -t oep-v1.4 examples/data/metadata_v14.json
-
-omi is able to read a JSON file and parse it into one of the internal Python structures (depending on the oemetadata version).
-The OEPMetadata Python object can then be compiled and converted back to JSON. You can manipulate a successfully parsed
-OEPMetadata object.
-
-Module usage::
-
-    from omi.dialects.oep.dialect import OEP_V_1_3_Dialect, OEP_V_1_4_Dialect, OEP_V_1_5_Dialect
-    inp = '{"id":"unique_id"}' #or read from json file
-    dialect1_5 = OEP_V_1_5_Dialect()
-    parsed = dialect1_5.parse(input)
-    print(parsed)
-    parsed.identifier = "another_unique_id"
-    compiled = dialect1_5.compile(parsed)
-    print(compiled)
-
+As the oemetadata is updated from time to time we provides conversion functionality to convert metadata documents that use an earlier version
+of the oemetadata-specification to help users stick with the latest enhancements the latest oemetadata version offers.
 
 **Conversion**
 
@@ -135,17 +105,13 @@ Module usage::
 
     # You can import the JSONParser directly like this:
     import json
-    from omi.dialects.oep.parser import JSONParser
+    from omi import validation
 
     with open("tests/data/metadata_v15.json", "r", encoding="utf-8") as f:
         metadata = json.load(f)
 
-    parser = JSONParser()
-    parser.validate(metadata)
-
-    # check if your metadata is valid for the given schmea
-    schema = ... get a schema or import form oemetadata module
-    parser.is_valid(metadata, schema)
+    result = validation(metadata)
+    # TBD
 
 **Additional Fields - not related to the OEMetadata specification**
 
