@@ -157,6 +157,16 @@ Module usage::
     validate_oemetadata_licenses(meta)
 
 
+**Inspection**
+
+Describing your data structure is a quite technical task. OMI offers functionality to describe your data automatically.
+You need to provide yor data in tabular text based format for this, for example a CSV file. Using frictionless OMI
+guesses the data schema specification you can use this you provide required fields in an oemetadata document.
+
+Module usage::
+
+
+
 **Additional Fields **
 
 To be in line with the oemetadata specification we do not allow for additional properties or fields in the metadata.
