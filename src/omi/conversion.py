@@ -223,4 +223,5 @@ def __convert_oep_160_to_200(metadata: dict) -> dict:  # noqa: C901, PLR0915
 
 METADATA_CONVERSIONS = {
     ("OEP-1.5.2", "OEP-1.6.0"): __convert_oep_152_to_160,
+    ("OEP-1.6.0", "OEMetadata-2.0.0"): __convert_oep_160_to_200,
 }
