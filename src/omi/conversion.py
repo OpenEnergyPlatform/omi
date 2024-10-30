@@ -167,15 +167,16 @@ def populate_resource_v2(resource_v2: dict, metadata: dict, resource: dict) -> N
 
     # Set to null to avoid validation errors: URI
     resource_v2["spatial"]["location"]["@id"] = None
-    resource_v2["spatial"]["extent"]["address"] = None
-    resource_v2["spatial"]["extent"]["name"] = metadata.get("spatial", {}).get("extent")
-    resource_v2["spatial"]["extent"]["latitude"] = None
-    resource_v2["spatial"]["extent"]["longitude"] = None
+    resource_v2["spatial"]["location"]["address"] = metadata.get("spatial", {}).get("location")
+    resource_v2["spatial"]["location"]["latitude"] = None
+    resource_v2["spatial"]["location"]["longitude"] = None
     # Set to null to avoid validation errors: URI
+    resource_v2["spatial"]["extent"]["name"] = metadata.get("spatial", {}).get("extent")
     resource_v2["spatial"]["extent"]["@id"] = None
     resource_v2["spatial"]["extent"]["resolutionValue"], resource_v2["spatial"]["extent"]["resolutionUnit"] = (
         metadata.get("spatial", {}).get("resolution", "").split(" ", 1)
     )
+    resource_v2["spatial"]["extent"]["crs"] = None
 
     populate_sources(resource_v2, metadata.get("sources", []))
     populate_contributors(resource_v2, metadata.get("contributors", []))
