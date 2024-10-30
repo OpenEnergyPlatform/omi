@@ -84,13 +84,41 @@ of the oemetadata-specification to help users stick with the latest enhancements
 
 **Conversion**
 
-To ease the conversion of oemetadata from the outdated version 1.4 to the latest version, we provide
-conversion functionality. The following example shows how to convert the oemetadata from v1.4 to v1.5
-by using a CLI command.
+To ease the conversion of oemetadata from any outdated version to the latest version, we provide a
+conversion functionality. The following example shows how to convert the oemetadata from v1.6 to v2.0.
 
-CLI - oemetadata conversion from v1.4 to v1.5::
+CLI - oemetadata conversion::
 
+    # Not implemented yet
     omi convert -i {input/path} -o {output/path}
+
+Module usage - In python scripts you can use the conversion::
+
+    from omi.conversion import convert_metadata
+
+    import json
+
+    # you a function like this one to read you oemetadata json file
+    def read_json_file(file_path: str) -> dict:
+        with open(file_path, "r") as file:
+            data = json.load(file)
+        return data
+
+    # for example you can use the oemetdata example.json for version 1.6.0
+    # find it here https://github.com/OpenEnergyPlatform/oemetadata/blob/develop/metadata/v160/example.json
+    # make sure to provide a valid path relative to where you store the python environment
+    file_path = "example_v16.json"
+
+    # read the metadata document
+    meta = read_json_file(file_path)
+
+    # use omi to convert it to the latest release
+    converted = convert_metadata(meta, "OEMetadata-2.0.0")
+
+    # now you can store the result as json file
+    with open("result.json", "w", encoding="utf-8") as json_file:
+    json.dump(converted, json_file, ensure_ascii=False, indent=4)  # `indent=4` makes the JSON file easier to read
+
 
 **Validation**
 
@@ -103,42 +131,41 @@ the validation will try to get the matching schema for the current metadata.
 
 Module usage::
 
-    # You can import the JSONParser directly like this:
     import json
-    from omi import validation
+    from omi.validation import validate_oemetadata_licenses, validate_metadata
 
-    with open("tests/data/metadata_v15.json", "r", encoding="utf-8") as f:
-        metadata = json.load(f)
 
-    result = validation(metadata)
-    # TBD
+    # use a function like this one to read you oemetadata json file
+    def read_json_file(file_path: str) -> dict:
+        with open(file_path, "r") as file:
+            data = json.load(file)
+        return data
 
-**Additional Fields - not related to the OEMetadata specification**
+    # for example you can use the oemetdata example.json for version 2.0.0
+    # find it here https://github.com/OpenEnergyPlatform/oemetadata/blob/develop/metadata/v20/example.json
+    # make sure to provide a valid path relative to where you store the python environment
+    file_path = "example_v16.json"
 
-Sometimes it is necessary to store additional key-value pairs along with the keys included in the OEMetadata specification.
-OMI's compiler methods are capable of handling additional arguments or key-value arguments, but this must be
-be explicitly specified.
+    # read the new input from file
+    meta = read_json_file(file_path)
 
-To add additional key-value pairs, you must:
+    # validate the oemetadata: This will return noting or the errors including descriptions
+    validate_metadata(meta)
 
-    NOTE: If you save the renderer return value in a json file and try to parse the file, the extra field is not included.
-          You must read the json file using Python and then add the extra field back oemetadata object as shown below.
+    # As we are prone to open data we use this license check to validate the license name that
+    # is available in the metadata document for each data resource/distribution.
+    validate_oemetadata_licenses(meta)
 
-1 Parse the oemetadata from json file / variable into omis internal structure::
 
-    from omi.dialects.oep.dialect import OEP_V_1_5_Dialect
+**Additional Fields **
 
-    min_inp = '{"id":"unique_id"} # or read from json file
-    minimal_oemetadata15 = OEP_V_1_5_Dialect.parse(min_inp)
+To be in line with the oemetadata specification we do not allow for additional properties or fields in the metadata.
+We want to keep the oemetadata relatively lean and readable still linking to other documents or to
+propose a new property to extend the oemetadata would be a possibility here.
 
-2 Now you can get(from json file)/define the additional data::
-
-    data = "test"
-
-3 And add it to the OEMetadata object that was parsed in step 1 by ading a key-value argument::
-
-    compiled = OEP_V_1_5_Dialect.compile(minimal_oemetadata15, _additionalField=data)
-    rendered = OEP_V_1_5_Dialect.render(compiled)
+Still some times it becomes necessary to add additional information then this would be a use case outside of the OpenEnergyPlatform
+specifically for your own use. You are welcome to use the oemetadata as base and add new fields we are happy to integrate them
+back into the oeplatform and oemetadata if they seem relevant to other users.
 
 Development
 ===========
