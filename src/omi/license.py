@@ -93,20 +93,19 @@ def validate_oemetadata_licenses(metadata: dict) -> None:
     version = get_metadata_version(metadata)
     licenses_info = _find_license_field(metadata, version)
 
-    if not licenses_info:
-        msg = "No license information available in the metadata."
-        raise LicenseError(msg)
-
     for resource_index, licenses in licenses_info:
+        if not licenses:
+            raise LicenseError(f"No license information available in the metadata for resource: {resource_index + 1}.")
         for i, license_ in enumerate(licenses or []):
             if not license_.get("name"):
                 raise LicenseError(
-                    f"The license name is missing in resource {resource_index}, license {i} ({license_}).",
+                    f"The license name is missing in resource {resource_index + 1}, license {i + 1} ({license_}).",
                 )
 
             if not validate_license(license_["name"]):
                 raise LicenseError(
-                    f"The (normalized) license name '{license_['name']}' in resource {resource_index}, license {i} "
+                    f"The (normalized) license name '{license_['name']}' in resource"
+                    f"{resource_index + 1}, license {i + 1} "
                     "was not found in the SPDX licenses list. "
                     "(See https://github.com/spdx/license-list-data/blob/main/json/licenses.json).",
                 )
@@ -116,10 +115,14 @@ def _find_license_field(metadata: dict, version: str) -> list:
     version = get_metadata_version(metadata)
     if version == "OEMetadata-2.0.0":
         # Include resource index with each license for traceability
-        return [(i, resource.get("licenses")) for i, resource in enumerate(metadata.get("resources", []))]
-    else:  # noqa: RET505
+        licenses_per_resource = [
+            (i, resource.get("licenses")) for i, resource in enumerate(metadata.get("resources", []))
+        ]
+    else:
         # Return -1 as a placeholder index for top-level licenses
-        return [(-1, metadata.get("licenses", []))]
+        licenses_per_resource = [(0, metadata.get("licenses", []))]
+
+    return licenses_per_resource
 
 
 LICENSES = read_licenses()
