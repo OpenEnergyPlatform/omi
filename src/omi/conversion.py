@@ -111,7 +111,7 @@ def __convert_oep_160_to_200(metadata: dict) -> dict:
         Updated metadata dictionary in v2.0 format
     """
     metadata_v2 = deepcopy(get_metadata_specification("OEMetadata-2.0.0").template)
-    metadata_v2["name"] = metadata_v2["title"] = metadata_v2["id"] = None
+    metadata_v2["name"] = metadata_v2["title"] = metadata_v2["id"] = metadata_v2["description"] = None
 
     # Populate metadata v2 resources
     for i, resource in enumerate(metadata.get("resources", [])):
@@ -134,6 +134,7 @@ def ensure_resource_entry(metadata_v2: dict, index: int) -> dict:
 
 def populate_resource_v2(resource_v2: dict, metadata: dict, resource: dict) -> None:
     """Populate resource_v2 fields based on metadata and resource from v1.6."""
+    # Bulk update keys without
     resource_v2.update(
         {
             "@id": metadata.get("@id"),
@@ -161,6 +162,8 @@ def populate_resource_v2(resource_v2: dict, metadata: dict, resource: dict) -> N
             "review": metadata.get("review", {}),
         },
     )
+
+    resource_v2["context"]["publisher"] = None
 
     resource_v2["embargoPeriod"]["start"] = None
     resource_v2["embargoPeriod"]["end"] = None
@@ -191,7 +194,13 @@ def populate_sources(resource_v2: dict, sources: list) -> None:
             resource_v2["sources"].append(deepcopy(resource_v2["sources"][0]))
         source_v2 = resource_v2["sources"][i_source]
         source_v2.update(
-            {"title": source.get("title"), "description": source.get("description"), "path": source.get("path")},
+            {
+                "title": source.get("title"),
+                "description": source.get("description"),
+                "path": source.get("path"),
+                "publicationYear": None,
+                "authors": [],
+            },
         )
         populate_source_licenses(source_v2, source.get("licenses", []))
 
