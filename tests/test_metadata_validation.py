@@ -35,7 +35,10 @@ def test_invalid_oep_metadata():
 
     with (INVALID_METADAT_PATH / "missing_fields.json").open("r") as f:
         invalid_oep_metadata = json.load(f)
-        with pytest.raises(license.LicenseError, match="No license information available in the metadata."):
+        with pytest.raises(
+            license.LicenseError,
+            match=r"No license information available in the metadata for resource: \d+\.?",
+        ):
             validation.validate_metadata(invalid_oep_metadata)
 
     with (INVALID_METADAT_PATH / "wrongly_placed_null_value.json").open("r") as f:
