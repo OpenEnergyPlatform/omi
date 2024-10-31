@@ -190,7 +190,7 @@ Module usage::
     with open("script/metadata/result_inspection.json", "w", encoding="utf-8") as json_file:
         json.dump(metadata, json_file, ensure_ascii=False, indent=4)  # `indent=4` makes the JSON file easier to read
 
-**Additional Fields **
+**Additional Fields**
 
 To be in line with the oemetadata specification we do not allow for additional properties or fields in the metadata.
 We want to keep the oemetadata relatively lean and readable still linking to other documents or to
