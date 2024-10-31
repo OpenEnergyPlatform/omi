@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "omi"
-version = "0.2.1"
+version = "1.0.0"
 description = "A library to process and translate open energy metadata."
 authors = [
     "Hendrik Huyskens <hendrik.huyskens@rl-institut.de>",
