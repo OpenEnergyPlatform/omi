@@ -17,7 +17,7 @@ Overview
     * - docs
       - |docs|
     * - tests
-      - | |codecov|
+      - | |Automated test| |codecov|
     * - package
       - | |version| |wheel| |supported-versions| |supported-implementations|
         | |commits-since|
@@ -25,7 +25,7 @@ Overview
     :target: https://readthedocs.org/projects/omi
     :alt: Documentation Status
 
-.. |Automated Test| image:: https://github.com/OpenEnergyPlatform/omi/actions/workflows/automated-testing.yml/badge.svg
+.. |Automated test| image:: https://github.com/OpenEnergyPlatform/omi/actions/workflows/automated-testing.yml/badge.svg
     :target: https://github.com/OpenEnergyPlatform/omi/actions/workflows/automated-testing.yml
     :alt: Test status
 
