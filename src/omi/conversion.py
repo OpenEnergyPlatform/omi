@@ -98,7 +98,7 @@ def __convert_oep_152_to_160(metadata: dict) -> dict:
 
 def __convert_oep_160_to_200(metadata: dict) -> dict:
     """
-    Convert metadata with version "OEP-1.6.0" to "OEMetadata-2.0.0" using the v2.0 template.
+    Convert metadata with version "OEP-1.6.0" to "OEMetadata-2.0.1" using the v2.0 template.
 
     Parameters
     ----------
@@ -110,7 +110,7 @@ def __convert_oep_160_to_200(metadata: dict) -> dict:
     dict
         Updated metadata dictionary in v2.0 format
     """
-    metadata_v2 = deepcopy(get_metadata_specification("OEMetadata-2.0.0").template)
+    metadata_v2 = deepcopy(get_metadata_specification("OEMetadata-2.0.1").template)
     metadata_v2["name"] = metadata_v2["title"] = metadata_v2["id"] = metadata_v2["description"] = None
 
     # Populate metadata v2 resources
@@ -119,7 +119,7 @@ def __convert_oep_160_to_200(metadata: dict) -> dict:
         ___v2_populate_resource_v2(resource_v2, metadata, resource)
 
     # Update metaMetadata section
-    metadata_v2["metaMetadata"]["metadataVersion"] = "OEMetadata-2.0.0"
+    metadata_v2["metaMetadata"]["metadataVersion"] = "OEMetadata-2.0.1"
     metadata_v2["metaMetadata"]["metadataLicense"] = metadata.get("metaMetadata", {}).get("metadataLicense")
 
     return metadata_v2
@@ -253,5 +253,5 @@ def ___v2_populate_schema_fields(resource_v2: dict, resource: dict) -> None:
 
 METADATA_CONVERSIONS = {
     ("OEP-1.5.2", "OEP-1.6.0"): __convert_oep_152_to_160,
-    ("OEP-1.6.0", "OEMetadata-2.0.0"): __convert_oep_160_to_200,
+    ("OEP-1.6.0", "OEMetadata-2.0.1"): __convert_oep_160_to_200,
 }
