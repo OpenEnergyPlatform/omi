@@ -5,6 +5,7 @@ Changelog
 current
 --------------------
 * Fully rewrite OMI and implement the json schema spec only, remove python class based parsing (#104)[https://github.com/OpenEnergyPlatform/omi/pull/104]
+* Add a new conversion functionality to convert form v160 to v200 oemetadata [(#111)](https://github.com/rl-institut/super-repo/pull/111)
 
 1.0.0 (2024-10-31)
 

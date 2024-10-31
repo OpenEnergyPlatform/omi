@@ -1,4 +1,5 @@
 """Tests for OMIs conversion module."""
+
 import pytest
 
 import omi.base
@@ -11,6 +12,14 @@ def test_conversion_from_oep_152_to_160():
     converted_metadata_152 = conversion.convert_metadata(metadata_schema_152, "OEP-1.6.0")
     assert base.get_metadata_version(converted_metadata_152) == "OEP-1.6.0"
     validation.validate_metadata(converted_metadata_152)
+
+
+def test_conversion_from_oep_160_to_200():
+    """Test conversion from OEP v1.6.0 -> v2.0.0."""
+    metadata_schema_160 = omi.base.get_metadata_specification("OEP-1.6.0").example
+    converted_metadata_160 = conversion.convert_metadata(metadata_schema_160, "OEMetadata-2.0.1")
+    assert base.get_metadata_version(converted_metadata_160) == "OEMetadata-2.0.1"
+    validation.validate_metadata(converted_metadata_160)
 
 
 def test_conversion_chain():
