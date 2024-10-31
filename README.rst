@@ -129,6 +129,12 @@ This will create a report.json containing information to debug possible errors. 
 two arguments the first one is the metadata and the second optional one is the schmea. By default (if no schema is passed)
 the validation will try to get the matching schema for the current metadata.
 
+
+CLI - oemetadata conversion::
+
+    # Not implemented yet
+
+
 Module usage::
 
     import json
@@ -163,9 +169,26 @@ Describing your data structure is a quite technical task. OMI offers functionali
 You need to provide yor data in tabular text based format for this, for example a CSV file. Using frictionless OMI
 guesses the data schema specification you can use this you provide required fields in an oemetadata document.
 
+CLI - oemetadata conversion::
+
+    # Not implemented yet
+
 Module usage::
+    import json
 
+    import pathlib
 
+    from omi.inspection import infer_metadata
+
+    CSV_DATA_FILE = pathlib.Path(__file__).parent / "data" / "data.csv"
+
+    # infer the data fields from CSV fuile and add to an empty metadata template
+    with CSV_DATA_FILE.open("r") as f:
+        metadata = infer_metadata(f, "OEP")
+
+    # Save to a JSON file
+    with open("script/metadata/result_inspection.json", "w", encoding="utf-8") as json_file:
+        json.dump(metadata, json_file, ensure_ascii=False, indent=4)  # `indent=4` makes the JSON file easier to read
 
 **Additional Fields **
 
