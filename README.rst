@@ -2,7 +2,7 @@
 Open Energy Family - Open Metadata Integration OMI
 ==================================================
 
-A library to process and translate and work with the open energy metadata.
+A library to work with the open energy metadata. Its main features are validation, version conversion and infer data schemas from CSV to oemetadata.
 
 * Free software: AGPL-3.0
 
