@@ -6,6 +6,8 @@ current
 --------------------
 * Fully rewrite OMI and implement the json schema spec only, remove python class based parsing (#104)[https://github.com/OpenEnergyPlatform/omi/pull/104]
 
+1.0.0 (2024-10-31)
+
 0.2.1 (2024-01-26)
 --------------------
 * Reorder metadata fields after the json input was compiled & prevent removing context fields if they are Null (#96)[https://github.com/OpenEnergyPlatform/omi/pull/96]
