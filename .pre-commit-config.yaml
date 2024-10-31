@@ -1,12 +1,36 @@
+exclude: 'docs|node_modules|vendors|migrations|.git|.tox'
+default_stages: [commit]
+fail_fast: true
+
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-json
+        exclude: tests/test_data/validation/invalid_metadata/*
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+
+  - repo: https://github.com/pre-commit/mirrors-jshint
+    rev: v2.13.6
+    hooks:
+      - id: jshint
+
   - repo: https://github.com/psf/black
-    rev: stable
+    rev: 23.3.0
     hooks:
       - id: black
-        language_version: python3
 
-  - repo: https://github.com/pre-commit/mirrors-isort
-    rev: master
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    # Ruff version.
+    rev: 'v0.0.277'
     hooks:
-      - id: isort
-        language_version: python3
+      - id: ruff
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        args: [ "--config=setup.cfg" ]
+        additional_dependencies: [ flake8-isort ]

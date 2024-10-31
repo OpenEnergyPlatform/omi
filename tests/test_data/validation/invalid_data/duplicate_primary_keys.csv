@@ -1,0 +1,3 @@
+id;region;year;cost_var_e;bandwidth_type;source;method;comment;version
+1;["DE"];2024;[100.0];{"natural_domestic_limit": "point"};{"natural_domestic_limit": "file"};{"natural_domestic_limit": "exact"};{"test": "test"};v1
+1;["DE"];2024;[100.0];{"natural_domestic_limit": "point"};{"natural_domestic_limit": "file"};{"natural_domestic_limit": "exact"};{"test": "test"};v1

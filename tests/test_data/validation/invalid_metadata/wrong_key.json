@@ -1,0 +1,40 @@
+{
+    "titel": "titel",
+    "id": "http://such.tld/name",
+    "description": "These Metadata misspell 'title' as 'titel'.",
+    "licenses": [
+        {
+            "name": "ODbL-1.0",
+            "title": "Open Data Commons Open Database License 1.0"
+        }
+    ],
+    "resources": [
+        {
+            "profile": "tabular-data-resource",
+            "name": "very.name",
+            "path": "http://such.tld/name",
+            "format": "PostgreSQL",
+            "encoding": "UTF-8",
+            "schema": {
+                "fields": [
+                    {
+                        "name": "id",
+                        "description": "Unique identifier",
+                        "type": "serial"
+                    },
+                    {
+                        "name": "name",
+                        "description": "Example name",
+                        "type": "text"
+                    }
+                ],
+                "primaryKey": [
+                    "id"
+                ]
+            }
+        }
+    ],
+    "metaMetadata": {
+        "metadataVersion": "OEP-1.6.0"
+    }
+}

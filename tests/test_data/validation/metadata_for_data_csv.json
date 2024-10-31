@@ -1,0 +1,214 @@
+{
+  "name":"x2x_import_lng",
+  "title":"sedos_x2x_import_lng",
+  "id":null,
+  "description":"Techno-economic parameter for import of liquified natural gas (LNG).",
+  "subject":[
+    {
+      "name":"import",
+      "path":"http://openenergy-platform.org/ontology/oeo/OEO_00020201"
+    },
+    {
+      "name":"liquified natural gas",
+      "path":"http://openenergy-platform.org/ontology/oeo/oeo-physical/OEO_00010237"
+    }
+  ],
+  "language":[
+    "en-GB"
+  ],
+  "keywords":[
+    "SEDOS",
+    "AP5",
+    "X2X",
+    "oedatamodel-parameter",
+    "input_data"
+  ],
+  "publicationDate":"2024-04-08",
+  "context":{
+    "homepage":"https://sedos-project.github.io/.github/",
+    "documentation":"https://sedos-project.github.io/.github/",
+    "sourceCode":"https://github.com/sedos-project",
+    "contact":"g.mueller@fz-juelich.de",
+    "grantNo":"03EI1040D",
+    "fundingAgency":"Bundesministerium für Wirtschaft und Klimaschutz (BMWK)",
+    "fundingAgencyLogo":"https://en.wikipedia.org/wiki/Federal_Ministry_for_Economic_Affairs_and_Climate_Action#/media/File:BMWi_Logo_2021.svg"
+  },
+  "spatial":{
+    "location":"germany",
+    "extent":null,
+    "resolution":null
+  },
+  "temporal":{
+    "referenceDate":null,
+    "timeseries":[
+      {
+        "start":null,
+        "end":null,
+        "resolution":null,
+        "alignment":null,
+        "aggregationType":null
+      }
+    ]
+  },
+  "sources":[
+    {
+      "title":"TYNDP 2022. Scenario Building Guidelines.",
+      "description":null,
+      "path":"https://2022.entsos-tyndp-scenarios.eu/wp-content/uploads/2022/04/TYNDP_2022_Scenario_Building_Guidelines_Version_April_2022.pdf",
+      "licenses":[
+        {
+          "instruction":null,
+          "attribution":"copyright. ENTSOG, ENTSO-E, 2022.",
+          "name":null,
+          "title":null,
+          "path":null
+        }
+      ]
+    },
+    {
+      "title":"Economics of Gas Transportation by Pipeline and LNG",
+      "description":null,
+      "path":"https://link.springer.com/chapter/10.1007/978-3-030-86884-0_2",
+      "licenses":[
+        {
+          "instruction":"You are free to share and adapt. You must give appropriate credit.",
+          "attribution":"copyright. Molnar, 2022.",
+          "name":"CC BY 4.0 DEED",
+          "title":"Attribution 4.0 International",
+          "path":"https://creativecommons.org/licenses/by/4.0/"
+        }
+      ]
+    }
+  ],
+  "licenses":[
+    {
+      "instruction":"You are free: To Share, To Create, To Adapt",
+      "attribution":null,
+      "name":"CC0-1.0",
+      "title":"Creative Commons Zero v1.0 Universal",
+      "path":"https://creativecommons.org/publicdomain/zero/1.0/legalcode"
+    }
+  ],
+  "contributors":[
+    {
+      "title":"Gian Müller, FZJ",
+      "email":"g.mueller@fz-juelich.de",
+      "object":"data and metadata",
+      "comment":"Data for import of liquified natural gas (LNG).",
+      "date":"2024-04-08"
+    }
+  ],
+  "resources":[
+    {
+      "profile":"tabular-data-resource",
+      "name":"model_draft.x2x_import_lng",
+      "path":null,
+      "format":"PostgreSQL",
+      "encoding":"UTF-8",
+      "schema":{
+        "primaryKey":[
+          "id"
+        ],
+        "foreignKeys":[ ],
+        "fields":[
+          {
+            "name":"id",
+            "description":"Unique identifier",
+            "type":"bigint",
+            "isAbout":[ ],
+            "valueReference":[ ],
+            "unit":null
+          },
+          {
+            "name":"region",
+            "description":"Country or region",
+            "type":"text",
+            "isAbout":[ ],
+            "valueReference":[ ],
+            "unit":null
+          },
+          {
+            "name":"year",
+            "description":"Year",
+            "type":"integer",
+            "isAbout":[ ],
+            "valueReference":[ ],
+            "unit":"a"
+          },
+          {
+            "name":"cost_var_e",
+            "description":"Variable costs in cost per unit of a certain good.",
+            "type":"float array",
+            "isAbout":[ ],
+            "valueReference":[ ],
+            "unit":"€/MWh"
+          },
+          {
+            "name":"bandwidth_type",
+            "description":"Bandwidth Type",
+            "type":"json",
+            "isAbout":[ ],
+            "valueReference":[ ],
+            "unit":null
+          },
+          {
+            "name":"version",
+            "description":"Version",
+            "type":"text",
+            "isAbout":[ ],
+            "valueReference":[ ],
+            "unit":null
+          },
+          {
+            "name":"method",
+            "description":"Method",
+            "type":"json",
+            "isAbout":[ ],
+            "valueReference":[ ],
+            "unit":null
+          },
+          {
+            "name":"source",
+            "description":"Source",
+            "type":"json",
+            "isAbout":[ ],
+            "valueReference":[ ],
+            "unit":null
+          },
+          {
+            "name":"comment",
+            "description":"Comment",
+            "type":"text",
+            "isAbout":[ ],
+            "valueReference":[ ],
+            "unit":null
+          }
+        ]
+      },
+      "dialect":{
+        "delimiter":";",
+        "decimalSeparator":"."
+      }
+    }
+  ],
+  "@id":null,
+  "@context":"https://raw.githubusercontent.com/OpenEnergyPlatform/oemetadata/develop/metadata/latest/context.json",
+  "metaMetadata":{
+    "metadataVersion":"OEP-1.5.2",
+    "metadataLicense":{
+      "name":"CC0-1.0",
+      "title":"Creative Commons Zero v1.0 Universal",
+      "path":"https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  "_comment":{
+    "metadata":"Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/oemetadata)",
+    "dates":"Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
+    "units":"Use a space between numbers and units (100 m)",
+    "languages":"Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
+    "licenses":"License name must follow the SPDX License List (https://spdx.org/licenses/)",
+    "review":"Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/blob/master/data-review/manual/review_manual.md)",
+    "null":"If not applicable use: null",
+    "todo":"If a value is not yet available, use: todo"
+  }
+}

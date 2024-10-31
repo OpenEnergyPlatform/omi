@@ -2,6 +2,10 @@
 Open Energy Family - Open Metadata Integration OMI
 ==================================================
 
+A library to work with the open energy metadata. Its main features are validation, version conversion and infer data schemas from CSV to oemetadata.
+
+* Free software: AGPL-3.0
+
 Overview
 ========
 
@@ -13,8 +17,7 @@ Overview
     * - docs
       - |docs|
     * - tests
-      - | |travis| |appveyor| |requires|
-        | |codecov|
+      - | |Automated test| |codecov|
     * - package
       - | |version| |wheel| |supported-versions| |supported-implementations|
         | |commits-since|
@@ -22,17 +25,9 @@ Overview
     :target: https://readthedocs.org/projects/omi
     :alt: Documentation Status
 
-.. |travis| image:: https://travis-ci.org/OpenEnergyPlatform/omi.svg?branch=master
-    :alt: Travis-CI Build Status
-    :target: https://travis-ci.org/OpenEnergyPlatform/omi
-
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/OpenEnergyPlatform/omi?branch=master&svg=true
-    :alt: AppVeyor Build Status
-    :target: https://ci.appveyor.com/project/OpenEnergyPlatform/omi
-
-.. |requires| image:: https://requires.io/github/OpenEnergyPlatform/omi/requirements.svg?branch=master
-    :alt: Requirements Status
-    :target: https://requires.io/github/OpenEnergyPlatform/omi/requirements/?branch=master
+.. |Automated test| image:: https://github.com/OpenEnergyPlatform/omi/actions/workflows/automated-testing.yml/badge.svg
+    :target: https://github.com/OpenEnergyPlatform/omi/actions/workflows/automated-testing.yml
+    :alt: Test status
 
 .. |codecov| image:: https://codecov.io/github/OpenEnergyPlatform/omi/coverage.svg?branch=master
     :alt: Coverage Status
@@ -42,9 +37,9 @@ Overview
     :alt: PyPI Package latest release
     :target: https://pypi.org/project/omi
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/OpenEnergyPlatform/omi/v0.2.1.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/OpenEnergyPlatform/omi/v1.0.0.svg
     :alt: Commits since latest release
-    :target: https://github.com/OpenEnergyPlatform/omi/compare/v0.2.1...master
+    :target: https://github.com/OpenEnergyPlatform/omi/compare/v1.0.0...master
 
 .. |wheel| image:: https://img.shields.io/pypi/wheel/omi.svg
     :alt: PyPI Wheel
@@ -61,10 +56,6 @@ Overview
 
 .. end-badges
 
-A library to process and translate open energy metadata.
-
-* Free software: AGPL-3.0
-
 Installation
 ============
 
@@ -75,52 +66,58 @@ Installation
 Documentation
 =============
 
-
+Documentation for OMI versions up to 0.2:
 https://omi.readthedocs.io/
+
+Documentation for reworked OMI versions starting from 1.0 you can find in the README document. Later on we migrate the documentation to mkdocs.
 
 Usage
 =====
 
-**Parse, Compile, Render, Convert and Validate**
-Omi can read(parse), compile, Render(json compilant), convert(convert metadata from v1.4 to v1.5 structure) and validate - a json 
-file or object that is compliant with the oemetadata spec. This is usefull to do various operations that help to integrate with - as 
-well as in interact with the oemetadata. Some parts of this tool might still be volatile but the code quality is conventionsly improved 
-as this module is a core component of the oeplatfroms metadata integration system.
+You can use omi as python module and import its functionality into your codebase or use the cli capabilities. OMI provides tooling for validation
+of oemetdata JSON documents using JSON-Schema. It also include helpers to generate the tabular data resource definition to seep up the metadata
+creation and helps to select a open license by checking the license identifier against the SPDX license list.
 
-Check if omi is able to read a oemetadata file (for version 1.4 and 1.5)
-CLI - oemetadata version 1.5::
-
-    omi translate -f oep-v1.5 examples/data/metadata_v15.json
-
-CLI - oemetadata version 1.4::
-
-    omi translate -f oep-v1.4 -t oep-v1.4 examples/data/metadata_v14.json
-
-omi is able to read a JSON file and parse it into one of the internal Python structures (depending on the oemetadata version). 
-The OEPMetadata Python object can then be compiled and converted back to JSON. You can manipulate a successfully parsed 
-OEPMetadata object.
-
-Module usage::
-
-    from omi.dialects.oep.dialect import OEP_V_1_3_Dialect, OEP_V_1_4_Dialect, OEP_V_1_5_Dialect
-    inp = '{"id":"unique_id"}' #or read from json file
-    dialect1_5 = OEP_V_1_5_Dialect()
-    parsed = dialect1_5.parse(input)
-    print(parsed)
-    parsed.identifier = "another_unique_id"
-    compiled = dialect1_5.compile(parsed)
-    print(compiled)
-
+As the oemetadata is updated from time to time we provides conversion functionality to convert metadata documents that use an earlier version
+of the oemetadata-specification to help users stick with the latest enhancements the latest oemetadata version offers.
 
 **Conversion**
 
-To ease the conversion of oemetadata from the outdated version 1.4 to the latest version, we provide
-conversion functionality. The following example shows how to convert the oemetadata from v1.4 to v1.5
-by using a CLI command.
+To ease the conversion of oemetadata from any outdated version to the latest version, we provide a
+conversion functionality. The following example shows how to convert the oemetadata from v1.6 to v2.0.
 
-CLI - oemetadata conversion from v1.4 to v1.5::
+CLI - oemetadata conversion::
 
-    omi convert -i {input/path} -o {output/path} 
+    # Not implemented yet
+    omi convert -i {input/path} -o {output/path}
+
+Module usage - In python scripts you can use the conversion::
+
+    from omi.conversion import convert_metadata
+
+    import json
+
+    # you a function like this one to read you oemetadata json file
+    def read_json_file(file_path: str) -> dict:
+        with open(file_path, "r") as file:
+            data = json.load(file)
+        return data
+
+    # for example you can use the oemetdata example.json for version 1.6.0
+    # find it here https://github.com/OpenEnergyPlatform/oemetadata/blob/develop/metadata/v160/example.json
+    # make sure to provide a valid path relative to where you store the python environment
+    file_path = "example_v16.json"
+
+    # read the metadata document
+    meta = read_json_file(file_path)
+
+    # use omi to convert it to the latest release
+    converted = convert_metadata(meta, "OEMetadata-2.0.1")
+
+    # now you can store the result as json file
+    with open("result.json", "w", encoding="utf-8") as json_file:
+    json.dump(converted, json_file, ensure_ascii=False, indent=4)  # `indent=4` makes the JSON file easier to read
+
 
 **Validation**
 
@@ -131,48 +128,77 @@ This will create a report.json containing information to debug possible errors. 
 two arguments the first one is the metadata and the second optional one is the schmea. By default (if no schema is passed)
 the validation will try to get the matching schema for the current metadata.
 
+
+CLI - oemetadata conversion::
+
+    # Not implemented yet
+
+
 Module usage::
 
-    # You can import the JSONParser directly like this:
     import json
-    from omi.dialects.oep.parser import JSONParser
+    from omi.validation import validate_oemetadata_licenses, validate_metadata
 
-    with open("tests/data/metadata_v15.json", "r", encoding="utf-8") as f:
-        metadata = json.load(f)
 
-    parser = JSONParser()
-    parser.validate(metadata)
-    
-    # check if your metadata is valid for the given schmea 
-    schema = ... get a schema or import form oemetadata module
-    parser.is_valid(metadata, schema)
+    # use a function like this one to read you oemetadata json file
+    def read_json_file(file_path: str) -> dict:
+        with open(file_path, "r") as file:
+            data = json.load(file)
+        return data
 
-**Additional Fields - not related to the OEMetadata specification**
+    # for example you can use the oemetdata example.json for version 2.0.0
+    # find it here https://github.com/OpenEnergyPlatform/oemetadata/blob/develop/metadata/v20/example.json
+    # make sure to provide a valid path relative to where you store the python environment
+    file_path = "example_v16.json"
 
-Sometimes it is necessary to store additional key-value pairs along with the keys included in the OEMetadata specification.
-OMI's compiler methods are capable of handling additional arguments or key-value arguments, but this must be 
-be explicitly specified. 
+    # read the new input from file
+    meta = read_json_file(file_path)
 
-To add additional key-value pairs, you must: 
+    # validate the oemetadata: This will return noting or the errors including descriptions
+    validate_metadata(meta)
 
-    NOTE: If you save the renderer return value in a json file and try to parse the file, the extra field is not included.
-          You must read the json file using Python and then add the extra field back oemetadata object as shown below. 
+    # As we are prone to open data we use this license check to validate the license name that
+    # is available in the metadata document for each data resource/distribution.
+    validate_oemetadata_licenses(meta)
 
-1 Parse the oemetadata from json file / variable into omis internal structure::
 
-    from omi.dialects.oep.dialect import OEP_V_1_5_Dialect
+**Inspection**
 
-    min_inp = '{"id":"unique_id"} # or read from json file
-    minimal_oemetadata15 = OEP_V_1_5_Dialect.parse(min_inp)
+Describing your data structure is a quite technical task. OMI offers functionality to describe your data automatically.
+You need to provide yor data in tabular text based format for this, for example a CSV file. Using frictionless OMI
+guesses the data schema specification you can use this you provide required fields in an oemetadata document.
 
-2 Now you can get(from json file)/define the additional data::
+CLI - oemetadata conversion::
 
-    data = "test"
+    # Not implemented yet
 
-3 And add it to the OEMetadata object that was parsed in step 1 by ading a key-value argument::
+Module usage::
 
-    compiled = OEP_V_1_5_Dialect.compile(minimal_oemetadata15, _additionalField=data)
-    rendered = OEP_V_1_5_Dialect.render(compiled)
+    import json
+
+    import pathlib
+
+    from omi.inspection import infer_metadata
+
+    CSV_DATA_FILE = pathlib.Path(__file__).parent / "data" / "data.csv"
+
+    # infer the data fields from CSV fuile and add to an empty metadata template
+    with CSV_DATA_FILE.open("r") as f:
+        metadata = infer_metadata(f, "OEP")
+
+    # Save to a JSON file
+    with open("script/metadata/result_inspection.json", "w", encoding="utf-8") as json_file:
+        json.dump(metadata, json_file, ensure_ascii=False, indent=4)  # `indent=4` makes the JSON file easier to read
+
+**Additional Fields**
+
+To be in line with the oemetadata specification we do not allow for additional properties or fields in the metadata.
+We want to keep the oemetadata relatively lean and readable still linking to other documents or to
+propose a new property to extend the oemetadata would be a possibility here.
+
+Still some times it becomes necessary to add additional information then this would be a use case outside of the OpenEnergyPlatform
+specifically for your own use. You are welcome to use the oemetadata as base and add new fields we are happy to integrate them
+back into the oeplatform and oemetadata if they seem relevant to other users.
 
 Development
 ===========
