@@ -174,6 +174,7 @@ CLI - oemetadata conversion::
     # Not implemented yet
 
 Module usage::
+
     import json
 
     import pathlib
