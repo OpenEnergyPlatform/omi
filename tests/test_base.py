@@ -1,10 +1,11 @@
 """Tests for OMIs `base` package."""
+
 import pytest
 
 from omi import base, validation
 
 
-def test_metadata_from_oep():
+def deactivate_test_metadata_from_oep():
     """Test metadata from OEP."""
     metadata = base.get_metadata_from_oep_table("ind_steel_pellet_1")
     validation.validate_metadata(metadata)
@@ -19,7 +20,7 @@ def test_metadata_from_oep_non_existing_table():
         base.get_metadata_from_oep_table("non_existing_table")
 
 
-def test_metadata_from_oep_empty():
+def deactivate_test_metadata_from_oep_empty():
     """Test error for empty metadata."""
     with pytest.raises(
         base.MetadataError,

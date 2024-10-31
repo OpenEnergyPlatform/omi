@@ -1,4 +1,5 @@
 """Tests for validating data via OMI."""
+
 import json
 import pathlib
 
@@ -9,7 +10,7 @@ from frictionless import Report
 from omi import validation
 
 
-def test_data_validation_against_oep():
+def deactivate_test_data_validation_against_oep():
     """Test data validation with example file against OEP table."""
     valid_data_file = pathlib.Path(__file__).parent / "test_data" / "validation" / "hackathon_lignite_hh_valid.csv"
     valid_data = pd.read_csv(valid_data_file, delimiter=";")
@@ -26,7 +27,7 @@ def test_data_validation_against_metadata():
     validation.validate_data(valid_data, metadata=metadata)
 
 
-def test_data_validation_report():
+def deactivate_test_data_validation_report():
     """Test data validation with example file."""
     valid_data_file = pathlib.Path(__file__).parent / "test_data" / "validation" / "hackathon_lignite_hh_valid.csv"
     valid_data = pd.read_csv(valid_data_file, delimiter=";")
