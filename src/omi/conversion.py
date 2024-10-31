@@ -115,8 +115,8 @@ def __convert_oep_160_to_200(metadata: dict) -> dict:
 
     # Populate metadata v2 resources
     for i, resource in enumerate(metadata.get("resources", [])):
-        resource_v2 = ensure_resource_entry(metadata_v2, i)
-        populate_resource_v2(resource_v2, metadata, resource)
+        resource_v2 = ___v2_ensure_resource_entry(metadata_v2, i)
+        ___v2_populate_resource_v2(resource_v2, metadata, resource)
 
     # Update metaMetadata section
     metadata_v2["metaMetadata"]["metadataVersion"] = "OEMetadata-2.0.0"
@@ -125,14 +125,14 @@ def __convert_oep_160_to_200(metadata: dict) -> dict:
     return metadata_v2
 
 
-def ensure_resource_entry(metadata_v2: dict, index: int) -> dict:
+def ___v2_ensure_resource_entry(metadata_v2: dict, index: int) -> dict:
     """Ensure a resource entry exists in metadata_v2 resources for the given index."""
     if index >= len(metadata_v2["resources"]):
         metadata_v2["resources"].append(deepcopy(metadata_v2["resources"][0]))
     return metadata_v2["resources"][index]
 
 
-def populate_resource_v2(resource_v2: dict, metadata: dict, resource: dict) -> None:
+def ___v2_populate_resource_v2(resource_v2: dict, metadata: dict, resource: dict) -> None:
     """Populate resource_v2 fields based on metadata and resource from v1.6."""
     # Bulk update keys without
     resource_v2.update(
@@ -181,13 +181,13 @@ def populate_resource_v2(resource_v2: dict, metadata: dict, resource: dict) -> N
     )
     resource_v2["spatial"]["extent"]["crs"] = None
 
-    populate_sources(resource_v2, metadata.get("sources", []))
-    populate_contributors(resource_v2, metadata.get("contributors", []))
-    populate_licenses(resource_v2, metadata.get("licenses", []))
-    populate_schema_fields(resource_v2, resource)
+    ___v2_populate_sources(resource_v2, metadata.get("sources", []))
+    ___v2_populate_contributors(resource_v2, metadata.get("contributors", []))
+    ___v2_populate_licenses(resource_v2, metadata.get("licenses", []))
+    ___v2_populate_schema_fields(resource_v2, resource)
 
 
-def populate_sources(resource_v2: dict, sources: list) -> None:
+def ___v2_populate_sources(resource_v2: dict, sources: list) -> None:
     """Populate sources in resource_v2 from sources in v1.6."""
     for i_source, source in enumerate(sources):
         if i_source >= len(resource_v2["sources"]):
@@ -202,10 +202,10 @@ def populate_sources(resource_v2: dict, sources: list) -> None:
                 "authors": [],
             },
         )
-        populate_source_licenses(source_v2, source.get("licenses", []))
+        ___v2_populate_source_licenses(source_v2, source.get("licenses", []))
 
 
-def populate_source_licenses(source_v2: dict, licenses: list) -> None:
+def ___v2_populate_source_licenses(source_v2: dict, licenses: list) -> None:
     """Populate licenses in source_v2 from licenses in v1.6."""
     for i_license, license_entry in enumerate(licenses):
         if i_license >= len(source_v2["licenses"]):
@@ -214,7 +214,7 @@ def populate_source_licenses(source_v2: dict, licenses: list) -> None:
         source_v2["licenses"][i_license]["copyrightStatement"] = None
 
 
-def populate_contributors(resource_v2: dict, contributors: list) -> None:
+def ___v2_populate_contributors(resource_v2: dict, contributors: list) -> None:
     """Populate contributors in resource_v2 from contributors in v1.6."""
     for i_contribution, contributor in enumerate(contributors):
         if i_contribution >= len(resource_v2["contributors"]):
@@ -232,7 +232,7 @@ def populate_contributors(resource_v2: dict, contributors: list) -> None:
         )
 
 
-def populate_licenses(resource_v2: dict, licenses: list) -> None:
+def ___v2_populate_licenses(resource_v2: dict, licenses: list) -> None:
     """Populate licenses in resource_v2 from licenses in v1.6."""
     for i_license, license_entry in enumerate(licenses):
         if i_license >= len(resource_v2["licenses"]):
@@ -241,7 +241,7 @@ def populate_licenses(resource_v2: dict, licenses: list) -> None:
         resource_v2["licenses"][i_license]["copyrightStatement"] = None
 
 
-def populate_schema_fields(resource_v2: dict, resource: dict) -> None:
+def ___v2_populate_schema_fields(resource_v2: dict, resource: dict) -> None:
     """Populate schema fields in resource_v2 from resource in v1.6."""
     for i_field, field in enumerate(resource.get("schema", {}).get("fields", [])):
         if i_field >= len(resource_v2["schema"]["fields"]):
