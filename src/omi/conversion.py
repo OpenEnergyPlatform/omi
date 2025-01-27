@@ -96,7 +96,7 @@ def __convert_oep_152_to_160(metadata: dict) -> dict:
     return metadata
 
 
-def __convert_oep_160_to_200(metadata: dict) -> dict:
+def __convert_oep_160_to_201(metadata: dict) -> dict:
     """
     Convert metadata with version "OEP-1.6.0" to "OEMetadata-2.0.1" using the v2.0 template.
 
@@ -251,7 +251,9 @@ def ___v2_populate_schema_fields(resource_v2: dict, resource: dict) -> None:
         schema_field_v2["nullable"] = None
 
 
+
+
 METADATA_CONVERSIONS = {
     ("OEP-1.5.2", "OEP-1.6.0"): __convert_oep_152_to_160,
-    ("OEP-1.6.0", "OEMetadata-2.0.1"): __convert_oep_160_to_200,
+    ("OEP-1.6.0", "OEMetadata-2.0.1"): __convert_oep_160_to_201,
 }
