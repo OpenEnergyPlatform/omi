@@ -88,7 +88,7 @@ def test_metadata_schema_for_oep_version():
     """Test schema, template and example for OEP metadata."""
     version = "OEP-1.5.2"
     schema = base.get_metadata_specification(version)
-    assert schema.schema["description"] == "Open Energy Plaftorm (OEP) metadata schema v1.5.2"
+    assert schema.schema["description"] == "Open Energy Platform (OEP) metadata schema v1.5.2"
     assert schema.template["name"] is None
     assert schema.example["name"] == "oep_metadata_table_example_v152"
 
