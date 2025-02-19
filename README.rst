@@ -129,7 +129,7 @@ two arguments the first one is the metadata and the second optional one is the s
 the validation will try to get the matching schema for the current metadata.
 
 
-CLI - oemetadata conversion::
+CLI - oemetadata validation::
 
     # Not implemented yet
 
