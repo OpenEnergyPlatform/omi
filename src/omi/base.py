@@ -7,7 +7,8 @@ import pathlib
 from dataclasses import dataclass
 
 import requests
-from metadata import v20, v152, v160
+from oemetadata.v1 import v152, v160
+from oemetadata.v2 import v20
 
 from .settings import OEP_URL
 
