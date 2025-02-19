@@ -115,7 +115,7 @@ Module usage - In python scripts you can use the conversion::
     meta = read_json_file(file_path)
 
     # use omi to convert it to the latest release
-    converted = convert_metadata(meta, "OEMetadata-2.0.1")
+    converted = convert_metadata(meta, "OEMetadata-2.0")
 
     # now you can store the result as json file
     with open("result.json", "w", encoding="utf-8") as json_file:

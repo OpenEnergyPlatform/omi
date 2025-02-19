@@ -113,7 +113,7 @@ def validate_oemetadata_licenses(metadata: dict) -> None:
 
 def _find_license_field(metadata: dict, version: str) -> list:
     version = get_metadata_version(metadata)
-    if version == "OEMetadata-2.0.1":
+    if version == "OEMetadata-2.0":
         # Include resource index with each license for traceability
         licenses_per_resource = [
             (i, resource.get("licenses")) for i, resource in enumerate(metadata.get("resources", []))

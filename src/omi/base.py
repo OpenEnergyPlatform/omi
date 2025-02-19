@@ -13,7 +13,7 @@ from oemetadata.v2 import v20
 from .settings import OEP_URL
 
 # Order matters! First entry equals latest version of metadata format
-METADATA_FORMATS = {"OEP": ["OEMetadata-2.0.1", "OEP-1.6.0", "OEP-1.5.2"], "INSPIRE": []}
+METADATA_FORMATS = {"OEP": ["OEMetadata-2.0", "OEP-1.6.0", "OEP-1.5.2"], "INSPIRE": []}
 METADATA_VERSIONS = {version: md_format for md_format, versions in METADATA_FORMATS.items() for version in versions}
 
 
@@ -149,7 +149,7 @@ def __get_metadata_specs_for_oep(metadata_version: str) -> MetadataSpecification
     MetadataSpecification
         Metadata schema for given metadata version including template and example.
     """
-    metadata_modules = {"OEP-1.5.2": v152, "OEP-1.6.0": v160, "OEMetadata-2.0.1": v20}
+    metadata_modules = {"OEP-1.5.2": v152, "OEP-1.6.0": v160, "OEMetadata-2.0": v20}
     metadata_module = metadata_modules[metadata_version]
     module_path = pathlib.Path(metadata_module.__file__).parent
     specs = {}
