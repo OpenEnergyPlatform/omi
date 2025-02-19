@@ -86,6 +86,9 @@ of the oemetadata-specification to help users stick with the latest enhancements
 To ease the conversion of oemetadata from any outdated version to the latest version, we provide a
 conversion functionality. The following example shows how to convert the oemetadata from v1.6 to v2.0.
 
+Starting form v2 we do not support conversions for patch versions. This means you can convert from v1.6 to v2.0 but not from v2.0.0 to v2.0.1.
+The oemetadata release procedure requires to only add breaking changes to major or minor version. Only these changes will require a conversion. 
+
 CLI - oemetadata conversion::
 
     # Not implemented yet
