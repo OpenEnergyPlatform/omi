@@ -50,7 +50,7 @@ class ValidationError(Exception):
     """Exception raised when a validation fails."""
 
 
-def validate_metadata(metadata: dict | str) -> None:
+def validate_metadata(metadata: dict | str, check_license: bool = True) -> None:
     """
     Validate metadata against related metadata schema.
 
@@ -72,7 +72,8 @@ def validate_metadata(metadata: dict | str) -> None:
         jsonschema.validate(metadata, metadata_schema.schema)
     except jsonschema.exceptions.ValidationError as ve:
         raise ValidationError(f"Error validating metadata against related metadata schema: {ve.message}") from ve
-    license.validate_oemetadata_licenses(metadata)
+    if check_license:
+        license.validate_oemetadata_licenses(metadata)
     __validate_optional_fields_in_metadata(metadata, metadata_schema.schema)
 
 
@@ -284,6 +285,8 @@ def validate_oep_table_against_metadata(  # noqa: C901
     # Compare fields and related types:
     oep_table_fields = __get_fields_from_oep_table(oep_table, oep_schema)
     metadata_fields = __get_fields_from_metadata(metadata)
+    print(oep_table_fields)
+    print(metadata)
     # Map fields to same field type format (using frictionless format as comparison format)
     mapped_oep_table_fields = {
         field.name: field.type for field in __map_fields_to_frictionless_fields(oep_table_fields)
