@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import json
 import pathlib
 from dataclasses import dataclass
@@ -71,11 +72,23 @@ def get_metadata_version(metadata: dict) -> str:
     """
     # For OEP metadata
     try:
-        return metadata["metaMetadata"]["metadataVersion"]
+        return __normalize_metadata_version(metadata["metaMetadata"]["metadataVersion"])
     except KeyError:
         pass
     msg = "Could not extract metadata version from metadata."
     raise MetadataError(msg)
+
+
+def __normalize_metadata_version(version: str) -> str:
+    """
+    Normalize a metadata version string by stripping patch numbers.
+    For example, "OEMetadata-2.0.4" becomes "OEMetadata-2.0".
+    """
+    # This regex captures "OEMetadata-2.0" from "OEMetadata-2.0.4" or similar
+    m = re.match(r"^(OEMetadata-2\.\d+)(?:\.\d+)?$", version)
+    if m:
+        return m.group(1)
+    return version
 
 
 def get_latest_metadata_version(metadata_format: str) -> str:
