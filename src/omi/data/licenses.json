@@ -8269,7 +8269,30 @@
       ],
       "isOsiApproved": true,
       "isFsfLibre": true
+    },
+    {
+      "reference": "https://www.gesetze-im-internet.de/geonutzv/BJNR054700013.html",
+      "isDeprecatedLicenseId": false,
+      "detailsUrl": "https://www.gesetze-im-internet.de/geonutzv/BJNR054700013.html",
+      "referenceNumber": 353,
+      "name": "Verordnung zur Festlegung der Nutzungsbestimmungen für die Bereitstellung von Geodaten des Bundes",
+      "licenseId": "GeoNutzV",
+      "seeAlso": [
+        "https://sg.geodatenzentrum.de/web_public/gdz/lizenz/geonutzv.pdf"
+      ]
+    },
+    {
+      "reference": "http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32013R1159",
+      "isDeprecatedLicenseId": false,
+      "detailsUrl": "http://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32013R1159",
+      "referenceNumber": 353,
+      "name": "COMMISSION DELEGATED REGULATION (EU) No 1159/2013",
+      "licenseId": "",
+      "seeAlso": [
+        ""
+      ]
     }
   ],
-  "releaseDate": "2024-05-22"
+  "releaseDate": "2024-05-22",
+  "modifiedForOep": "yes"
 }
