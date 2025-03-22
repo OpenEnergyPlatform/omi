@@ -340,7 +340,8 @@ def parse_metadata(metadata_string: str) -> dict:
         return d
 
     try:
-        json.loads(metadata_string, object_pairs_hook=dict_raise_on_duplicates)
+        parsed_metadata = json.loads(metadata_string, object_pairs_hook=dict_raise_on_duplicates)
+        return parsed_metadata
     except json.JSONDecodeError as jde:
         start = max(0, jde.pos - 10)
         end = min(len(metadata_string), jde.pos + 10)
