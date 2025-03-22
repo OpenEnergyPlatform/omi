@@ -1,7 +1,10 @@
-from omi.base import get_metadata_specification
+"""Conversion functions for metadata version "OEP-1.6.0" to "OEMetadata-2.0"."""
+
 from copy import deepcopy
 
-# TODO: use utils.find_spatial_resolution_value_and_unit
+from omi.base import get_metadata_specification
+
+# use utils.find_spatial_resolution_value_and_unit
 from omi.conversions.utils import find_temporal_resolution_value_and_unit
 
 
@@ -22,9 +25,9 @@ def convert_oep_160_to_20(metadata: dict) -> dict:
     metadata_v2 = deepcopy(get_metadata_specification("OEMetadata-2.0").template)
 
     # Update to v2 context URL
-    metadata_v2["@context"] = (
-        "https://raw.githubusercontent.com/OpenEnergyPlatform/oemetadata/production/oemetadata/v2/v20/context.json"
-    )
+    metadata_v2[
+        "@context"
+    ] = "https://raw.githubusercontent.com/OpenEnergyPlatform/oemetadata/production/oemetadata/v2/v20/context.json"
     metadata_v2["name"] = metadata_v2["title"] = metadata_v2["description"] = ""
 
     metadata_v2["@id"] = None
@@ -48,7 +51,7 @@ def ___v2_ensure_resource_entry(metadata_v2: dict, index: int) -> dict:
     return metadata_v2["resources"][index]
 
 
-def ___v2_populate_resource_v2(resource_v2: dict, metadata: dict, resource: dict) -> None:
+def ___v2_populate_resource_v2(resource_v2: dict, metadata: dict, resource: dict) -> None:  # noqa: C901
     """Populate resource_v2 fields based on metadata and resource from v1.6."""
     # Bulk update keys without
     resource_v2.update(
@@ -100,7 +103,7 @@ def ___v2_populate_resource_v2(resource_v2: dict, metadata: dict, resource: dict
     if resolution:
         parts = resolution.split(" ", 1)
 
-        if len(parts) == 2:
+        if len(parts) == 2:  # noqa: PLR2004
             resource_v2["spatial"]["extent"]["resolutionValue"] = parts[0]
             resource_v2["spatial"]["extent"]["resolutionUnit"] = parts[1]
         elif len(parts) == 1 and parts[0]:
@@ -141,7 +144,6 @@ def ___v2_populate_subjects(resource_v2: list, subjects: list) -> None:
 
 def ___v2_populate_temporal(resource_v2: list, temporal: dict) -> None:
     """Populate temporal in resource_v2 from temporal in v1.6."""
-
     if isinstance(temporal.get("referenceDate"), str):
         resource_v2["temporal"]["referenceDate"] = temporal["referenceDate"]
 
@@ -171,16 +173,15 @@ def ___v2_populate_temporal(resource_v2: list, temporal: dict) -> None:
             )
 
 
-# TODO: sort out the code related to spatial information from above 
+# sort out the code related to spatial information from above
+
 # to add it to a new function, see below:
 # def ___v2_populate_spatial(resource_v2: list, subjects: list) -> None:
 #     """Populate licenses in source_v2 from licenses in v1.6."""
 #     if not subjects:
-#         resource_v2["subject"][0]["@id"] = None
 
 #     for i_subject, subject_entry in enumerate(subjects):
 #         if i_subject >= len(resource_v2["subject"]):
-#             resource_v2["subject"].append(deepcopy(resource_v2["subject"][0]))
 
 
 def ___v2_populate_sources(resource_v2: dict, sources: list) -> None:
@@ -232,7 +233,7 @@ def ___v2_populate_contributors(resource_v2: dict, contributors: list) -> None:
     last_contributor = resource_v2["contributors"][len(resource_v2["contributors"]) - 1]
     if (
         isinstance(last_contributor.get("title"), str)
-        and not last_contributor.get("title", "") in "Open Energy Platform oemetadata conversion to v2"
+        and last_contributor.get("title", "") not in "Open Energy Platform oemetadata conversion to v2"
     ):
         resource_v2["contributors"].append(
             {
@@ -243,7 +244,8 @@ def ___v2_populate_contributors(resource_v2: dict, contributors: list) -> None:
                 "date": "2021-09-01",
                 "object": "conversion of all metadata to oemetadata  version 2.0.4",
                 "comment": "The conversion was done by the OpenEnergyFamily team using the OMI software."
-                "We did our best to mitigate data loss. Most unexpected or incorrect metadata property entries will be lost.",
+                "We did our best to mitigate data loss. Most unexpected or incorrect metadata property"
+                "entries will be lost.",
             },
         )
 
@@ -280,7 +282,7 @@ def ___v2_populate_schema_fields(resource_v2: dict, resource: dict) -> None:
         for i in schema_field_v2.get("isAbout", []) or []:
             i.update(rename_path_to_id(i))
 
-        if not schema_field_v2.get("isAbout"):
+        if not schema_field_v2.get("isAbout"):  # noqa: SIM114
             schema_field_v2["isAbout"] = []
         elif "isAbout" not in field.keys():
             schema_field_v2["isAbout"] = []
@@ -288,13 +290,13 @@ def ___v2_populate_schema_fields(resource_v2: dict, resource: dict) -> None:
         for i in schema_field_v2.get("valueReference", []) or []:
             i.update(rename_path_to_id(i))
 
-        if not schema_field_v2.get("valueReference"):
+        if not schema_field_v2.get("valueReference"):  # noqa: SIM114
             schema_field_v2["valueReference"] = []
         elif "valueReference" not in field.keys():
             schema_field_v2["valueReference"] = []
 
 
-def rename_path_to_id(annotation_object: dict):
+def rename_path_to_id(annotation_object: dict) -> dict:
     """Rename 'path' to '@id' in obj."""
     if "path" in annotation_object:
         annotation_object["@id"] = annotation_object.pop("path")
@@ -314,7 +316,6 @@ def ___v2_populate_schema_primary_keys(resource_v2: dict, resource: dict) -> Non
 
 def ___v2_populate_schema_foreign_keys(resource_v2: dict, resource: dict) -> None:
     """Populate schema fields in resource_v2 from resource in v1.6."""
-
     for i_fk, fk in enumerate(resource.get("schema", {}).get("foreignKeys", [])):
         if i_fk >= len(resource_v2["schema"]["foreignKeys"]):
             resource_v2["schema"]["foreignKeys"].append(deepcopy(resource_v2["schema"]["foreignKeys"][0]))
