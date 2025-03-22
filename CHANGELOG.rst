@@ -6,6 +6,9 @@ current
 --------------------
 *
 
+1.1.0 (2025-03-25)
+--------------------
+* Finalize oemetadata v2.0 conversion functionality, it converts 100& of the properties form oemetadata v1.6.0 to v2.0.4 & allows for conversion of any similar oemetadata document to v20 [(#122)](https://github.com/rl-institut/super-repo/pull/122)
 
 1.0.0 (2024-10-31)
 --------------------

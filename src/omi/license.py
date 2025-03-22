@@ -17,7 +17,8 @@ def normalize_license_name(name: str) -> str:
     """
     Normalize license name.
 
-    Replace whitespaces with hyphens and convert to uppercase
+    Remove '<' and '>' symbols, remove '(ODbL)', replace whitespaces with hyphens,
+    and convert to uppercase.
 
     Parameters
     ----------
@@ -29,10 +30,16 @@ def normalize_license_name(name: str) -> str:
     str
         Normalized license name
     """
+    # Remove '<' and '>' symbols.
+    name = re.sub(r"[<>]", "", name)
+    # Remove the specific pattern "(ODbL)".
+    name = re.sub(r"\(ODbL\)", "", name)
+    # Normalize extra spaces and then replace all whitespace with hyphens.
+    name = re.sub(r"\s+", " ", name).strip()
     return re.sub(r"\s", "-", name).upper()
 
 
-def read_licenses() -> set[str]:
+def read_licenses() -> set[str, str]:
     """
     Read license IDs from SPDX licenses.
 
@@ -44,7 +51,10 @@ def read_licenses() -> set[str]:
     with LICENCES_FILE.open("r", encoding="utf-8") as file:
         licenses = json.load(file)
     # Create a set of unique license ID values
-    return {license_info.get("licenseId").upper() for license_info in licenses["licenses"]}
+    return {
+        (license_info.get("licenseId").upper(), normalize_license_name(license_info.get("name").upper()))
+        for license_info in licenses["licenses"]
+    }
 
 
 def validate_license(license_id: str) -> bool:
@@ -97,12 +107,16 @@ def validate_oemetadata_licenses(metadata: dict) -> None:
         if not licenses:
             raise LicenseError(f"No license information available in the metadata for resource: {resource_index + 1}.")
         for i, license_ in enumerate(licenses or []):
-            if not license_.get("name"):
+            if not license_.get("name") and not license_.get("title"):
                 raise LicenseError(
-                    f"The license name is missing in resource {resource_index + 1}, license {i + 1} ({license_}).",
+                    "The license name and title are missing in resource"
+                    f"{resource_index + 1}, license {i + 1} ({license_}).",
                 )
-
+            name_not_found = False
             if not validate_license(license_["name"]):
+                name_not_found = True
+
+            if not name_not_found and not validate_license(license_["title"]):
                 raise LicenseError(
                     f"The (normalized) license name '{license_['name']}' in resource"
                     f"{resource_index + 1}, license {i + 1} "
@@ -113,7 +127,7 @@ def validate_oemetadata_licenses(metadata: dict) -> None:
 
 def _find_license_field(metadata: dict, version: str) -> list:
     version = get_metadata_version(metadata)
-    if version == "OEMetadata-2.0.1":
+    if version == "OEMetadata-2.0":
         # Include resource index with each license for traceability
         licenses_per_resource = [
             (i, resource.get("licenses")) for i, resource in enumerate(metadata.get("resources", []))

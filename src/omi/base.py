@@ -4,15 +4,17 @@ from __future__ import annotations
 
 import json
 import pathlib
+import re
 from dataclasses import dataclass
 
 import requests
-from metadata import v20, v152, v160
+from oemetadata.v1 import v152, v160
+from oemetadata.v2 import v20
 
 from .settings import OEP_URL
 
 # Order matters! First entry equals latest version of metadata format
-METADATA_FORMATS = {"OEP": ["OEMetadata-2.0.1", "OEP-1.6.0", "OEP-1.5.2"], "INSPIRE": []}
+METADATA_FORMATS = {"OEP": ["OEMetadata-2.0", "OEP-1.6.0", "OEP-1.5.2"], "INSPIRE": []}
 METADATA_VERSIONS = {version: md_format for md_format, versions in METADATA_FORMATS.items() for version in versions}
 
 
@@ -70,11 +72,26 @@ def get_metadata_version(metadata: dict) -> str:
     """
     # For OEP metadata
     try:
-        return metadata["metaMetadata"]["metadataVersion"]
+        return __normalize_metadata_version(metadata["metaMetadata"]["metadataVersion"])
     except KeyError:
         pass
     msg = "Could not extract metadata version from metadata."
     raise MetadataError(msg)
+
+
+def __normalize_metadata_version(version: str) -> str:
+    """
+    Normalize a metadata version string by stripping patch numbers.
+
+    For example, "OEMetadata-2.0.4" becomes "OEMetadata-2.0".
+    """
+    if not isinstance(version, str):
+        raise MetadataError(f"Metadata version must be a string, not {type(version)}.")
+    # This regex captures "OEMetadata-2.0" from "OEMetadata-2.0.4" or similar
+    m = re.match(r"^(OEMetadata-2\.\d+)(?:\.\d+)?$", version)
+    if m:
+        return m.group(1)
+    return version
 
 
 def get_latest_metadata_version(metadata_format: str) -> str:
@@ -148,7 +165,7 @@ def __get_metadata_specs_for_oep(metadata_version: str) -> MetadataSpecification
     MetadataSpecification
         Metadata schema for given metadata version including template and example.
     """
-    metadata_modules = {"OEP-1.5.2": v152, "OEP-1.6.0": v160, "OEMetadata-2.0.1": v20}
+    metadata_modules = {"OEP-1.5.2": v152, "OEP-1.6.0": v160, "OEMetadata-2.0": v20}
     metadata_module = metadata_modules[metadata_version]
     module_path = pathlib.Path(metadata_module.__file__).parent
     specs = {}

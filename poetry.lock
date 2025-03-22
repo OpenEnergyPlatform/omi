@@ -592,13 +592,13 @@ files = [
 
 [[package]]
 name = "oemetadata"
-version = "1.6.0"
-description = "Open Energy Platform (OEP) - metadata schemas, examples and templates package"
+version = "2.0.2"
+description = "Open Energy Metadata (OEMetadata) - The energy metadata standard"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.8"
 files = [
-    {file = "oemetadata-1.6.0-py3-none-any.whl", hash = "sha256:61103a7333ed2a3482a4228fd13d74b0f08f5240e7d48a70c26e8a1901061ece"},
-    {file = "oemetadata-1.6.0.tar.gz", hash = "sha256:8f57f10cded2cdeb20c9316477176d68808ff4ca74659cdd8a93cca0695f89da"},
+    {file = "oemetadata-2.0.2-py3-none-any.whl", hash = "sha256:11137bd55f461aa70586c5fe88ce603d364ccba8b68db6cbdab02727dbdf4cff"},
+    {file = "oemetadata-2.0.2.tar.gz", hash = "sha256:f7a1cb55f5bb0857640eb0a7095c89f14c14d5a632df7a57be81d89decb79cb3"},
 ]
 
 [[package]]
