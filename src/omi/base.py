@@ -84,6 +84,8 @@ def __normalize_metadata_version(version: str) -> str:
     Normalize a metadata version string by stripping patch numbers.
     For example, "OEMetadata-2.0.4" becomes "OEMetadata-2.0".
     """
+    if not isinstance(version, str):
+        raise MetadataError(f"Metadata version must be a string, not {type(version)}.")
     # This regex captures "OEMetadata-2.0" from "OEMetadata-2.0.4" or similar
     m = re.match(r"^(OEMetadata-2\.\d+)(?:\.\d+)?$", version)
     if m:
