@@ -1,3 +1,5 @@
+"""Utility functions for data conversion."""
+
 import re
 
 
@@ -81,7 +83,7 @@ license_cc_by_4 = {
     "name": "CC-BY-4.0",
     "title": "Creative Commons Attribution 4.0 International",
     "path": "https://creativecommons.org/licenses/by/4.0/legalcode",
-    "instruction": "You are free to share and adapt, but you must attribute and cant add additional restrictions. See https://creativecommons.org/licenses/by/4.0/deed.en for further information.",
+    "instruction": "You are free to share and adapt, but you must attribute and cant add additional restrictions. See https://creativecommons.org/licenses/by/4.0/deed.en for further information.",  # noqa: E501
     "attribution": "",
     "copyrightStatement": "",
 }

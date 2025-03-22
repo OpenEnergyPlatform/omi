@@ -109,7 +109,8 @@ def validate_oemetadata_licenses(metadata: dict) -> None:
         for i, license_ in enumerate(licenses or []):
             if not license_.get("name") and not license_.get("title"):
                 raise LicenseError(
-                    f"The license name and title are missing in resource {resource_index + 1}, license {i + 1} ({license_}).",
+                    "The license name and title are missing in resource"
+                    f"{resource_index + 1}, license {i + 1} ({license_}).",
                 )
             name_not_found = False
             if not validate_license(license_["name"]):

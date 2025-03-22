@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import re
 import json
 import pathlib
+import re
 from dataclasses import dataclass
 
 import requests
@@ -82,6 +82,7 @@ def get_metadata_version(metadata: dict) -> str:
 def __normalize_metadata_version(version: str) -> str:
     """
     Normalize a metadata version string by stripping patch numbers.
+
     For example, "OEMetadata-2.0.4" becomes "OEMetadata-2.0".
     """
     if not isinstance(version, str):
