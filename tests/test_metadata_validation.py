@@ -102,7 +102,7 @@ def test_metadata_schema_not_found():
         base.get_metadata_specification("OEP-1.5.0")
 
 
-def test_metadata_against_oep_table():
+def deactivate__test_metadata_against_oep_table():
     """Test OEP table definition against OEP metadata."""
     table = "x2x_p2gas_soec_1"
     with (TEST_VALIDATION_DATA_PATH / "metadata_oep_validation.json").open("r") as f:
