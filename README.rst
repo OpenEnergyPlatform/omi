@@ -86,6 +86,9 @@ of the oemetadata-specification to help users stick with the latest enhancements
 To ease the conversion of oemetadata from any outdated version to the latest version, we provide a
 conversion functionality. The following example shows how to convert the oemetadata from v1.6 to v2.0.
 
+Starting form v2 we do not support conversions for patch versions. This means you can convert from v1.6 to v2.0 but not from v2.0.0 to v2.0.1.
+The oemetadata release procedure requires to only add breaking changes to major or minor version. Only these changes will require a conversion.
+
 CLI - oemetadata conversion::
 
     # Not implemented yet
@@ -112,7 +115,7 @@ Module usage - In python scripts you can use the conversion::
     meta = read_json_file(file_path)
 
     # use omi to convert it to the latest release
-    converted = convert_metadata(meta, "OEMetadata-2.0.1")
+    converted = convert_metadata(meta, "OEMetadata-2.0")
 
     # now you can store the result as json file
     with open("result.json", "w", encoding="utf-8") as json_file:
@@ -129,7 +132,7 @@ two arguments the first one is the metadata and the second optional one is the s
 the validation will try to get the matching schema for the current metadata.
 
 
-CLI - oemetadata conversion::
+CLI - oemetadata validation::
 
     # Not implemented yet
 
