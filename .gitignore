@@ -54,6 +54,7 @@ htmlcov
 /0_local_test
 /reports
 .vscode
+.ruff_cache
 
 # Complexity
 output/*.html
