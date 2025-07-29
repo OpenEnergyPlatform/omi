@@ -29,7 +29,7 @@ def load_yaml_metadata(file_path: Union[str, Path]) -> tuple[str, dict, list[dic
         - resources: A list of resources with the template applied.
         - template: The raw template used for resources.
     """
-    with Path.open(file_path, encoding="utf-8") as file:
+    with Path(file_path).open(encoding="utf-8") as file:
         data = yaml.safe_load(file)
 
     version = data.get("version", "OEMetadata-2.0.4")
