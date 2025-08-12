@@ -168,7 +168,7 @@ Module usage::
 **Inspection**
 
 Describing your data structure is a quite technical task. OMI offers functionality to describe your data automatically.
-You need to provide yor data in tabular text based format for this, for example a CSV file. Using frictionless OMI
+You need to provide your data in tabular text based format for this, for example a CSV file. Using frictionless OMI
 guesses the data schema specification you can use this you provide required fields in an oemetadata document.
 
 CLI - oemetadata conversion::
