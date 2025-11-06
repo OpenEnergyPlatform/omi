@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 import yaml
 
 # We test the public assembler entry point
-from omi.creation.assembler import assemble_metadata_dict
+from omi.creation.assembler import assemble_many_metadata, assemble_metadata_dict
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -208,3 +208,109 @@ def test_assemble_with_index_mapping(
     r_b = md["resources"][1]
     assert r_a["keywords"] == ["a-k", "t-k"]
     assert r_b["keywords"] == ["t-k"]
+
+
+def test_assemble_many_metadata_convention_as_dict(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Assemble all datasets by convention; expect a dict keyed by dataset id."""
+    # Dataset A
+    write_yaml(
+        tmp_path / "datasets" / "a.dataset.yaml",
+        {"version": "OEMetadata-2.0.4", "dataset": {"name": "a", "title": "A"}},
+    )
+    write_yaml(
+        tmp_path / "resources" / "a" / "r1.resource.yaml",
+        {"name": "r1", "title": "R1"},
+    )
+
+    # Dataset B (with template)
+    write_yaml(
+        tmp_path / "datasets" / "b.dataset.yaml",
+        {"version": "OEMetadata-2.0.4", "dataset": {"name": "b", "title": "B"}},
+    )
+    write_yaml(
+        tmp_path / "datasets" / "b.template.yaml",
+        {"keywords": ["tk"]},
+    )
+    write_yaml(
+        tmp_path / "resources" / "b" / "r2.resource.yaml",
+        {"name": "r2", "title": "R2", "keywords": ["rk"]},
+    )
+
+    # Use the FakeCreator inside the assembler
+    monkeypatch.setattr("omi.creation.assembler.OEMetadataCreator", FakeCreator)
+
+    out = assemble_many_metadata(tmp_path)  # dict[str, dict]
+    # discover_dataset_ids returns sorted ids
+    assert list(out.keys()) == ["a", "b"]
+
+    # Dataset A checks
+    md_a = out["a"]
+    assert md_a["name"] == "a"
+    assert [r["name"] for r in md_a["resources"]] == ["r1"]
+
+    # Dataset B checks (template applied with concat)
+    md_b = out["b"]
+    assert md_b["name"] == "b"
+    r2 = md_b["resources"][0]
+    assert r2["name"] == "r2"
+    assert r2["keywords"] == ["rk", "tk"]
+
+
+def test_assemble_many_metadata_with_index_as_list(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Assemble all datasets declared in index; expect a list of (id, md) pairs sorted by id."""
+    base = tmp_path
+
+    # Index with two datasets (note: keys will be sorted by helper)
+    write_yaml(
+        base / "metadata_index.yaml",
+        {
+            "datasets": {
+                "x": {
+                    "dataset": "datasets/x.dataset.yaml",
+                    "resources": ["resources/x/x1.resource.yaml"],
+                },
+                "y": {
+                    "dataset": "datasets/y.dataset.yaml",
+                    "template": "datasets/y.template.yaml",
+                    "resources": ["resources/y/y1.resource.yaml"],
+                },
+            },
+        },
+    )
+
+    # Dataset x
+    write_yaml(base / "datasets" / "x.dataset.yaml", {"dataset": {"name": "x", "title": "X"}})
+    write_yaml(base / "resources" / "x" / "x1.resource.yaml", {"name": "x1"})
+
+    # Dataset y (with template)
+    write_yaml(base / "datasets" / "y.dataset.yaml", {"dataset": {"name": "y", "title": "Y"}})
+    write_yaml(base / "datasets" / "y.template.yaml", {"keywords": ["t"]})
+    write_yaml(base / "resources" / "y" / "y1.resource.yaml", {"name": "y1", "keywords": ["r"]})
+
+    monkeypatch.setattr("omi.creation.assembler.OEMetadataCreator", FakeCreator)
+
+    pairs = assemble_many_metadata(
+        base,
+        index_file=base / "metadata_index.yaml",
+        as_dict=False,
+    )  # list[tuple[str, dict]]
+
+    # Expect sorted ids: ['x', 'y']
+    ids = [ds_id for ds_id, _ in pairs]
+    assert ids == ["x", "y"]
+
+    md_x = pairs[0][1]
+    md_y = pairs[1][1]
+
+    assert md_x["name"] == "x"
+    assert [r["name"] for r in md_x["resources"]] == ["x1"]
+
+    # Template concat for y
+    r_y1 = md_y["resources"][0]
+    assert r_y1["keywords"] == ["r", "t"]
