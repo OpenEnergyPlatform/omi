@@ -139,14 +139,14 @@ keywords: [example, ODbL-1.0, NFDI4Energy]
 ### Resource YAML
 
 ```yaml
-# metadata/resources/powerplants/oemetadata_table_template.resource.yaml
-name: oemetadata_table_template
+# metadata/resources/powerplants/oemetadata_table.resource.yaml
+name: oemetadata_table
 type: table
 title: OEMetadata Table Template
 description: Example table used to illustrate the OEMetadata structure and features.
 
 # Resource-specific attributes
-path: http://openenergyplatform.org/dataedit/view/model_draft/oemetadata_table_template
+path: http://openenergyplatform.org/dataedit/view/model_draft/oemetadata_table
 scheme: http
 format: CSV
 encoding: UTF-8
@@ -227,7 +227,7 @@ datasets:
     dataset: datasets/powerplants.dataset.yaml
     template: datasets/powerplants.template.yaml
     resources:
-      - resources/powerplants/oemetadata_table_template.resource.yaml
+      - resources/powerplants/oemetadata_table.resource.yaml
       - resources/powerplants/data_2.resource.yaml
 ```
 
@@ -285,7 +285,7 @@ from omi.creation.utils import load_yaml, apply_template_to_resources
 dataset = load_yaml(Path("./metadata/datasets/powerplants.dataset.yaml")).get("dataset", {})
 template = load_yaml(Path("./metadata/datasets/powerplants.template.yaml"))
 resources = [
-    load_yaml(Path("./metadata/resources/powerplants/oemetadata_table_template.resource.yaml")),
+    load_yaml(Path("./metadata/resources/powerplants/oemetadata_table.resource.yaml")),
     load_yaml(Path("./metadata/resources/powerplants/data_2.resource.yaml")),
 ]
 resources = apply_template_to_resources(resources, template)
@@ -358,7 +358,7 @@ paths = init_skeleton_from_spec(
     base_dir="./metadata",
     dataset_id="powerplants",
     oem_version="OEMetadata-2.0.4",
-    resource_name="oemetadata_table_template",
+    resource_name="oemetadata_table",
     with_index=True,   # creates metadata_index.yaml
     force=False,       # do not overwrite
 )

@@ -39,10 +39,10 @@ def test_assemble_metadata_dict_with_fixture() -> None:
     assert md["resources"]
     r_names = {r["name"] for r in md["resources"]}
     # Both resources from your example exist
-    assert {"oemetadata_table_template", "data_2"}.issubset(r_names)
+    assert {"oemetadata_table", "data_2"}.issubset(r_names)
 
     # Check one resource that should have inherited from template
-    r1 = next(r for r in md["resources"] if r["name"] == "oemetadata_table_template")
+    r1 = next(r for r in md["resources"] if r["name"] == "oemetadata_table")
     assert r1["context"]["title"] == "NFDI4Energy"  # from template
     assert "licenses" in r1
     assert isinstance(r1["licenses"], list)

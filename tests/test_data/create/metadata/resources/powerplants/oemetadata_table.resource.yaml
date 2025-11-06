@@ -1,11 +1,11 @@
-name: oemetadata_table_template
+name: oemetadata_table
 type: table
 title: OEMetadata Table Template
 description: Example table used to illustrate the OEMetadata structure and features.
 "@id": https://databus.openenergyplatform.org/oeplatform/supply/wri_global_power_plant_database/2022-11-07/wri_global_power_plant_database_variant=data.csv
 
 # Resource-specific attributes (template will add licenses/context/topics/languages/keywords)
-path: http://openenergyplatform.org/dataedit/view/model_draft/oemetadata_table_template
+path: http://openenergyplatform.org/dataedit/view/model_draft/oemetadata_table
 scheme: http
 format: CSV
 encoding: UTF-8
