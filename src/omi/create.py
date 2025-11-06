@@ -1,29 +1,44 @@
-"""Enty point for metadata creation."""
+"""Entry point for OEMetadata creation (split-files layout only)."""
 
-import json
-from pathlib import Path
-from typing import Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional, Union
 
 from omi.creation.creator import OEMetadataCreator
-from omi.creation.utils import load_yaml_metadata
+from omi.creation.utils import apply_template_to_resources, load_parts
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
-def from_yaml(yaml_file: Union[str, Path], output_file: Union[str, Path]) -> None:
+def build_from_yaml(
+    base_dir: Union[str, Path],
+    dataset_id: str,
+    output_file: Union[str, Path],
+    *,
+    index_file: Optional[Union[str, Path]] = None,
+) -> None:
     """
-    Generate OEMetadata from a YAML file and write it to an output file.
+    Assemble OEMetadata from split YAML files.
+
+      - datasets/<dataset_id>.dataset.yaml
+      - datasets/<dataset_id>.template.yaml  (optional)
+      - resources/<dataset_id>/*.resource.yaml
+      (optionally resolved via an index YAML)
 
     Parameters
     ----------
-    yaml_file: str
-        Path to the input YAML file containing dataset and resources.
-    output_file: str
-        Path to the output file where the generated OEMetadata JSON will be saved.
+    base_dir : str | Path
+        Root directory containing 'datasets/' and 'resources/'.
+    dataset_id : str
+        Logical dataset id (e.g. 'powerplants').
+    output_file : str | Path
+        Output path for the generated OEMetadata JSON.
+    index_file : str | Path | None
+        Optional explicit mapping file (metadata_index.yaml).
     """
-    version, dataset, resources = load_yaml_metadata(yaml_file)
-    creator = OEMetadataCreator()
-    metadata = creator.generate_metadata(dataset, resources)
+    version, dataset, resources, template = load_parts(base_dir, dataset_id, index_file=index_file)
+    merged_resources = apply_template_to_resources(resources, template)
 
-    with Path(output_file).open("w", encoding="utf-8") as f:
-        json.dump(metadata, f, indent=2)
-
-    print(f"OEMetadata written to {output_file}")  # noqa: T201
+    creator = OEMetadataCreator(oem_version=version)
+    creator.save(dataset, merged_resources, output_file, ensure_ascii=False, indent=2)
