@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Union
+import json
+from pathlib import Path
+from typing import Optional, Union
 
-from omi.creation.creator import OEMetadataCreator
-from omi.creation.utils import apply_template_to_resources, load_parts
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from omi.creation.assembler import assemble_many_metadata, assemble_metadata_dict
 
 
 def build_from_yaml(
@@ -19,26 +17,59 @@ def build_from_yaml(
     index_file: Optional[Union[str, Path]] = None,
 ) -> None:
     """
-    Assemble OEMetadata from split YAML files.
-
-      - datasets/<dataset_id>.dataset.yaml
-      - datasets/<dataset_id>.template.yaml  (optional)
-      - resources/<dataset_id>/*.resource.yaml
-      (optionally resolved via an index YAML)
+    Assemble one dataset and write the resulting OEMetadata JSON to a file.
 
     Parameters
     ----------
-    base_dir : str | Path
-        Root directory containing 'datasets/' and 'resources/'.
+    base_dir : Union[str, Path]
+        Base directory containing the split-files dataset structure.
     dataset_id : str
-        Logical dataset id (e.g. 'powerplants').
-    output_file : str | Path
-        Output path for the generated OEMetadata JSON.
-    index_file : str | Path | None
-        Optional explicit mapping file (metadata_index.yaml).
+        The dataset ID to assemble.
+    output_file : Union[str, Path]
+        Path to write the resulting OEMetadata JSON file.
+    index_file : Optional[Union[str, Path]], optional
+        Optional path to an index file for resolving cross-dataset references,
+        by default None.
     """
-    version, dataset, resources, template = load_parts(base_dir, dataset_id, index_file=index_file)
-    merged_resources = apply_template_to_resources(resources, template)
+    md = assemble_metadata_dict(base_dir, dataset_id, index_file=index_file)
+    Path(output_file).parent.mkdir(parents=True, exist_ok=True)
+    Path(output_file).write_text(json.dumps(md, indent=2, ensure_ascii=False), encoding="utf-8")
 
-    creator = OEMetadataCreator(oem_version=version)
-    creator.save(dataset, merged_resources, output_file, ensure_ascii=False, indent=2)
+
+def build_many_from_yaml(
+    base_dir: Union[str, Path],
+    output_dir: Union[str, Path],
+    *,
+    dataset_ids: Optional[list[str]] = None,
+    index_file: Optional[Union[str, Path]] = None,
+) -> None:
+    """
+    Assemble multiple datasets and write each as <dataset_id>.json to output_dir.
+
+    Parameters
+    ----------
+    base_dir : Union[str, Path]
+        Base directory containing the split-files dataset structure.
+    output_dir : Union[str, Path]
+        Directory to write the resulting OEMetadata JSON files.
+    dataset_ids : Optional[list[str]], optional
+        Optional list of dataset IDs to assemble. If None, all datasets found
+        in base_dir will be assembled, by default None.
+    index_file : Optional[Union[str, Path]], optional
+        Optional path to an index file for resolving cross-dataset references,
+        by default None.
+    """
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    results = assemble_many_metadata(
+        base_dir,
+        dataset_ids=dataset_ids,
+        index_file=index_file,
+        as_dict=True,  # keep it as a mapping id -> metadata
+    )
+    for ds_id, md in results.items():
+        (out_dir / f"{ds_id}.json").write_text(
+            json.dumps(md, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
