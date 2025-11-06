@@ -1,6 +1,6 @@
 # OMI OEMetadata Assembly Guide
 
-This guide explains how to author, assemble, and validate **OEMetadata** using **YAML files** with OMI. It covers file structure, templating behavior, discovery vs. explicit mapping, Python APIs, testing, and common pitfalls. You can drop this as a single `.md` file in your repo (e.g. `docs/oemetadata-assembly.md`) or split into multiple files later.
+This guide explains how to author, assemble, and validate **OEMetadata** using **YAML files** with OMI. It covers file structure, templating behavior, discovery vs. explicit mapping, Python APIs, multi-dataset usage, initialization scaffolding, testing, and common pitfalls.
 
 ---
 
@@ -22,13 +22,16 @@ This guide explains how to author, assemble, and validate **OEMetadata** using *
    * [Minimal Usage](#minimal-usage)
    * [With Index Mapping](#with-index-mapping)
    * [Manual Loading (No Discovery)](#manual-loading-no-discovery)
-8. [Airflow Integration Example](#airflow-integration-example)
-9. [Testing](#testing)
-10. [Validation & Error Handling](#validation--error-handling)
-11. [Auto-Generation From Directory (Optional Onboarding)](#auto-generation-from-directory-optional-onboarding)
-12. [Filtering Irrelevant Files (Optional)](#filtering-irrelevant-files-optional)
-13. [Design Notes & Extensibility](#design-notes--extensibility)
-14. [FAQ](#faq)
+8. [Multi-dataset Assembly](#multi-dataset-assembly)
+9. [Spec-Driven Output Ordering](#spec-driven-output-ordering)
+10. [Project Initialization (Scaffolding)](#project-initialization-scaffolding)
+11. [Airflow Integration Example](#airflow-integration-example)
+12. [Testing](#testing)
+13. [Validation & Error Handling](#validation--error-handling)
+14. [Auto-Generation From Directory (Optional Onboarding)](#auto-generation-from-directory-optional-onboarding)
+15. [Filtering Irrelevant Files (Optional)](#filtering-irrelevant-files-optional)
+16. [Design Notes & Extensibility](#design-notes--extensibility)
+17. [FAQ](#faq)
 
 ---
 
@@ -37,9 +40,9 @@ This guide explains how to author, assemble, and validate **OEMetadata** using *
 * **Goal:** Author OEMetadata as **YAML** (dataset + resources), keep it **DRY** via **templates**, assemble into a single **JSON** metadata document, and **validate** it with the official schema.
 * **Core ideas:**
 
-  * Authors maintain a dataset YAML, an optional template YAML (applied to all resources), and one or more resource YAMLs.
-  * OMI assembles and validates metadata into a final OEMetadata JSON.
-  * Works well in pipelines (e.g., Airflow) and in regular Python.
+  * Maintain a dataset YAML, an optional template YAML (applied to all resources), and one or more resource YAMLs.
+  * OMI assembles + validates metadata into final OEMetadata JSON.
+  * Works in pipelines (e.g., Airflow) and plain Python.
 
 ---
 
@@ -50,22 +53,20 @@ This guide explains how to author, assemble, and validate **OEMetadata** using *
    * `datasets/<id>.dataset.yaml`
    * `datasets/<id>.template.yaml` *(optional)*
    * `resources/<id>/*.resource.yaml`
-
 2. **Assembly:**
 
-   * OMI **loads** dataset, template, and resource YAML files.
-   * OMI **applies the template** to each resource (deep merge; resource overrides template).
-   * OMI **generates and validates** OEMetadata JSON via `OEMetadataCreator`.
-
+   * Load dataset, template, and resource YAML files.
+   * Apply template → deep merge; resource overrides.
+   * Create OEMetadata JSON via `OEMetadataCreator` and validate.
 3. **Storage:**
 
-   * You decide where to store: file, DB, API, etc. (OMI returns a Python `dict`).
+   * Assembly returns a Python `dict`. Store wherever you like (file/DB/API).
 
 ---
 
 ## Repository Layout
 
-```
+```bash
 metadata/
   datasets/
     <dataset_id>.dataset.yaml
@@ -77,7 +78,7 @@ metadata/
   metadata_index.yaml                 # optional explicit mapping
 ```
 
-* You can use **convention** (the directory / filename structure above) or an **index** file for explicit mapping.
+Use the **convention** above or an **index** file for explicit mapping.
 
 ---
 
@@ -95,13 +96,13 @@ dataset:
   "@id": https://databus.openenergyplatform.org/oeplatform/supply/wri_global_power_plant_database/
 ```
 
-> Backwards compatibility: if you prefer, you may put dataset fields directly at the top level; OMI will treat that as `dataset: {...}`.
+> Backwards compatibility: dataset fields can also be at top-level; OMI treats that as `dataset: {...}`.
 
 ---
 
 ### Template YAML (optional)
 
-Applied to **every** resource (unless the resource overrides specific fields). Keeps your YAML DRY.
+Applied to **every** resource (unless overridden). Keeps YAML DRY.
 
 ```yaml
 # metadata/datasets/powerplants.template.yaml
@@ -185,24 +186,20 @@ sources:
           See https://tldrlegal.com/license/odc-open-database-license-odbl for further information.
         attribution: © Intergovernmental Panel on Climate Change 2023
         copyrightStatement: https://www.ipcc.ch/copyright/
-
-# Other metadata like subject, publicationDate, spatial, temporal, contributors, review...
 ```
 
-A second resource:
+Second resource:
 
 ```yaml
 # metadata/resources/powerplants/data_2.resource.yaml
 name: data_2
 type: table
 title: My Second Resource
-
 path: reGon/metadata/data_2.csv
 scheme: file
 format: csv
 mediatype: text/csv
 encoding: utf-8
-
 schema:
   fields:
     - name: id
@@ -215,14 +212,13 @@ schema:
       type: string
       nullable: true
   primaryKey: [id]
-
 ```
 
 ---
 
 ### Index YAML (optional)
 
-Use this if you want explicit mappings instead of convention-based discovery.
+Explicit mappings instead of convention:
 
 ```yaml
 # metadata/metadata_index.yaml
@@ -240,54 +236,38 @@ datasets:
 ## Templating Rules
 
 * **Deep merge** for dictionaries (e.g., `context`):
-
-  * Resource **overrides** template on conflicts.
-  * Missing nested keys are **filled** from template.
-
+  Resource **overrides**; missing nested keys are **filled** from template.
 * **Lists**:
-
-  * **Concatenate** (resource first, then template-only items) for:
-    `keywords`, `topics`, `languages`.
-  * For other lists (e.g., `licenses`, `contributors`), **resource wins** (no concat).
-  * You can change this behavior in code by adding keys to `DEFAULT_CONCAT_LIST_KEYS`.
-
+  **Concatenate** for `keywords`, `topics`, `languages` (resource first, then template-only items).
+  For other lists (e.g., `licenses`, `contributors`): **resource wins** (no concat).
+  *(Modify via `DEFAULT_CONCAT_LIST_KEYS` if you want different behavior.)*
 * **Scalars**: resource value **wins**.
-
-This keeps YAML DRY while allowing fine-grained per-resource overrides.
 
 ---
 
 ## Discovery vs. Index Mapping
 
 * **Discovery (convention):**
-  `datasets/<id>.dataset.yaml`, `datasets/<id>.template.yaml`, and `resources/<id>/*.resource.yaml`
-  → No index file needed.
-
-* **Index (explicit mapping):**
-  Use `metadata_index.yaml` to map dataset/template/resources by path, relative to the metadata base directory.
+  `datasets/<id>.dataset.yaml`, `datasets/<id>.template.yaml`, `resources/<id>/*.resource.yaml`
+  → No index needed.
+* **Index (explicit):**
+  Provide `metadata_index.yaml` with explicit paths relative to your base directory.
 
 ---
 
 ## Programmatic Usage
-
-OMI exposes high-level assembly and creation utilities.
 
 ### Minimal Usage
 
 ```python
 from omi.creation.assembly import assemble_metadata_dict
 
-metadata = assemble_metadata_dict(
-    base_dir="./metadata",
-    dataset_id="powerplants",
-)  # returns a Python dict with valid OEMetadata
+metadata = assemble_metadata_dict(base_dir="./metadata", dataset_id="powerplants")
 ```
 
 ### With Index Mapping
 
 ```python
-from omi.creation.assembly import assemble_metadata_dict
-
 metadata = assemble_metadata_dict(
     base_dir="./metadata",
     dataset_id="powerplants",
@@ -308,29 +288,110 @@ resources = [
     load_yaml(Path("./metadata/resources/powerplants/oemetadata_table_template.resource.yaml")),
     load_yaml(Path("./metadata/resources/powerplants/data_2.resource.yaml")),
 ]
-
 resources = apply_template_to_resources(resources, template)
+
 creator = OEMetadataCreator(oem_version="OEMetadata-2.0.4")
 metadata = creator.generate_metadata(dataset, resources)
 ```
 
-> The `OEMetadataCreator` injects `@context` and `metaMetadata` and calls validation.
+> `OEMetadataCreator` injects `@context` and `metaMetadata` from the spec and validates the result.
+
+---
+
+## Multi-dataset Assembly
+
+Assemble **N datasets** in one call:
+
+```python
+from omi.creation.assembly import assemble_many_metadata
+
+# Discover by convention (datasets/*.dataset.yaml)
+all_metadata = assemble_many_metadata(base_dir="./metadata")
+
+# From explicit index
+all_metadata = assemble_many_metadata(
+    base_dir="./metadata", index_file="./metadata/metadata_index.yaml"
+)
+
+# Subset
+some = assemble_many_metadata(base_dir="./metadata", dataset_ids=["powerplants", "households"])
+```
+
+Result is a dict `{dataset_id: metadata}` by default.
+
+---
+
+## Spec-Driven Output Ordering
+
+For human-friendly JSON key order without hard-coded lists, order by the **official example** (fallback: schema `properties`):
+
+```python
+from omi.creation.assembly import assemble_metadata_dict
+from omi.creation.creator import OEMetadataCreator
+from omi.creation.utils import order_with_spec
+
+creator = OEMetadataCreator(oem_version="OEMetadata-2.0.4")
+metadata = assemble_metadata_dict("./metadata", "powerplants")
+
+ordered = order_with_spec(metadata, creator.oem_spec)  # uses spec.example and schema
+```
+
+Write with preserved unicode:
+
+```python
+import json, pathlib
+out = pathlib.Path("./out/powerplants.json")
+out.parent.mkdir(parents=True, exist_ok=True)
+out.write_text(json.dumps(ordered, indent=2, ensure_ascii=False), encoding="utf-8")
+```
+
+---
+
+## Project Initialization (Scaffolding)
+
+Create a metadata skeleton **from the spec** (no inline templates):
+
+```python
+from omi.creation.scaffold import init_skeleton_from_spec
+
+paths = init_skeleton_from_spec(
+    base_dir="./metadata",
+    dataset_id="powerplants",
+    oem_version="OEMetadata-2.0.4",
+    resource_name="oemetadata_table_template",
+    with_index=True,   # creates metadata_index.yaml
+    force=False,       # do not overwrite
+)
+```
+
+This imports the spec via:
+
+```python
+from omi.base import get_metadata_specification
+```
+
+…and derives:
+
+* `datasets/<id>.dataset.yaml` (with version from spec)
+* `datasets/<id>.template.yaml` (from `oem_spec.template` or pruned example resource)
+* `resources/<id>/sample.resource.yaml` (sanitized from example)
+* optional `metadata_index.yaml`
+
+You can expose a CLI command `omi init` that wraps `init_skeleton_from_spec`.
 
 ---
 
 ## Airflow Integration Example
 
 ```python
-# In a DAG task (PythonOperator callable)
 from omi.creation.assembly import assemble_metadata_dict
 
 def build_oemetadata_for_powerplants(**context):
     md = assemble_metadata_dict(
-        base_dir="/opt/airflow/dags/metadata",          # your metadata module
+        base_dir="/opt/airflow/dags/metadata",
         dataset_id="powerplants",
-        index_file="/opt/airflow/dags/metadata/metadata_index.yaml",  # or None for discovery
+        index_file="/opt/airflow/dags/metadata/metadata_index.yaml",
     )
-    # Store or pass downstream: write to file/DB/API, or XCom
     context["ti"].xcom_push(key="oemetadata", value=md)
 ```
 
@@ -338,43 +399,17 @@ def build_oemetadata_for_powerplants(**context):
 
 ## Testing
 
-You can unit test assembly logic without depending on the real spec/validator by **monkeypatching** the creator.
+* **Assembly test** (uses a fake creator): see `tests/test_assembly.py` example in this doc.
+* **Utils tests** (I/O, discovery, merging): see `tests/test_creation_utils.py`.
+  It covers:
 
-**Example (`tests/test_assembly.py`):**
+  * `load_parts` (template application)
+  * `_merge_lists`, `deep_apply_template_to_resource`, `apply_template_to_resources`
+  * `load_yaml`
+  * `discover_paths`, `resolve_from_index`, `load_parts`
+  * `discover_dataset_ids`, `discover_dataset_ids_from_index`
 
-```python
-from pathlib import Path
-import yaml
-import pytest
-from omi.creation.assembly import assemble_metadata_dict
-
-def write_yaml(p: Path, data) -> None:
-    p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True), encoding="utf-8")
-
-class FakeCreator:
-    def __init__(self, oem_version: str = "OEMetadata-2.0.4"):
-        self.oem_version = oem_version
-    def generate_metadata(self, dataset: dict, resources: list[dict]) -> dict:
-        return {"@context": "...", **dataset, "resources": resources, "metaMetadata": {"metadataVersion": self.oem_version}}
-
-def test_assemble(tmp_path, monkeypatch):
-    write_yaml(tmp_path / "datasets" / "demo.dataset.yaml", {"dataset": {"name": "demo", "title": "Demo"}})
-    write_yaml(tmp_path / "datasets" / "demo.template.yaml", {"keywords": ["k1"], "context": {"contact": "a@b"}})
-    write_yaml(tmp_path / "resources" / "demo" / "a.resource.yaml", {"name": "a", "title": "A", "keywords": ["ak"]})
-    write_yaml(tmp_path / "resources" / "demo" / "b.resource.yaml", {"name": "b", "title": "B", "context": {"publisher": "X"}})
-
-    monkeypatch.setattr("omi.creation.assembly.OEMetadataCreator", FakeCreator)
-    md = assemble_metadata_dict(tmp_path, "demo")
-
-    assert md["name"] == "demo"
-    a, b = md["resources"]
-    assert a["keywords"] == ["ak", "k1"]          # concat
-    assert b["context"]["contact"] == "a@b"       # filled from template
-    assert b["context"]["publisher"] == "X"       # resource wins
-```
-
-Run with:
+Run:
 
 ```bash
 pytest -q
@@ -384,8 +419,7 @@ pytest -q
 
 ## Validation & Error Handling
 
-* `OEMetadataCreator.generate_metadata()` runs `validate_metadata(metadata, check_license=False)`.
-* If validation fails, catch and inspect the exception from `omi.validation`:
+`OEMetadataCreator.generate_metadata()` validates with the official schema:
 
 ```python
 from omi.validation import ValidationError
@@ -396,39 +430,35 @@ except ValidationError as e:
     print("Validation failed:", e)
 ```
 
-**Common causes:**
+**Common causes**:
 
-* Missing **required** keys (e.g., field missing `"nullable"`).
-* Incorrect data types (e.g., non-URI in a field that requires `format: uri`).
-* Invalid list shapes (`primaryKey`, `foreignKeys`, etc.).
+* Missing required field keys (e.g., a schema field without `"nullable"`).
+* Wrong types (e.g., non-URI where `format: uri` is required).
+* Invalid list shapes (e.g., `primaryKey`, `foreignKeys`).
 
 ---
 
 ## Auto-Generation From Directory (Optional Onboarding)
 
-You can auto-generate a starter YAML for a dataset by scanning a directory or zip:
+You can bootstrap YAMLs from a directory or zip:
 
-* Infer resource entries based on file names & extensions.
-* For CSVs, call your CSV inference to produce initial `schema.fields`.
-* Write a `dataset` YAML + per-file `resource` YAMLs as a starting point.
+* infer resources from file names/extensions
+* for CSV, infer a table schema
+* emit dataset YAML + one resource YAML per file
 
-> Keep this as an onboarding tool; human review is still recommended.
+Use filters to skip temp/log/backup files (see next section).
 
 ---
 
 ## Filtering Irrelevant Files (Optional)
 
-If auto-generating from a directory, filter out noise:
+When scanning directories, exclude noise such as backup and editor artifacts:
 
 ```python
-def read_directory(directory, exclude_extensions=None, exclude_patterns=None, exclude_hidden=True):
-    # ...
-    # exclude_extensions=['.log','.tmp','.bak','.DS_Store','.md']
-    # exclude_patterns=['*_backup.*','*~','*.old','*.ignore']
-    return files
+exclude_extensions = {".log", ".tmp", ".bak", ".DS_Store", ".md"}
+exclude_patterns   = {"*_backup.*", "*~", "*.old", "*.ignore"}
+exclude_hidden     = True
 ```
-
-Helps avoid including backups, temp files, editor artifacts, etc.
 
 ---
 
@@ -436,36 +466,31 @@ Helps avoid including backups, temp files, editor artifacts, etc.
 
 * **Separation of concerns**:
 
-  * `utils` covers loading YAML, discovery, merging/templating.
-  * `assembly` orchestrates the load → merge → create flow.
-  * `creator` handles schema-based assembly and validation.
-* **Storage-agnostic**: assembly returns a dict; you decide where to store it (file/DB/API).
-* **Configurable merge**: change list concat behavior by editing `DEFAULT_CONCAT_LIST_KEYS`.
+  * `utils`: YAML loading, discovery, deep merge, ordering by spec.
+  * `assembly`: Orchestrates load → merge → create → (optionally) order.
+  * `creator`: Pulls spec via `get_metadata_specification`, injects `@context` and `metaMetadata`, validates.
+  * `scaffold`: Initializes a project from the **spec/example** (no inline strings).
+* **Storage-agnostic**: assembly returns a dict; saving is up to you.
+* **Configurable merging**: tweak `DEFAULT_CONCAT_LIST_KEYS` to change list concat behavior.
 
 ---
 
 ## FAQ
 
-**Q:** Can a resource override template-provided `licenses`?
-**A:** Yes. By default, **resource wins** for lists except `keywords`, `topics`, `languages` (which concatenate). You can include `"licenses"` in `DEFAULT_CONCAT_LIST_KEYS` if you want concatenation.
+**Q: Can resource YAML override template-provided `licenses`?**
+A: Yes. By default, resource lists override template lists except for `keywords`, `topics`, `languages` (which concatenate). Add `"licenses"` to `DEFAULT_CONCAT_LIST_KEYS` if you want concatenation.
 
-**Q:** Where does `@context` and `metaMetadata` come from?
-**A:** `OEMetadataCreator` reads the official spec via `get_metadata_specification(oem_version)` and injects `@context` and a `metaMetadata` block, then validates the final result.
+**Q: Where do `@context` and `metaMetadata` come from?**
+A: `OEMetadataCreator` loads the spec (`get_metadata_specification(oem_version)`) and injects both before validation.
 
-**Q:** The output JSON shows `\u00a9` instead of `©`.
-**A:** Use `ensure_ascii=False` when dumping JSON:
+**Q: Why does JSON show `\u00a9` instead of `©`?**
+A: Use `ensure_ascii=False` in `json.dump` to preserve unicode characters.
 
-```python
-json.dump(metadata, f, indent=2, ensure_ascii=False)
-```
+**Q: I got a validation error: `'nullable' is a required property`.**
+A: Ensure each `schema.fields[]` has **`name`**, **`type`**, **`nullable`**. If you auto-generate, set `nullable: false` unless you detect nulls.
 
-**Q:** I see validation errors about fields missing `nullable`.
-**A:** Ensure each `schema.fields[]` has **`name`**, **`type`**, and **`nullable`** at minimum. If you auto-generate fields, set `nullable: false` as a safe default unless you detect nulls.
+**Q: Can I reorder output keys to match the official example?**
+A: Yes. Use `order_with_spec(metadata, creator.oem_spec)` for spec-driven ordering (no hard-coded key lists).
 
-**Q:** How do I run without a template YAML?
-**A:** Just omit `datasets/<id>.template.yaml`; assembly works without it.
-
----
-
-> If you want this split across multiple docs, consider:
-> `docs/assembly-overview.md`, `docs/yaml-formats.md`, `docs/templating.md`, `docs/integration-airflow.md`, `docs/testing.md`, and `docs/troubleshooting.md`.
+**Q: Can I manage multiple datasets in one metadata module?**
+A: Yes. Use `assemble_many_metadata(...)` to discover/assemble **N datasets** at once (by convention or index).
