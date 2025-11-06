@@ -1,0 +1,22 @@
+name: data_2
+type: table
+title: My Second Resource
+
+path: reGon/metadata/data_2.csv
+scheme: file
+format: csv
+mediatype: text/csv
+encoding: utf-8
+
+schema:
+  fields:
+    - name: h
+      type: integer
+      nullable: true
+    - name: i
+      type: integer
+      nullable: true
+    - name: o
+      type: string
+      nullable: true
+  primaryKey: [id]
