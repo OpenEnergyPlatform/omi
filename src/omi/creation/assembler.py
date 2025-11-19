@@ -60,6 +60,24 @@ def assemble_many_metadata(
         * otherwise -> discover by 'datasets/*.dataset.yaml'
     - Returns a mapping {dataset_id: metadata} if as_dict=True,
       else a list of (dataset_id, metadata) pairs in sorted id order.
+
+    Parameters
+    ----------
+    base_dir : Union[str, Path]
+        Base directory containing datasets, templates, and resources.
+    dataset_ids : Optional[Iterable[str]], optional
+        Optional iterable of dataset IDs to assemble. If None, all datasets found
+        in base_dir will be assembled, by default None.
+    index_file : Optional[Union[str, Path]], optional
+        Optional path to an index YAML file for resolving dataset parts.
+    as_dict : bool, optional
+        Whether to return results as a dict mapping dataset_id to metadata. If False,
+        returns a list of (dataset_id, metadata) tuples, by default True.
+
+    Returns
+    -------
+    Union[dict[str, dict], list[tuple[str, dict]]]
+        Assembled OEMetadata for each dataset.
     """
     base = Path(base_dir)
 
