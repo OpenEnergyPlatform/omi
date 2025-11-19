@@ -132,10 +132,10 @@ from pathlib import Path
 from omi.create import build_from_yaml
 
 def build_oemetadata_callable(**context):
-    base = Path("/opt/airflow/dags/metadata")
-    out = Path("/opt/airflow/out/powerplants.json")
+    base = Path("/project/metadata")
+    out = Path("/project/metadata/out/powerplants.json")
     build_from_yaml(base, "powerplants", out)
-    # optionally push to XCom, publish, upload, etc.
+    # optionally push to airflow XCom, publish, upload, etc.
 ```
 
 ---
