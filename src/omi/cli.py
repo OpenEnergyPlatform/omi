@@ -24,6 +24,7 @@ from typing import Optional
 import click
 
 from omi.creation.creator import OEMetadataCreator
+from omi.creation.init import init_dataset, init_resources_from_files
 from omi.creation.utils import apply_template_to_resources, load_parts
 
 
@@ -62,11 +63,56 @@ def assemble_cmd(base_dir: Path, dataset_id: str, output_file: Path, index_file:
     creator = OEMetadataCreator(oem_version=version)
     creator.save(dataset, merged_resources, output_file, ensure_ascii=False, indent=2)
 
-    click.echo(f"OEMetadata written to {output_file}")
+
+@click.group()
+def init() -> None:
+    """Scaffold OEMetadata split-files layout."""
+
+
+@init.command("dataset")
+@click.argument("base_dir", type=click.Path(file_okay=False, path_type=Path))
+@click.argument("dataset_id")
+@click.option("--oem-version", default="OEMetadata-2.0", show_default=True)
+@click.option("--resource", "resources", multiple=True, help="Initial resource names (repeatable).")
+@click.option("--overwrite", is_flag=True, help="Overwrite existing files.")
+def init_dataset_cmd(
+    base_dir: Path,
+    dataset_id: str,
+    oem_version: str,
+    resources: tuple[str, ...],
+    *,
+    overwrite: bool,
+) -> None:
+    """Initialize a split-files OEMetadata dataset layout under BASE_DIR."""
+    res = init_dataset(base_dir, dataset_id, oem_version=oem_version, resources=resources, overwrite=overwrite)
+    click.echo(f"dataset:  {res.dataset_yaml}")
+    click.echo(f"template: {res.template_yaml}")
+    for p in res.resource_yamls:
+        click.echo(f"resource: {p}")
+
+
+@init.command("resources")
+@click.argument("base_dir", type=click.Path(file_okay=False, path_type=Path))
+@click.argument("dataset_id")
+@click.argument("files", nargs=-1, type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--oem-version", default="OEMetadata-2.0", show_default=True)
+@click.option("--overwrite", is_flag=True, help="Overwrite existing files.")
+def init_resources_cmd(
+    base_dir: Path,
+    dataset_id: str,
+    files: tuple[Path, ...],
+    oem_version: str,
+    *,
+    overwrite: bool,
+) -> None:
+    """Create resource YAML files for DATASET_ID from the given FILES."""
+    outs = init_resources_from_files(base_dir, dataset_id, files, oem_version=oem_version, overwrite=overwrite)
+    for p in outs:
+        click.echo(p)
 
 
 # Keep CommandCollection for backwards compatibility with your entry point
-cli = click.CommandCollection(sources=[grp])
+cli = click.CommandCollection(sources=[grp, init])
 
 
 def main() -> None:
