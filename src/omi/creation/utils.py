@@ -162,6 +162,26 @@ def resolve_from_index(
               - path/to/res2.yaml
 
     Paths are interpreted as relative to `base_dir`.
+
+    Parameters
+    ----------
+    base_dir : Union[str, Path]
+        Base directory containing datasets, templates, and resources.
+    dataset_id : str
+        Identifier for the dataset to load.
+    index_file : Optional[Union[str, Path]]
+        Optional path to an index YAML file for resolving dataset parts.
+
+    Returns
+    -------
+    tuple[Optional[Path], Optional[Path], list[Path]]
+        A tuple containing:
+        - dataset_path: Optional[Path]
+            Path to the dataset YAML (or None if not found).
+        - template_path: Optional[Path]
+            Path to the template YAML (or None if not found).
+        - resource_paths: list[Path]
+            List of paths to resource YAMLs.
     """
     if not index_file:
         return discover_paths(base_dir, dataset_id)
@@ -185,6 +205,29 @@ def load_parts(
     Load dataset YAML, optional template YAML, and all resource YAMLs.
 
     Returns a tuple: (version, dataset, resources, template).
+
+    Parameters
+    ----------
+    base_dir : Union[str, Path]
+        Base directory containing datasets, templates, and resources.
+    dataset_id : str
+        Identifier for the dataset to load.
+    index_file : Optional[Union[str, Path]], optional
+        Optional path to an index YAML file for resolving dataset parts,
+        by default None.
+
+    Returns
+    -------
+    tuple[str, dict[str, object], list[dict[str, object]], dict[str, object]]
+        A tuple containing:
+        - version: str
+            The OEMetadata version from the dataset YAML (default "OEMetadata-2.0.4").
+        - dataset: dict[str, object]
+            The dataset mapping from the dataset YAML.
+        - resources: list[dict[str, object]]
+            A list of resource mappings from the resource YAMLs.
+        - template: dict[str, object]
+            The template mapping from the template YAML (empty dict if none).
     """
     dataset_path, template_path, resource_paths = resolve_from_index(base_dir, dataset_id, index_file)
 
@@ -209,6 +252,16 @@ def discover_dataset_ids(base_dir: Union[str, Path]) -> list[str]:
     Discover dataset ids by scanning datasets/*.dataset.yaml.
 
     For 'datasets/powerplants.dataset.yaml' returns 'powerplants'.
+
+    Parameters
+    ----------
+    base_dir : Union[str, Path]
+        Base directory containing datasets, templates, and resources.
+
+    Returns
+    -------
+    list[str]
+        Sorted list of discovered dataset IDs.
     """
     base = Path(base_dir)
     datasets_dir = base / "datasets"
@@ -222,6 +275,16 @@ def discover_dataset_ids_from_index(index_file: Union[str, Path]) -> list[str]:
     Discover dataset ids from an explicit metadata_index.yaml.
 
     Returns the sorted list of top-level keys under `datasets`.
+
+    Parameters
+    ----------
+    index_file : Union[str, Path]
+        Path to an index YAML file for resolving dataset parts.
+
+    Returns
+    -------
+    list[str]
+        Sorted list of discovered dataset IDs.
     """
     idx_path = Path(index_file)
     if not idx_path.exists():
