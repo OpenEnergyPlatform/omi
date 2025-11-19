@@ -91,10 +91,12 @@ def test_build_from_yaml_writes_file_when_output_is_file(
 
     # Avoid needing real YAML on disk
     def fake_assemble(
-        _base_dir: Path,
+        base_dir: Path,
         dataset_id: str,
-        _index_file: Path | None = None,
+        index_file: Path | None = None,
     ) -> dict[str, object]:
+        # use args to avoid ARG001
+        _ = base_dir, index_file
         assert dataset_id == "powerplants"
         return expected
 
@@ -120,13 +122,14 @@ def test_build_many_from_yaml_writes_many_default_names(
     }
 
     def fake_many(
-        _base_dir: Path,
+        base_dir: Path,
         *,
-        _dataset_ids: list[str] | None = None,
-        _index_file: Path | None = None,
+        dataset_ids: list[str] | None = None,
+        index_file: Path | None = None,
         as_dict: bool = True,
     ) -> dict[str, dict[str, object]]:
         # Called by build_many_from_yaml; return mapping id -> md
+        _ = base_dir, dataset_ids, index_file  # avoid ARG001
         assert as_dict is True
         return canned
 
