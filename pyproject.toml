@@ -78,3 +78,6 @@ unfixable = ["UP007", "I001"]
 "*/__init__.py" = [
   "D104",  # Missing docstring in public package
 ]
+
+[omi.scripts]
+omi = "omi.cli:main"

@@ -1,6 +1,7 @@
 """Module to inspect data and create metadata from it."""
 
 from collections.abc import Callable
+from copy import deepcopy
 from typing import Any
 
 from frictionless import Detector, Dialect, Resource
@@ -121,7 +122,9 @@ def __apply_fields_to_oep_metadata_template(metadata: dict, fields: list[dict[st
                 return {"name": field["name"], "type": f"array {type_mapping[item_type]}"}
             # All arrays are empty - so no further subtype can be detected
             return {"name": field["name"], "type": "array"}
-        return field
+        oem_field = deepcopy(metadata["resources"][0]["schema"]["fields"][0])
+        oem_field.update(field)
+        return oem_field
 
     rows = resource.read_rows()
     fields = [convert_field(field) for field in fields]

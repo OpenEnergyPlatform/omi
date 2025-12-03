@@ -4,7 +4,8 @@ Changelog
 
 current
 --------------------
-*
+* Add the creation module and create entry: They implement yaml based metadata creation, provide template feature to keep metadata creation DRY, provide functionality to setup the metadata structure & generate metadata from existing sources like datapackages and csv files, provide functionality to create the full datapackage.json and save it to file [(#127)](https://github.com/rl-institut/super-repo/pull/127)
+
 
 1.1.0 (2025-03-25)
 --------------------

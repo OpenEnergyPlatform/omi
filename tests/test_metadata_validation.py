@@ -110,11 +110,10 @@ def deactivate__test_metadata_against_oep_table():
     validation.validate_oep_table_against_metadata(oep_table=table, oep_schema="model_draft", metadata=metadata)
 
 
-def test_metadata_against_oep_table_using_metadata_from_oep():
-    """Test OEP table definition against OEP metadata, where metadata is taken from OEP."""
-    table = "x2x_p2gas_soec_1"
-    with pytest.raises(validation.ValidationError, match="None is not of type 'object'"):
-        validation.validate_oep_table_against_metadata(oep_table=table, oep_schema="model_draft")
+# Test fails always as tables does not exist in OEP anymore
+# def test_metadata_against_oep_table_using_metadata_from_oep():
+#     """Test OEP table definition against OEP metadata, where metadata is taken from OEP."""
+#     with pytest.raises(validation.ValidationError, match="None is not of type 'object'"):
 
 
 def test_metadata_against_oep_table_invalid_name():

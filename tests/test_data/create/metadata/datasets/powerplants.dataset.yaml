@@ -1,0 +1,6 @@
+version: "OEMetadata-2.0"
+dataset:
+  name: oep_oemetadata
+  title: OEP OEMetadata
+  description: A dataset for the OEMetadata examples.
+  "@id": https://databus.openenergyplatform.org/oeplatform/supply/wri_global_power_plant_database/
