@@ -24,8 +24,16 @@ from typing import Optional
 import click
 
 from omi.creation.creator import OEMetadataCreator
-from omi.creation.init import init_dataset, init_resources_from_files
-from omi.creation.utils import apply_template_to_resources, load_parts
+from omi.creation.init import (
+    init_dataset,
+    init_from_oem_json,
+    init_resources_from_files,
+)
+from omi.creation.utils import (
+    DEFAULT_CONCAT_LIST_KEYS,
+    apply_template_to_resources,
+    load_parts,
+)
 
 
 @click.group()
@@ -53,11 +61,34 @@ def grp() -> None:
     type=click.Path(dir_okay=False, path_type=Path),
     help="Optional metadata index YAML for explicit mapping.",
 )
-def assemble_cmd(base_dir: Path, dataset_id: str, output_file: Path, index_file: Optional[Path]) -> None:
+@click.option(
+    "--concat-list-key",
+    "concat_list_keys",
+    multiple=True,
+    help=(
+        "List-valued keys to concatenate (template+resource) instead of overriding. "
+        "Defaults to: keywords, topics, languages."
+    ),
+)
+def assemble_cmd(
+    base_dir: Path,
+    dataset_id: str,
+    output_file: Path,
+    index_file: Optional[Path],
+    concat_list_keys: tuple[str, ...],
+) -> None:
     """Assemble OEMetadata from split YAML files and write JSON to OUTPUT_FILE."""
     # Load pieces
     version, dataset, resources, template = load_parts(base_dir, dataset_id, index_file=index_file)
-    merged_resources = apply_template_to_resources(resources, template)
+
+    # Choose which list keys should be concatenated
+    keys = set(concat_list_keys) if concat_list_keys else DEFAULT_CONCAT_LIST_KEYS
+
+    merged_resources = apply_template_to_resources(
+        resources,
+        template,
+        concat_list_keys=keys,
+    )
 
     # Build & save with the correct spec version
     creator = OEMetadataCreator(oem_version=version)
@@ -109,6 +140,48 @@ def init_resources_cmd(
     outs = init_resources_from_files(base_dir, dataset_id, files, oem_version=oem_version, overwrite=overwrite)
     for p in outs:
         click.echo(p)
+
+
+@init.command("from-json")
+@click.argument("base_dir", type=click.Path(file_okay=False, path_type=Path))
+@click.argument("dataset_id")
+@click.argument("oem_json", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--oem-version", default="OEMetadata-2.0", show_default=True)
+@click.option(
+    "--collect-common",
+    is_flag=True,
+    help=(
+        "Collect fields that are identical across all resources "
+        "into the dataset template (e.g. context/spatial/temporal)."
+    ),
+)
+def init_from_json_cmd(
+    base_dir: Path,
+    dataset_id: str,
+    oem_json: Path,
+    oem_version: str,
+    *,
+    collect_common: bool,
+) -> None:
+    """
+    Initialize split-files layout from an existing OEMetadata JSON file.
+
+    BASE_DIR:   Root directory containing 'datasets/' and 'resources/'.
+    DATASET_ID: Logical dataset id (e.g. 'sle').
+    OEM_JSON:   Path to an OEMetadata JSON file with one or more resources.
+    """
+    res = init_from_oem_json(
+        base_dir=base_dir,
+        dataset_id=dataset_id,
+        oem_json_path=oem_json,
+        oem_version=oem_version,
+        collect_common=collect_common,
+    )
+
+    click.echo(f"dataset:  {res.dataset_yaml}")
+    click.echo(f"template: {res.template_yaml}")
+    for p in res.resource_yamls:
+        click.echo(f"resource: {p}")
 
 
 # Keep CommandCollection for backwards compatibility with your entry point
