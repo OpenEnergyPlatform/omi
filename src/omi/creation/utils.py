@@ -14,12 +14,13 @@ from typing import TYPE_CHECKING, Optional, Union
 import yaml
 
 if TYPE_CHECKING:
-    from collections.abc import Hashable
+    from collections.abc import Hashable, Iterable
 
 # --- deep merge helpers -------------------------------------------------------
 
 # List keys we concatenate (resource + template) instead of replacing.
 DEFAULT_CONCAT_LIST_KEYS = {"keywords", "topics", "languages"}
+OEM_BBOX_MIN_LENGTH = 4
 
 
 def _hashable_key(x: object) -> Hashable | tuple:
@@ -105,11 +106,13 @@ def deep_apply_template_to_resource(
 def apply_template_to_resources(
     resources: list[dict[str, object]],
     template: dict[str, object],
+    *,
+    concat_list_keys: Union[tuple[str, ...], set[str]] = DEFAULT_CONCAT_LIST_KEYS,
 ) -> list[dict[str, object]]:
     """Apply the same `template` to each resource in `resources`."""
     if not template:
         return resources
-    return [deep_apply_template_to_resource(r, template) for r in resources]
+    return [deep_apply_template_to_resource(r, template, concat_list_keys=concat_list_keys) for r in resources]
 
 
 # --- YAML IO + discovery ------------------------------------------------------
@@ -293,3 +296,184 @@ def discover_dataset_ids_from_index(index_file: Union[str, Path]) -> list[str]:
         data = yaml.safe_load(f) or {}
     ds = data.get("datasets") or {}
     return sorted(ds.keys())
+
+
+def dump_yaml(path: Union[str, Path], data: dict[str, object]) -> Path:
+    """
+    Write `data` as YAML to `path`, creating parent directories if needed.
+
+    Returns
+    -------
+    Path
+        The path that was written.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        yaml.safe_dump(data, sort_keys=False, allow_unicode=True),
+        encoding="utf-8",
+    )
+    return path
+
+
+def normalize_bounding_box_in_resource(resource: dict[str, object]) -> None:
+    """
+    Ensure spatial.extent.boundingBox is JSON-schema friendly.
+
+    Rules
+    -----
+    - If boundingBox is a list of 4 empty-ish values -> [0, 0, 0, 0].
+    - If boundingBox is 4 numbers -> keep as-is.
+    - Otherwise -> remove boundingBox (user can re-add a proper one).
+    """
+    spatial = resource.get("spatial")
+    if not isinstance(spatial, dict):
+        return
+
+    extent = spatial.get("extent")
+    if not isinstance(extent, dict):
+        return
+
+    bbox = extent.get("boundingBox")
+    if bbox is None:
+        return
+
+    if not isinstance(bbox, list) or len(bbox) != OEM_BBOX_MIN_LENGTH:
+        extent.pop("boundingBox", None)
+        return
+
+    # all empty-ish values → default to zeros
+    if all(v in ("", None, "", 0, 0.0, False) for v in bbox):
+        extent["boundingBox"] = [0, 0, 0, 0]
+        return
+
+    # mixed types → require all numbers, else drop
+    if not all(isinstance(v, (int, float)) for v in bbox):
+        extent.pop("boundingBox", None)
+
+
+def _is_effectively_empty(value: object) -> bool:
+    """
+    Return True if `value` is 'empty' in the sense of 'no opinion'.
+
+    - None or ""  -> empty
+    - list/tuple/set -> empty if all elements are empty
+    - dict -> empty if all values are empty
+    """
+    if value is None:
+        return True
+    if isinstance(value, str):
+        return value.strip() == ""
+    if isinstance(value, (list, tuple, set)):
+        return len(value) == 0 or all(_is_effectively_empty(v) for v in value)
+    if isinstance(value, dict):
+        return len(value) == 0 or all(_is_effectively_empty(v) for v in value.values())
+    return False
+
+
+def _find_common_value_for_key(
+    docs: list[dict[str, object]],
+    key: str,
+    min_resources: int,
+) -> tuple[object, list[int]] | None:
+    """
+    For a given key, find the most common non-empty value across docs.
+
+    Returns (value, indices) or None if there is no sufficiently common value.
+    """
+    clusters: list[tuple[object, list[int]]] = []
+
+    for idx, d in enumerate(docs):
+        if key not in d or _is_effectively_empty(d[key]):
+            continue
+        v = d[key]
+        # try to find matching cluster
+        for c_val, indices in clusters:
+            if v == c_val:
+                indices.append(idx)
+                break
+        else:
+            # no matching cluster
+            clusters.append((v, [idx]))
+
+    if not clusters:
+        return None
+
+    c_val, indices = max(clusters, key=lambda pair: len(pair[1]))
+    if len(indices) < min_resources:
+        return None
+
+    return c_val, indices
+
+
+def collect_common_resource_fields(
+    base_dir: Union[str, Path],
+    dataset_id: str,
+    *,
+    keys: Iterable[str] = ("context", "spatial", "temporal", "sources", "licenses", "contributors"),
+    min_resources: int = 2,
+) -> None:
+    """
+    Hoist common top-level fields from resource YAMLs into the dataset template.
+
+    Rules (per key):
+      - Look at resources/<dataset_id>/*.resource.yaml
+      - Ignore resources where the value is 'effectively empty'.
+      - Group non-empty values by structural equality (==).
+      - Pick the value that occurs most often.
+      - If it appears in at least `min_resources` resources:
+          * write that key/value into datasets/<id>.template.yaml
+          * delete that key from any resource that has that value.
+
+    This allows scenarios like:
+      - 9 resources share the same `context`, 1 has a special `context`:
+        -> shared one goes to template, 9 resources drop `context`,
+           the special one keeps its own.
+    """
+    base = Path(base_dir)
+    res_dir = base / "resources" / dataset_id
+    template_path = base / "datasets" / f"{dataset_id}.template.yaml"
+
+    if not res_dir.exists() or not template_path.exists():
+        return
+
+    resource_paths = sorted(res_dir.glob("*.resource.yaml"))
+    if not resource_paths:
+        return
+
+    docs = [load_yaml(p) for p in resource_paths]
+    adjusted = [deepcopy(d) for d in docs]
+    common: dict[str, object] = {}
+
+    for key in keys:
+        result = _find_common_value_for_key(docs, key, min_resources=min_resources)
+        if result is None:
+            continue
+
+        c_val, indices = result
+        common[key] = c_val
+
+        # delete that key from those resources that have this common value
+        for i in indices:
+            if key in adjusted[i] and adjusted[i][key] == c_val:
+                del adjusted[i][key]
+
+    if not common:
+        return
+
+    # merge common values into template
+    tmpl = load_yaml(template_path)
+    for k, v in common.items():
+        tmpl[k] = v
+
+    template_path.write_text(
+        yaml.safe_dump(tmpl, sort_keys=False, allow_unicode=True),
+        encoding="utf-8",
+    )
+
+    # write back updated resources
+    for p, doc in zip(resource_paths, adjusted):
+        p.write_text(
+            yaml.safe_dump(doc, sort_keys=False, allow_unicode=True),
+            encoding="utf-8",
+        )
