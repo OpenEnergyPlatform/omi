@@ -7,7 +7,9 @@ infer resource information from existing data files.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml
@@ -15,9 +17,15 @@ import yaml
 from omi.base import get_metadata_specification
 from omi.inspection import InspectionError, infer_metadata
 
+from .utils import (
+    collect_common_resource_fields,
+    dump_yaml,
+    load_yaml,
+    normalize_bounding_box_in_resource,
+)
+
 if TYPE_CHECKING:
     from collections.abc import Iterable
-    from pathlib import Path
 
 
 @dataclass
@@ -120,6 +128,74 @@ def _dump_yaml(path: Path, data: dict, *, overwrite: bool) -> Path:
         encoding="utf-8",
     )
     return path
+
+
+# ---------------------------------------------------------------------------
+# Init from an existing OEMetadata JSON document
+# ---------------------------------------------------------------------------
+
+_RESOURCE_KEYS_FROM_OEM: tuple[str, ...] = (
+    "@id",
+    "name",
+    "topics",
+    "title",
+    "path",
+    "description",
+    "languages",
+    "subject",
+    "keywords",
+    "publicationDate",
+    "embargoPeriod",
+    "context",
+    "spatial",
+    "temporal",
+    "sources",
+    "licenses",
+    "contributors",
+    "type",
+    "format",
+    "encoding",
+    "schema",
+    "dialect",
+    "review",
+    "scheme",  # used by tooling, not part of spec, but safe to keep
+)
+
+
+def _merge_known_resource_keys_from_oem(dst: dict, src: dict) -> dict:
+    """
+    Copy a subset of resource keys from an existing OEMetadata JSON resource.
+
+    Also normalizes the boundingBox, so later JSON Schema validation won't
+    fail on `['', '', '', '']`.
+    """
+    for k in _RESOURCE_KEYS_FROM_OEM:
+        if k in src:
+            dst[k] = src[k]
+    normalize_bounding_box_in_resource(dst)
+    return dst
+
+
+def _update_dataset_yaml_from_top_level(dataset_yaml_path: Path, top: dict) -> None:
+    """
+    Enrich datasets/<id>.dataset.yaml with top-level OEMetadata information.
+
+    Copies:
+    - dataset.name / title / description / @id
+
+    Does *not* copy metaMetadata, because that is owned by the spec and will
+    be added by OEMetadataCreator later.
+    """
+    doc = load_yaml(dataset_yaml_path)
+    ds = doc.get("dataset") or {}
+
+    for key in ("name", "title", "description", "@id"):
+        value = top.get(key)
+        if value not in (None, ""):
+            ds[key] = value
+
+    doc["dataset"] = ds
+    dump_yaml(dataset_yaml_path, doc)
 
 
 # -----------------------------
@@ -227,3 +303,82 @@ def init_resources_from_files(
         outputs.append(_dump_yaml(out_path, res, overwrite=overwrite))
 
     return outputs
+
+
+def init_from_oem_json(
+    base_dir: Path,
+    dataset_id: str,
+    oem_json_path: Path,
+    *,
+    oem_version: str = "OEMetadata-2.0",
+    collect_common: bool = False,
+) -> InitResult:
+    """
+    Initialise split-YAML layout (dataset + template + resources) from an.
+
+    existing OEMetadata JSON document that may contain multiple resources.
+
+    Parameters
+    ----------
+    base_dir :
+        Base metadata directory (contains `datasets/` and `resources/`).
+    dataset_id :
+        Identifier for `<id>.dataset.yaml`, `<id>.template.yaml` and the
+        `resources/<id>/` folder.
+    oem_json_path :
+        Path to the OEMetadata JSON file to import.
+    oem_version :
+        OEMetadata version string used for the spec/template.
+    collect_common :
+        If True, fields that are common across resources (context/spatial/
+        temporal/sources/licenses/contributors) are hoisted into the template.
+
+    Returns
+    -------
+    InitResult
+        Paths to the dataset YAML, template YAML and created resource YAMLs.
+    """
+    base_dir = Path(base_dir)
+    oem = json.loads(Path(oem_json_path).read_text(encoding="utf-8"))
+
+    # 1) Create dataset + template stubs (from spec template)
+    init_result = init_dataset(
+        base_dir=base_dir,
+        dataset_id=dataset_id,
+        oem_version=oem_version,
+        resources=(),
+        overwrite=False,
+    )
+
+    # 2) Enrich dataset YAML from top-level OEMetadata info
+    _update_dataset_yaml_from_top_level(init_result.dataset_yaml, oem)
+    # metaMetadata stays handled centrally by OEMetadataCreator
+
+    # 3) Create resource YAMLs from OEMetadata resources
+    resources = oem.get("resources", [])
+    res_dir = base_dir / "resources" / dataset_id
+    res_dir.mkdir(parents=True, exist_ok=True)
+
+    created_resources: list[Path] = []
+    for res in resources:
+        if not isinstance(res, dict):
+            continue
+
+        raw_name = (res.get("name") or "").strip()
+        name = raw_name or Path(str(res.get("path", "resource"))).stem
+
+        out: dict[str, object] = {"name": name}
+        out = _merge_known_resource_keys_from_oem(out, res)
+
+        out_path = res_dir / f"{name}.resource.yaml"
+        created_resources.append(dump_yaml(out_path, out))
+
+    # 4) Optionally collect common fields (e.g. context/spatial/temporal/...)
+    if collect_common:
+        collect_common_resource_fields(base_dir, dataset_id)
+
+    return InitResult(
+        dataset_yaml=init_result.dataset_yaml,
+        template_yaml=init_result.template_yaml,
+        resource_yamls=created_resources,
+    )
