@@ -47,7 +47,7 @@ def get_metadata_from_oep_table(oep_table: str, oep_schema: str = "model_draft")
     dict
         Metadata in OEMetadata format
     """
-    response = requests.get(f"{OEP_URL}/api/v0/schema/{oep_schema}/tables/{oep_table}/meta/", timeout=90)
+    response = requests.get(f"{OEP_URL}/api/v0/tables/{oep_table}/meta/", timeout=90)
     if response.status_code != requests.codes.ok:
         raise MetadataError(f"Could not retrieve metadata from OEP table '{oep_schema}.{oep_table}'.")
     metadata = response.json()
