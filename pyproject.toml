@@ -79,5 +79,5 @@ unfixable = ["UP007", "I001"]
   "D104",  # Missing docstring in public package
 ]
 
-[omi.scripts]
+[tool.poetry.scripts]
 omi = "omi.cli:main"
