@@ -234,6 +234,77 @@ def _normalize_resource_lists_for_editing(md: Json, *, keep_empty: bool) -> None
         _normalize_object_list_shape(contributors)
 
 
+def _collect_primary_key_names(schema: dict[str, Any]) -> set[str]:
+    """Return a set of primary key field names from a schema object."""
+    pk_names: set[str] = set()
+    pk = schema.get("primaryKey")
+
+    if isinstance(pk, str):
+        pk_names.add(pk)
+        return pk_names
+
+    if isinstance(pk, list):
+        for item in pk:
+            if isinstance(item, str):
+                pk_names.add(item)
+            elif isinstance(item, dict):
+                name = item.get("name")
+                if isinstance(name, str):
+                    pk_names.add(name)
+
+    return pk_names
+
+
+def _apply_nullable_default(field: dict[str, Any], pk_names: set[str]) -> None:
+    """Ensure a sensible nullable value for a single field dict."""
+    name = field.get("name")
+    if not isinstance(name, str):
+        return
+
+    is_pk = name in pk_names
+    is_id_like = name == "id" or name.endswith("_id")
+
+    # IDs & PKs: always non-nullable
+    if is_pk or is_id_like:
+        field["nullable"] = False
+    else:
+        # Other fields: if nullable is missing, set a safe default.
+        field.setdefault("nullable", False)
+
+
+def _ensure_field_defaults(md: Json) -> None:
+    """
+    In-place: ensure reasonable defaults for schema.fields[*].
+
+    Rules
+    -----
+    - Ensure every field has a 'nullable' key.
+    - Fields that are primary keys or ID-like are forced to nullable=False.
+    """
+    resources = md.get("resources")
+    if not isinstance(resources, list):
+        return
+
+    for res in resources:
+        if not isinstance(res, dict):
+            continue
+
+        schema = res.get("schema")
+        if not isinstance(schema, dict):
+            continue
+
+        fields = schema.get("fields")
+        if not isinstance(fields, list):
+            continue
+
+        pk_names = _collect_primary_key_names(schema)
+
+        for field in fields:
+            if not isinstance(field, dict):
+                continue
+            _apply_nullable_default(field, pk_names)
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -278,6 +349,8 @@ def normalize_metadata_for_schema(
 
     # Always fix bounding boxes (cheap and schema-friendly)
     _ensure_bounding_boxes(out)
+
+    _ensure_field_defaults(out)
 
     # Make contributors list elements look consistent in editing mode
     _normalize_resource_lists_for_editing(out, keep_empty=keep_empty)
