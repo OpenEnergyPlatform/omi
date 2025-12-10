@@ -10,11 +10,11 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 import yaml
 
-from omi.base import get_metadata_specification
+from omi.base import MetadataError, get_metadata_specification
 from omi.inspection import InspectionError, infer_metadata
 
 from .utils import (
@@ -382,3 +382,96 @@ def init_from_oem_json(
         template_yaml=init_result.template_yaml,
         resource_yamls=created_resources,
     )
+
+
+def add_resource_from_oem_metadata(  # noqa: PLR0913
+    base_dir: Union[str, Path],
+    dataset_id: str,
+    oem: dict,
+    *,
+    resource_index: int = 0,
+    resource_name: str | None = None,
+    overwrite: bool = False,
+    oem_version: str = "OEMetadata-2.0",
+    fill_missing_from_template: bool = False,
+) -> Path:
+    """
+    Add a single resource YAML file to an existing dataset from an OEMetadata mapping.
+
+    Notes
+    -----
+    - The given OEMetadata object may be a complete OEP meta JSON document.
+      The top-level dataset fields (id, name, title, @id, @context, description, ...)
+      are ignored.
+    - Only the entry at ``oem["resources"][resource_index]`` is converted into
+      a ``.resource.yaml`` file.
+    - If ``fill_missing_from_template=True``, the resource is first initialized
+      from the OEMetadata spec resource template (all keys present with empty
+      values) and then overlaid with the OEP values. This makes it easier to
+      see which fields are still missing when editing the YAML.
+
+    Parameters
+    ----------
+    base_dir :
+        Base directory containing ``datasets/`` and ``resources/``.
+    dataset_id :
+        ID of the local dataset (corresponds to ``resources/<dataset_id>/``).
+    oem :
+        OEMetadata mapping, e.g. directly from the OEP API.
+    resource_index :
+        Index within ``oem["resources"]``, default is 0.
+    resource_name :
+        Optional explicit resource name. If None, the name is taken from the
+        OEMetadata resource or derived from its ``path``.
+    overwrite :
+        If False (default) and the ``.resource.yaml`` already exists, a
+        ``FileExistsError`` is raised.
+    oem_version :
+        OEMetadata version string (e.g. ``"OEMetadata-2.0"``) used to select
+        the appropriate resource template when ``fill_missing_from_template``
+        is True.
+    fill_missing_from_template :
+        If True, start from the blank resource template from the spec and
+        merge the OEP resource into it, so all known fields are visible
+        (with empty values where not provided).
+
+    Returns
+    -------
+    Path
+        Path to the created or overwritten resource YAML file.
+    """
+    base_dir = Path(base_dir)
+    resources = oem.get("resources") or []
+    if not resources:
+        msg = "OEMetadata document contains no resources."
+        raise MetadataError(msg)
+
+    if resource_index < 0 or resource_index >= len(resources):
+        raise IndexError(
+            f"Resource index {resource_index} out of range for OEMetadata.resources (len={len(resources)}).",
+        )
+
+    res = resources[resource_index]
+    if not isinstance(res, dict):
+        msg = "OEMetadata resource entry is not a mapping."
+        raise MetadataError(msg)
+
+    raw_name = resource_name or (res.get("name") or "").strip()
+    if not raw_name:
+        raw_name = Path(str(res.get("path", "resource"))).stem
+
+    # Start either from a full blank resource template (all keys) or from a minimal dict
+    base = _resource_stub_from_spec(oem_version, raw_name) if fill_missing_from_template else {"name": raw_name}
+
+    # Overlay OEP info onto that base
+    out: dict[str, object] = _merge_known_resource_keys_from_oem(base, res)
+
+    res_dir = base_dir / "resources" / dataset_id
+    res_dir.mkdir(parents=True, exist_ok=True)
+    out_path = res_dir / f"{raw_name}.resource.yaml"
+
+    if out_path.exists() and not overwrite:
+        raise FileExistsError(f"Resource YAML already exists: {out_path}")
+
+    dump_yaml(out_path, out)
+    return out_path
