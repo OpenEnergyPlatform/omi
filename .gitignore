@@ -84,3 +84,7 @@ docs/_build
 /local_test
 /script
 /.venv/
+
+# Metadata generation
+meta*/
+*.json
