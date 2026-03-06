@@ -23,6 +23,25 @@ DEFAULT_CONCAT_LIST_KEYS = {"keywords", "topics", "languages"}
 OEM_BBOX_MIN_LENGTH = 4
 
 
+def _is_effectively_empty(value: object) -> bool:
+    """
+    Return True if `value` is 'empty' in the sense of 'no opinion'.
+
+    - None or ""  -> empty
+    - list/tuple/set -> empty if all elements are empty
+    - dict -> empty if all values are empty
+    """
+    if value is None:
+        return True
+    if isinstance(value, str):
+        return value.strip() == ""
+    if isinstance(value, (list, tuple, set)):
+        return len(value) == 0 or all(_is_effectively_empty(v) for v in value)
+    if isinstance(value, dict):
+        return len(value) == 0 or all(_is_effectively_empty(v) for v in value.values())
+    return False
+
+
 def _hashable_key(x: object) -> Hashable | tuple:
     """
     Return a hashable representation of `x` for deduplication purposes.
@@ -75,9 +94,11 @@ def deep_apply_template_to_resource(
 
     Rules:
     - Missing keys are copied from the template.
+    - **Effectively empty keys in resource are overwritten by template.**
+      (e.g., `[{'title': ''}]` is considered empty and replaced by template).
     - Dicts are deep-merged (resource wins on conflicts).
     - Lists are concatenated only for keys in `concat_list_keys`; otherwise, the
-      resource list is preserved as-is.
+      resource list is preserved as-is (unless it was effectively empty).
     - Scalars: resource values win.
     """
     if not template:
@@ -90,6 +111,12 @@ def deep_apply_template_to_resource(
             continue
 
         rval = result[key]
+
+        # This allows template to overwrite "scaffolding" (lists of empty dicts).
+        if _is_effectively_empty(rval) and not _is_effectively_empty(tval):
+            result[key] = deepcopy(tval)
+            continue
+
         if isinstance(rval, dict) and isinstance(tval, dict):
             result[key] = deep_apply_template_to_resource(rval, tval, concat_list_keys)
             continue
@@ -97,7 +124,7 @@ def deep_apply_template_to_resource(
         if isinstance(rval, list) and isinstance(tval, list):
             if key in concat_list_keys:
                 result[key] = _merge_lists(tval, rval, deduplicate=True)
-            # else: resource list stays as-is
+            # else: resource list stays as-is (because it's not effectively empty)
             continue
         # scalar: resource value stays
     return result
@@ -350,25 +377,6 @@ def normalize_bounding_box_in_resource(resource: dict[str, object]) -> None:
     # mixed types → require all numbers, else drop
     if not all(isinstance(v, (int, float)) for v in bbox):
         extent.pop("boundingBox", None)
-
-
-def _is_effectively_empty(value: object) -> bool:
-    """
-    Return True if `value` is 'empty' in the sense of 'no opinion'.
-
-    - None or ""  -> empty
-    - list/tuple/set -> empty if all elements are empty
-    - dict -> empty if all values are empty
-    """
-    if value is None:
-        return True
-    if isinstance(value, str):
-        return value.strip() == ""
-    if isinstance(value, (list, tuple, set)):
-        return len(value) == 0 or all(_is_effectively_empty(v) for v in value)
-    if isinstance(value, dict):
-        return len(value) == 0 or all(_is_effectively_empty(v) for v in value.values())
-    return False
 
 
 def _find_common_value_for_key(
