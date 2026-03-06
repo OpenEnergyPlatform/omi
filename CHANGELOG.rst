@@ -9,6 +9,7 @@ current
 * Add api module to integrate omi with the OEP better. If users use omi locally they can now push/pull metadata to and form table resources which exists on the OEP [(#134)](https://github.com/rl-institut/super-repo/pull/134)
 * Fixed a gut that prevented users from use omi as real cli too [(#134)](https://github.com/rl-institut/super-repo/pull/134)
 * Updated OEP-API usage path when retrieving metadata form a table available on the OEP as the URL pattern has changed on OEP side [(#134)](https://github.com/rl-institut/super-repo/pull/134)
+* Fix template merge of template elements into complex structures like lists of empty dicts #142
 
 1.1.0 (2025-03-25)
 --------------------
