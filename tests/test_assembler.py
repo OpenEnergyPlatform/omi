@@ -314,3 +314,53 @@ def test_assemble_many_metadata_with_index_as_list(
     # Template concat for y
     r_y1 = md_y["resources"][0]
     assert r_y1["keywords"] == ["r", "t"]
+
+
+def test_assemble_handles_nested_empty_scaffolding(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify that deep scaffolding (nested lists/dicts of empty strings) is overwritten by the template."""
+    # 1. Template has real data
+    write_yaml(
+        tmp_path / "datasets" / "deep.template.yaml",
+        {"sources": [{"title": "Real Source", "sourceLicenses": [{"name": "Real License"}]}]},
+    )
+
+    # 2. Resource has deep scaffolding (mimicking your failing resource)
+    # sources -> [ { sourceLicenses: [ { name: "" } ] } ]
+    write_yaml(
+        tmp_path / "resources" / "deep" / "r1.resource.yaml",
+        {
+            "name": "r1",
+            "sources": [
+                {
+                    "title": "",
+                    "path": "",
+                    "authors": [],
+                    "sourceLicenses": [
+                        {
+                            "name": "",
+                            "title": "",
+                            "path": "",
+                            "instruction": "",
+                            "attribution": "",
+                            "copyrightStatement": "",
+                        },
+                    ],
+                },
+            ],
+        },
+    )
+
+    write_yaml(tmp_path / "datasets" / "deep.dataset.yaml", {"dataset": {"name": "deep"}})
+
+    monkeypatch.setattr("omi.creation.assembler.OEMetadataCreator", FakeCreator)
+
+    # 3. Assemble
+    md = assemble_metadata_dict(tmp_path, "deep")
+    r1 = md["resources"][0]
+
+    # 4. Assert: The scaffolding should be completely replaced
+    assert r1["sources"][0]["title"] == "Real Source"
+    assert r1["sources"][0]["sourceLicenses"][0]["name"] == "Real License"
