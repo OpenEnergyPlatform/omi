@@ -373,7 +373,7 @@ def init_from_oem_json(
         out_path = res_dir / f"{name}.resource.yaml"
         created_resources.append(dump_yaml(out_path, out))
 
-    # 4) Optionally collect common fields (e.g. context/spatial/temporal/...)
+    # 4) Optionally collect common fields for template (e.g. context/spatial/temporal/...)
     if collect_common:
         collect_common_resource_fields(base_dir, dataset_id)
 
@@ -396,7 +396,7 @@ def add_resource_from_oem_metadata(  # noqa: PLR0913
     fill_missing_from_template: bool = False,
 ) -> Path:
     """
-    Add a single resource YAML file to an existing dataset from an OEMetadata mapping.
+    Add a single resource YAML file to an existing dataset from an OEMetadata json.
 
     Notes
     -----
