@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Optional
 
 import click
+import yaml
 
 from omi.api.oep import (
     import_oep_table_as_resource,
@@ -40,6 +41,45 @@ from omi.creation.utils import (
     apply_template_to_resources,
     load_parts,
 )
+from omi.inspection import inspect_db_table
+
+
+def _infer_db_targets(resource_name: str, db_schema: Optional[str], db_table: Optional[str]) -> tuple[str, str]:
+    """Infer database schema and table from resource name."""
+    expected_parts = 2
+    parts = resource_name.split(".")
+    if not db_schema or not db_table:
+        if len(parts) == expected_parts:
+            inferred_schema, inferred_table = parts
+            db_schema = db_schema or inferred_schema
+            db_table = db_table or inferred_table
+        else:
+            db_table = db_table or resource_name
+    return db_schema or "", db_table or ""
+
+
+def _print_drift_report(report: dict) -> bool:
+    """Print the drift report and return whether drift was detected."""
+    drift_detected = False
+    if report.get("missing_in_yaml"):
+        click.secho(
+            f"[!] Columns in DB but missing in YAML: {', '.join(map(str, report['missing_in_yaml']))}",
+            fg="yellow",
+        )
+        drift_detected = True
+    if report.get("missing_in_db"):
+        click.secho(
+            f"[!] Columns in YAML but missing in DB: {', '.join(map(str, report['missing_in_db']))}",
+            fg="yellow",
+        )
+        drift_detected = True
+    if report.get("type_mismatches"):
+        click.secho("[!] Type mismatches detected:", fg="yellow")
+        for col, mismatch in report["type_mismatches"].items():
+            if isinstance(mismatch, dict):
+                click.echo(f"    - {col}: YAML={mismatch.get('yaml')}, DB={mismatch.get('db')}")
+        drift_detected = True
+    return drift_detected
 
 
 @click.group()
@@ -289,7 +329,13 @@ def init_dataset_cmd(
     overwrite: bool,
 ) -> None:
     """Initialize a split-files OEMetadata dataset layout under BASE_DIR."""
-    res = init_dataset(base_dir, dataset_id, oem_version=oem_version, resources=resources, overwrite=overwrite)
+    res = init_dataset(
+        base_dir,
+        dataset_id,
+        oem_version=oem_version,
+        resources=resources,
+        overwrite=overwrite,
+    )
     click.echo(f"dataset:  {res.dataset_yaml}")
     click.echo(f"template: {res.template_yaml}")
     for p in res.resource_yamls:
@@ -311,7 +357,13 @@ def init_resources_cmd(
     overwrite: bool,
 ) -> None:
     """Create resource YAML files for DATASET_ID from the given FILES."""
-    outs = init_resources_from_files(base_dir, dataset_id, files, oem_version=oem_version, overwrite=overwrite)
+    outs = init_resources_from_files(
+        base_dir,
+        dataset_id,
+        files,
+        oem_version=oem_version,
+        overwrite=overwrite,
+    )
     for p in outs:
         click.echo(p)
 
@@ -409,8 +461,170 @@ def init_oep_resource_cmd(
     click.echo(f"resource: {res_path}")
 
 
+@init.command("db-resource")
+@click.argument("base_dir", type=click.Path(file_okay=False, path_type=Path))
+@click.argument("dataset_id")
+@click.argument("connection_string")
+@click.option("--schema", "schema_name", required=True, help="Database schema name.")
+@click.option("--table", "table_name", required=True, help="Database table name.")
+@click.option("--overwrite", is_flag=True, help="Overwrite existing resource YAML with the same name.")
+def init_db_resource_cmd(  # noqa: PLR0913
+    base_dir: Path,
+    dataset_id: str,
+    connection_string: str,
+    schema_name: str,
+    table_name: str,
+    *,
+    overwrite: bool,
+) -> None:
+    """
+    Inspect a database table and add it as a resource to a local dataset.
+
+    BASE_DIR:          Root directory containing 'datasets/' and 'resources/'.
+    DATASET_ID:        Local dataset id in the split-files layout.
+    CONNECTION_STRING: SQLAlchemy database URL.
+    """
+    # 1. Fetch the skeleton from the database
+    try:
+        resource_skeleton = inspect_db_table(connection_string, schema_name, table_name)
+    except Exception as err:  # noqa: BLE001
+        click.secho(f"Failed to inspect database: {err}", fg="red", err=True)
+        raise click.Abort from err
+
+    # 2. Determine target path: resources/<dataset_id>/<schema>_<table_name>.resource.yaml
+    # We replace '.' with '_' in the filename to avoid confusing extension parsing
+    safe_name = resource_skeleton["name"].replace(".", "_")
+    target_dir = base_dir / "resources" / dataset_id
+    target_path = target_dir / f"{safe_name}.resource.yaml"
+
+    # 3. Check for existence
+    if target_path.exists() and not overwrite:
+        click.secho(
+            f"Resource file already exists: {target_path}\nUse --overwrite to force.",
+            fg="yellow",
+            err=True,
+        )
+        raise click.Abort
+
+    # 4. Create directory if it doesn't exist and write the file
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target_path.write_text(
+        yaml.safe_dump(resource_skeleton, sort_keys=False, allow_unicode=True),
+        encoding="utf-8",
+    )
+
+    click.echo(f"resource: {target_path}")
+
+
+@click.group()
+def inspect() -> None:
+    """Inspect external sources to generate OEMetadata skeletons."""
+
+
+@inspect.command("db")
+@click.argument("connection_string")
+@click.option("--schema", "schema_name", required=True, help="Database schema name.")
+@click.option("--table", "table_name", required=True, help="Database table name.")
+def inspect_db_cmd(connection_string: str, schema_name: str, table_name: str) -> None:
+    """
+    Inspect a database table and output a YAML resource skeleton.
+
+    CONNECTION_STRING: A SQLAlchemy compatible database URL
+    (e.g., postgresql://user:pass@localhost:5432/dbname).
+    """
+    try:
+        resource_skeleton = inspect_db_table(connection_string, schema_name, table_name)
+        # Dump the dictionary as YAML to standard output
+        yaml_output = yaml.safe_dump(resource_skeleton, sort_keys=False, allow_unicode=True)
+        click.echo(yaml_output)
+    except Exception as err:  # noqa: BLE001
+        click.secho(f"Inspection failed: {err}", fg="red", err=True)
+        raise click.Abort from err
+
+
+@inspect.command("db-drift")
+@click.argument("base_dir", type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.argument("dataset_id")
+@click.argument("resource_name")
+@click.argument("connection_string")
+@click.option("--schema", "db_schema", help="Database schema (defaults to prefix of resource_name).")
+@click.option("--table", "db_table", help="Database table (defaults to suffix of resource_name).")
+@click.option("--strict", is_flag=True, help="Exit with error code if drift is detected.")
+@click.option("--apply", is_flag=True, help="Update the local resource YAML file with DB structure.")
+def inspect_db_drift_cmd(  # noqa: PLR0913
+    base_dir: Path,
+    dataset_id: str,
+    resource_name: str,
+    connection_string: str,
+    db_schema: Optional[str],
+    db_table: Optional[str],
+    *,
+    strict: bool,
+    apply: bool,
+) -> None:
+    """
+    Check for schema drift between local YAML and the database.
+
+    BASE_DIR:          Root directory containing 'datasets/' and 'resources/'.
+    DATASET_ID:        Local dataset id (e.g., 'egon-data').
+    RESOURCE_NAME:     The name of the resource (e.g., 'boundaries.my_table').
+    CONNECTION_STRING: SQLAlchemy database URL.
+    """
+    from omi.creation.builder import MetadataBuilder, SchemaDriftError
+    from omi.creation.utils import dump_yaml, load_yaml
+    from omi.inspection import inspect_db_table
+
+    # 1. Infer schema/table if not explicitly provided
+    db_schema, db_table = _infer_db_targets(resource_name, db_schema, db_table)
+
+    if not db_table:
+        click.secho("Could not infer database table. Please provide --table.", fg="red", err=True)
+        raise click.Abort
+
+    # 2. Load the specific resource YAML file
+    safe_name = resource_name.replace(".", "_")
+    resource_path = base_dir / "resources" / dataset_id / f"{safe_name}.resource.yaml"
+
+    if not resource_path.exists():
+        click.secho(f"Resource file not found: {resource_path}", fg="red", err=True)
+        raise click.Abort
+
+    resource_dict = load_yaml(resource_path)
+
+    # 3. Fetch physical DB Skeleton
+    try:
+        db_skeleton = inspect_db_table(connection_string, db_schema, db_table)
+    except Exception as err:  # noqa: BLE001
+        click.secho(f"Failed to inspect database: {err}", fg="red", err=True)
+        raise click.Abort from err
+
+    # 4. Use Builder to compute diff
+    # We wrap the single resource in a dummy metadata structure to use the builder logic cleanly
+    dummy_md = {"resources": [resource_dict]}
+    builder = MetadataBuilder(dummy_md)
+
+    try:
+        report = builder.resource(0).merge_and_diff_db_schema(db_skeleton, strict=strict)
+    except SchemaDriftError as err:
+        click.secho(str(err), fg="red", err=True)
+        raise click.Abort from err
+
+    # 5. Print the Drift Report
+    drift_detected = _print_drift_report(report)
+
+    if not drift_detected:
+        click.secho(f"✓ No schema drift detected for '{resource_name}'", fg="green")
+
+    # 6. Apply changes back to the YAML file
+    if apply and drift_detected:
+        updated_resource = builder.build(validate_policy="skip")["resources"][0]
+        # omi's dump_yaml handles creating directories if needed
+        dump_yaml(resource_path, dict(updated_resource))
+        click.secho(f"✓ Automatically updated resource YAML: {resource_path.name}", fg="green")
+
+
 # Keep CommandCollection for backwards compatibility with your entry point
-cli = click.CommandCollection(sources=[grp, init])
+cli = click.CommandCollection(sources=[grp, init, inspect])
 
 
 def main() -> None:
