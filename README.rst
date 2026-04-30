@@ -99,7 +99,8 @@ When working with local files, OMI expects the structure defined by the Friction
 ::
 
     my_data_publication/
-    ├── datapackage.json                         # Optional: You might already use a Frictionless datapackage, otherwise you will generate this file using OMI.
+    ├── datapackage.json
+    ├── additional_scalars.csv
     └── data/
         ├── elements/
         │   ├── biomass_gas-bpchp_heat_high.csv
@@ -122,22 +123,33 @@ When working with local files, OMI expects the structure defined by the Friction
 **1. Initialize a new metadata dataset:**
 ::
 
-    omi init dataset ./metadata my_dataset
+    omi init dataset ./metadata my_data_publication
 
-**2. Inspect a database table to create a resource skeleton:**
+**2. Inspect tabular data to create resource metadata:**
+
+*From local CSV files (using the directory structure above):*
 ::
 
-    omi init db-resource ./metadata my_dataset postgresql://user:pass@localhost:5432/db --schema public --table my_table
+    omi init resources ./metadata my_data_publication my_data_publication/data/elements/*.csv
+
+*Or, from a database table:*
+::
+
+    omi init db-resource ./metadata my_data_publication postgresql://user:pass@localhost:5432/db --schema public --table my_table
 
 **3. Assemble split YAML files into a final JSON document:**
 ::
 
-    omi assemble --base-dir ./metadata --dataset-id my_dataset --output-file ./out/my_dataset.json
+    omi assemble --base-dir ./metadata --dataset-id my_data_publication --output-file ./out/my_data_publication_metadata.json
 
 **4. Push metadata directly to the OEP:**
+Note: Make sure you already created all tables which are part of you dataset on the OEP. OMI will not do that, for smaller dataset you can use the Wizard on the OEP. 
+For expert users we offer the tool oem2orm which uses the metadata descriptions to generate database tables on the OEP for you. This requires you to already have your
+data format ready (data files and columns).
+
 ::
 
-    omi push-oep-all --base-dir ./metadata --dataset-id my_dataset --token YOUR_API_TOKEN
+    omi push-oep-all --base-dir ./metadata --dataset-id my_data_publication --token YOUR_API_TOKEN
 
 *For a full list of commands and options, run* ``omi --help``.
 
