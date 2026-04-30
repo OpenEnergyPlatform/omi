@@ -86,6 +86,14 @@ CLI Quickstart
 
 OMI comes with a powerful CLI to manage your metadata workflow without writing Python code. Here are a few basic commands to get started:
 
+**Get an overview of the functionality:**
+
+::
+
+    omi --help
+    omi resources --help
+
+
 **1. Initialize a new metadata dataset:**
 ::
 
