@@ -4,8 +4,6 @@ Open Energy Family - Open Metadata Integration OMI
 
 A library and command-line tool to work with Open Energy Metadata (`OEMetadata`_).
 
-You can install the package via `oem`_.
-
 .. _OEMetadata: https://openenergyplatform.github.io/oemetadata/latest/
 
 * Free software: AGPL-3.0
