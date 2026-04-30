@@ -1,0 +1,191 @@
+name: oemetadata_table
+type: table
+title: OEMetadata Table Template
+description: Example table used to illustrate the OEMetadata structure and features.
+"@id": https://databus.openenergyplatform.org/oeplatform/supply/wri_global_power_plant_database/2022-11-07/wri_global_power_plant_database_variant=data.csv
+
+# Resource-specific attributes (template will add licenses/context/topics/languages/keywords)
+path: http://openenergyplatform.org/dataedit/view/model_draft/oemetadata_table
+scheme: http
+format: CSV
+encoding: UTF-8
+
+dialect:
+  decimalSeparator: "."
+  delimiter: ";"
+
+schema:
+  fields:
+    - name: id
+      type: integer
+      description: Unique identifier
+      nullable: false
+      unit: null
+      isAbout:
+        - name: identifier
+          "@id": http://purl.obolibrary.org/obo/IAO_0020000
+      valueReference:
+        - value: null
+          name: null
+          "@id": null
+    - name: name
+      type: string
+      description: Technology Name
+      nullable: true
+      unit: null
+      isAbout:
+        - name: power generation technology
+          "@id": http://openenergy-platform.org/ontology/oeo/OEO_00010423
+      valueReference:
+        - value: wind
+          name: wind power technology
+          "@id": http://openenergyplatform.org/ontology/oeo/OEO_00010424
+    - name: type
+      type: string
+      description: Type of wind farm
+      nullable: true
+      unit: null
+      isAbout:
+        - name: wind farm
+          "@id": https://openenergyplatform.org/ontology/oeo/OEO_00000447/
+      valueReference:
+        - value: onshore
+          name: onshore wind farm
+          "@id": https://openenergyplatform.org/ontology/oeo/OEO_00000311/
+        - value: offshore
+          name: offshore wind farm
+          "@id": https://openenergyplatform.org/ontology/oeo/OEO_00000308/
+    - name: year
+      type: integer
+      description: Reference year
+      nullable: true
+      unit: null
+      isAbout:
+        - name: year
+          "@id": https://openenergyplatform.org/ontology/oeo/UO_0000036/
+      valueReference:
+        - value: null
+          name: null
+          "@id": null
+    - name: value
+      type: number
+      description: Bruttoleistung
+      nullable: true
+      unit: MW
+      isAbout:
+        - name: nameplate capacity
+          "@id": https://openenergyplatform.org/ontology/oeo/OEO_00230003/
+      valueReference:
+        - value: null
+          name: null
+          "@id": null
+    - name: is_active
+      type: boolean
+      description: Betriebsstatus
+      nullable: false
+      unit: null
+      isAbout:
+        - name: Operating Mode Status
+          "@id": https://ontology.brickschema.org/brick/Operating_Mode_Status
+      valueReference:
+        - value: null
+          name: null
+          "@id": null
+    - name: version
+      type: integer
+      description: Version
+      nullable: true
+      unit: null
+      isAbout:
+        - name: version number
+          "@id": http://purl.obolibrary.org/obo/IAO_0000129
+      valueReference:
+        - value: null
+          name: null
+          "@id": null
+    - name: comment
+      type: string
+      description: ""
+      nullable: true
+      unit: null
+      isAbout:
+        - name: comment
+          "@id": http://semanticscience.org/resource/SIO_001167
+      valueReference:
+        - value: null
+          name: null
+          "@id": null
+  primaryKey: [id]
+  foreignKeys:
+    - fields: [id, version]
+      reference:
+        resource: model_draft.oep_oemetadata_table_example_version
+        fields: [id, version]
+
+
+sources:
+  - title: IPCC Sixth Assessment Report (AR6) - Climate Change 2023 - Synthesis Report
+    authors: [Hoesung Lee, José Romero, The Core Writing Team]
+    description: A Report of the Intergovernmental Panel on Climate Change.
+    publicationYear: "2023"
+    path: https://www.ipcc.ch/report/ar6/syr/downloads/report/IPCC_AR6_SYR_FullVolume.pdf
+    sourceLicenses:
+      - name: CC-BY-4.0
+        title: Creative Commons Attribution 4.0 International
+        path: https://creativecommons.org/licenses/by/4.0/legalcode
+        instruction: >
+          You are free to share and change, but you must attribute.
+          See https://tldrlegal.com/license/odc-open-database-license-odbl for further information.
+        attribution: © Intergovernmental Panel on Climate Change 2023
+        copyrightStatement: https://www.ipcc.ch/copyright/
+
+subject:
+  - name: energy
+    "@id": https://openenergyplatform.org/ontology/oeo/OEO_00000150
+
+publicationDate: "2024-10-15"
+
+# embargoPeriod:
+#   start: "2024-10-11"
+#   end: "2025-01-01"
+#   isActive: true
+
+spatial:
+  location:
+    address: Rudower Chaussee 12, 12489 Berlin
+    "@id": https://www.wikidata.org/wiki/Q77077223
+    latitude: "52.432822"
+    longitude: "13.5351004"
+  extent:
+    name: Berlin
+    "@id": https://www.wikidata.org/wiki/Q64
+    resolutionValue: "100"
+    resolutionUnit: m
+    boundingBox: [13.08825, 52.33859, 13.76104, 52.6754]
+    crs: EPSG:4326
+
+temporal:
+  referenceDate: "2020-01-01"
+  timeseries:
+    - start: "2020-01-01T00:00:00+01:00"
+      end: "2020-01-01T23:59:30+01:00"
+      resolutionValue: "15"
+      resolutionUnit: min
+      alignment: left
+      aggregationType: current
+
+contributors:
+  - title: Ludwig Hülk
+    path: https://github.com/Ludee
+    organization: Reiner Lemoine Institut
+    roles: [DataCollector]
+    date: "2024-11-19"
+    object: data
+    comment: Date of data creation
+  - title: Ludwig Hülk
+    path: https://github.com/Ludee
+    organization: Reiner Lemoine Institut
+    roles: [DataCurator]
+    date: "2024-11-30"
+    object: metadata
+    comment: Date of metadata creation

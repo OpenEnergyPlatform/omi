@@ -37,9 +37,9 @@ Overview
     :alt: PyPI Package latest release
     :target: https://pypi.org/project/omi
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/OpenEnergyPlatform/omi/v1.1.0.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/OpenEnergyPlatform/omi/v1.2.0.svg
     :alt: Commits since latest release
-    :target: https://github.com/OpenEnergyPlatform/omi/compare/v1.1.0...master
+    :target: https://github.com/OpenEnergyPlatform/omi/compare/v1.2.0...master
 
 .. |wheel| image:: https://img.shields.io/pypi/wheel/omi.svg
     :alt: PyPI Wheel
@@ -168,7 +168,7 @@ Module usage::
 **Inspection**
 
 Describing your data structure is a quite technical task. OMI offers functionality to describe your data automatically.
-You need to provide yor data in tabular text based format for this, for example a CSV file. Using frictionless OMI
+You need to provide your data in tabular text based format for this, for example a CSV file. Using frictionless OMI
 guesses the data schema specification you can use this you provide required fields in an oemetadata document.
 
 CLI - oemetadata conversion::

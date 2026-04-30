@@ -34,3 +34,9 @@ def test_inspection():
     assert metadata["resources"][0]["schema"]["fields"][6]["type"] == "object"
     assert metadata["resources"][0]["schema"]["fields"][7]["type"] == "date"
     assert metadata["resources"][0]["schema"]["fields"][8]["type"] == "boolean"
+
+
+# TODO @jh-RLI: Add test for special cases in csv as e.g. this data will cause issues # noqa: TD003
+# cat objective.csv
+# ;0
+# objective;97356714.15339188

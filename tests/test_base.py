@@ -15,7 +15,7 @@ def test_metadata_from_oep_non_existing_table():
     """Test error for non existing table."""
     with pytest.raises(
         base.MetadataError,
-        match="Could not retrieve metadata from OEP table 'model_draft.non_existing_table'.",
+        match="Could not retrieve metadata from OEP table 'non_existing_table'.",
     ):
         base.get_metadata_from_oep_table("non_existing_table")
 
@@ -24,6 +24,6 @@ def deactivate_test_metadata_from_oep_empty():
     """Test error for empty metadata."""
     with pytest.raises(
         base.MetadataError,
-        match="Metadata from 'model_draft.bnetza_eeg_anlagenstammdaten_wind_classification' is empty.",
+        match="Metadata from 'bnetza_eeg_anlagenstammdaten_wind_classification' is empty.",
     ):
         base.get_metadata_from_oep_table("bnetza_eeg_anlagenstammdaten_wind_classification")

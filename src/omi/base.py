@@ -31,7 +31,7 @@ class MetadataSpecification:
     example: dict | None = None
 
 
-def get_metadata_from_oep_table(oep_table: str, oep_schema: str = "model_draft") -> dict:
+def get_metadata_from_oep_table(oep_table: str) -> dict:
     """
     Get metadata from OEP table.
 
@@ -39,20 +39,18 @@ def get_metadata_from_oep_table(oep_table: str, oep_schema: str = "model_draft")
     ----------
     oep_table: str
         OEP table name
-    oep_schema: str
-        OEP schema name
 
     Returns
     -------
     dict
         Metadata in OEMetadata format
     """
-    response = requests.get(f"{OEP_URL}/api/v0/schema/{oep_schema}/tables/{oep_table}/meta/", timeout=90)
+    response = requests.get(f"{OEP_URL}/api/v0/tables/{oep_table}/meta/", timeout=90)
     if response.status_code != requests.codes.ok:
-        raise MetadataError(f"Could not retrieve metadata from OEP table '{oep_schema}.{oep_table}'.")
+        raise MetadataError(f"Could not retrieve metadata from OEP table '{oep_table}'.")
     metadata = response.json()
     if not metadata:
-        raise MetadataError(f"Metadata from '{oep_schema}.{oep_table}' is empty.")
+        raise MetadataError(f"Metadata from '{oep_table}' is empty.")
     return metadata
 
 
@@ -173,6 +171,74 @@ def __get_metadata_specs_for_oep(metadata_version: str) -> MetadataSpecification
         with (module_path / f"{item}.json").open("r") as f:
             specs[item] = json.loads(f.read())
     return MetadataSpecification(**specs)
+
+
+def update_metadata_for_oep_table(
+    oep_table: str,
+    metadata: dict,
+    *,
+    token: str,
+    method: str = "POST",
+    timeout: int = 90,
+) -> dict:
+    """
+    Update metadata for an OEP table via the /tables/{table}/meta/ endpoint.
+
+    Parameters
+    ----------
+    oep_table : str
+        OEP table name.
+    metadata : dict
+        OEMetadata dict to send to the API.
+    token : str
+        OEP user API token ("Token <token>" style authentication).
+    method : str
+        HTTP method to use ("POST" or "PUT"), default "POST".
+    timeout : int
+        Request timeout in seconds, default 90.
+
+    Returns
+    -------
+    dict
+        Parsed JSON response from the server (or {"raw": <text>} if not JSON).
+
+    Raises
+    ------
+    MetadataError
+        If the request failed (non-2xx status).
+    ValueError
+        If an unsupported HTTP method is requested.
+    """
+    url = f"{OEP_URL}/api/v0/tables/{oep_table}/meta/"
+
+    headers = {
+        "Authorization": f"Token {token}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    method = method.upper()
+    if method == "POST":
+        response = requests.post(url, headers=headers, json=metadata, timeout=timeout)
+    elif method == "PUT":
+        response = requests.put(url, headers=headers, json=metadata, timeout=timeout)
+    else:
+        raise ValueError(f"Unsupported HTTP method: {method!r} (use 'POST' or 'PUT').")
+
+    if not response.ok:
+        msg = f"Could not update metadata for OEP table '{oep_table}'. Status {response.status_code}: {response.text}"
+        raise MetadataError(msg)
+
+    try:
+        data = response.json()
+    except ValueError:
+        data = {"raw": response.text}
+
+    print(  # noqa: T201
+        f"Updated metadata for {oep_table}: {response.status_code} {response.reason}",
+    )
+
+    return data
 
 
 METADATA_SPECIFICATIONS = {"OEP": __get_metadata_specs_for_oep}

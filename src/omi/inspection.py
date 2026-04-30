@@ -1,7 +1,8 @@
 """Module to inspect data and create metadata from it."""
 
 from collections.abc import Callable
-from typing import Any
+from copy import deepcopy
+from typing import Any, Union
 
 from frictionless import Detector, Dialect, Resource
 from frictionless.formats import CsvControl
@@ -121,7 +122,9 @@ def __apply_fields_to_oep_metadata_template(metadata: dict, fields: list[dict[st
                 return {"name": field["name"], "type": f"array {type_mapping[item_type]}"}
             # All arrays are empty - so no further subtype can be detected
             return {"name": field["name"], "type": "array"}
-        return field
+        oem_field = deepcopy(metadata["resources"][0]["schema"]["fields"][0])
+        oem_field.update(field)
+        return oem_field
 
     rows = resource.read_rows()
     fields = [convert_field(field) for field in fields]
@@ -131,3 +134,84 @@ def __apply_fields_to_oep_metadata_template(metadata: dict, fields: list[dict[st
 
 
 METADATA_TEMPLATE_ENGINE: dict[str, Callable] = {"OEP": __apply_fields_to_oep_metadata_template}
+
+##########################################################################################
+# Inspect form database tables using SQLAlchemy and return OEMetadata resource skeletons #
+##########################################################################################
+
+
+def inspect_db_table(engine_or_url: Union[str, object], schema_name: str, table_name: str) -> dict[str, Any]:
+    """
+    Inspect a database table using SQLAlchemy and return an OEMetadata resource dictionary skeleton.
+
+    Parameters
+    ----------
+    engine_or_url: Union[str, sqlalchemy.engine.Engine]
+        SQLAlchemy connection string or Engine instance.
+    schema_name: str
+        Name of the database schema.
+    table_name: str
+        Name of the database table.
+
+    Returns
+    -------
+    dict
+        A dictionary representing an OEMetadata resource skeleton with inferred fields.
+    """
+    try:
+        import sqlalchemy.types as sqltypes
+        from sqlalchemy import create_engine, inspect
+    except ImportError as e:
+        msg = "SQLAlchemy is required for database inspection. Please install it using `pip install sqlalchemy`."
+        raise ImportError(
+            msg,
+        ) from e
+
+    engine = create_engine(engine_or_url) if isinstance(engine_or_url, str) else engine_or_url
+
+    inspector = inspect(engine)
+
+    if not inspector.has_table(table_name, schema=schema_name):
+        raise InspectionError(f"Table '{table_name}' not found in schema '{schema_name}'.")
+
+    columns = inspector.get_columns(table_name, schema=schema_name)
+    pk_constraint = inspector.get_pk_constraint(table_name, schema=schema_name)
+    primary_keys = pk_constraint.get("constrained_columns", [])
+
+    oem_fields = []
+    for col in columns:
+        col_type = col["type"]
+
+        # TODO(jh-RLI): Mapping should be defined in a central place / OEM2ORM also defines mapping
+        # https://github.com/OpenEnergyPlatform/omi/issues/147
+        # Map SQLAlchemy types to frictionles/OEMetadata types
+        if isinstance(col_type, sqltypes.Integer):
+            oem_type = "integer"
+        elif isinstance(col_type, (sqltypes.Numeric, sqltypes.Float)):
+            oem_type = "number"
+        elif isinstance(col_type, sqltypes.Boolean):
+            oem_type = "boolean"
+        elif isinstance(col_type, (sqltypes.Date, sqltypes.DateTime)):
+            oem_type = "datetime"
+        elif isinstance(col_type, sqltypes.ARRAY):
+            oem_type = "array"
+        # Check for GeoAlchemy2 Geometry types safely without importing geoalchemy2
+        elif type(col_type).__name__ == "Geometry":
+            oem_type = "geometry"
+        else:
+            oem_type = "string"
+
+        oem_fields.append(
+            {"name": col["name"], "description": "TODO: Add description", "type": oem_type, "unit": "none"},
+        )
+
+    resource_name = f"{schema_name}.{table_name}" if schema_name else table_name
+
+    resource_skeleton = {
+        "name": resource_name,
+        "title": f"TODO: Add title for {resource_name}",
+        "description": "TODO: Add description",
+        "schema": {"primaryKey": primary_keys, "foreignKeys": [], "fields": oem_fields},
+    }
+
+    return resource_skeleton

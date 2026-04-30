@@ -4,7 +4,20 @@ Changelog
 
 current
 --------------------
-*
+* ...
+
+1.1.0 (2026-04-30)
+--------------------
+* Add the creation module and create entry: They implement yaml based metadata creation, provide template feature to keep metadata creation DRY, provide functionality to setup the metadata structure & generate metadata from existing sources like datapackages and csv files, provide functionality to create the full datapackage.json and save it to file [(#127)](https://github.com/rl-institut/super-repo/pull/127)
+* Enhance new creation module. The creator now offers a builder to integrate metadata creation into 3rd party code and add metadata during runtime, the new cleaner module helps to create proper and valid metadata.  [(#134)](https://github.com/rl-institut/super-repo/pull/134)
+* Add api module to integrate omi with the OEP better. If users use omi locally they can now push/pull metadata to and form table resources which exists on the OEP [(#134)](https://github.com/rl-institut/super-repo/pull/134)
+* Fixed a bug that prevented users from use omi as cli too [(#134)](https://github.com/rl-institut/super-repo/pull/134)
+* Updated OEP-API usage path when retrieving metadata form a table available on the OEP as the URL pattern has changed on OEP side [(#134)](https://github.com/rl-institut/super-repo/pull/134)
+* Fix template merge of template elements into complex structures like lists of empty dicts #142
+* Extend the inspection module to support inspection of database tables and generate metadata skeletons based on the table structure. This includes mapping SQLAlchemy types to OEMetadata types and handling geometry types safely without requiring GeoAlchemy2. [(#147)](https://github.com/rl-institut/super-repo/pull/147)
+* Add a new command to the OMI CLI to initialize a resource metadata YAML file based on an existing database table, utilizing the new inspection functionality.
+* Add a new feature to check differences in the table schema documented in the metadata and actual table stored in the database. Checking CSV files is already available in frictionless.
+
 
 1.1.0 (2025-03-25)
 --------------------
