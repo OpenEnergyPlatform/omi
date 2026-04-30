@@ -52,7 +52,3 @@ filename = "docs/conf.py"
 filename = "CHANGELOG.rst"
 search = "[Unreleased]"
 replace = "[Unreleased] - {now:%Y-%m-%d}"
-
-[[tool.bumpversion.files]]
-filename = "CHANGELOG.rst"
-search = "Unreleased"
