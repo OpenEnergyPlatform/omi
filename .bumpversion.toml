@@ -16,17 +16,31 @@ commit = true
 message = "Bump version: {current_version} → {new_version}"
 commit_args = ""
 
+# -- Config Files --
+
 [[tool.bumpversion.files]]
 filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
 
 [[tool.bumpversion.files]]
-filename = "CHANGELOG.md"
-search = "[Unreleased]"
-replace = "[Unreleased] - {now:%Y-%m-%d}"
+filename = "setup.cfg"
+search = "version = {current_version}"
+replace = "version = {new_version}"
+
+# -- Source Code --
 
 [[tool.bumpversion.files]]
-filename = "CHANGELOG.md"
-search = "Unreleased"
+filename = "src/omi/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "src/omi/conversions/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+# -- Documentation & Meta --
 
 [[tool.bumpversion.files]]
 filename = "README.rst"
@@ -35,4 +49,6 @@ filename = "README.rst"
 filename = "docs/conf.py"
 
 [[tool.bumpversion.files]]
-filename = "omi/__init__.py"
+filename = "CHANGELOG.rst"
+search = "[Unreleased]"
+replace = "[Unreleased] - {now:%Y-%m-%d}"
