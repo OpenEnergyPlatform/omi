@@ -99,7 +99,7 @@ When working with local files, OMI expects the structure defined by the Friction
 ::
 
     my_data_publication/
-    ├── datapackage.json
+    ├── datapackage.json            # Optional: In case you already use Frictionless datapackage. Otherwise OMI will help you generate this file.
     ├── additional_scalars.csv
     └── data/
         ├── elements/
