@@ -2,7 +2,11 @@
 Open Energy Family - Open Metadata Integration OMI
 ==================================================
 
-A library to work with the open energy metadata. Its main features are validation, version conversion and infer data schemas from CSV to oemetadata.
+A library and command-line tool to work with Open Energy Metadata (`OEMetadata`_).
+
+You can install the package via `oem`_.
+
+.. _OEMetadata: https://openenergyplatform.github.io/oemetadata/latest/
 
 * Free software: AGPL-3.0
 
@@ -21,6 +25,7 @@ Overview
     * - package
       - | |version| |wheel| |supported-versions| |supported-implementations|
         | |commits-since|
+
 .. |docs| image:: https://readthedocs.org/projects/omi/badge/?style=flat
     :target: https://readthedocs.org/projects/omi
     :alt: Documentation Status
@@ -53,169 +58,86 @@ Overview
     :alt: Supported implementations
     :target: https://pypi.org/project/omi
 
-
 .. end-badges
+
+Features
+========
+
+OMI provides robust tooling for managing Open Energy Metadata, whether you are using it as a Python library or via the Command Line Interface (CLI):
+
+* **Validation**: Validate OEMetadata JSON documents using JSON-Schema and verify open license identifiers against the SPDX license list.
+* **Version Conversion**: Easily upgrade metadata documents from older OEMetadata specifications to the latest releases.
+* **YAML-Based Creation**: Scaffold, template, and assemble OEMetadata cleanly using a split-files YAML layout to keep your metadata DRY.
+* **Inspection & Skeletons**: Automatically infer data schemas from CSV files or inspect SQL databases to generate metadata resource skeletons.
+* **Schema Drift Detection**: Compare your documented metadata schemas against actual database tables to detect missing columns or type mismatches.
+* **OEP Integration**: Directly push and pull metadata to and from tables on the Open Energy Platform (OEP).
 
 Installation
 ============
+
+You can install the package via `pip`_.
+
+.. _pip: https://pypi.org/project/omi/
 
 ::
 
     pip install omi
 
+CLI Quickstart
+==============
+
+OMI comes with a powerful CLI to manage your metadata workflow without writing Python code. Here are a few basic commands to get started:
+
+**1. Initialize a new metadata dataset:**
+::
+
+    omi init dataset ./metadata my_dataset
+
+**2. Inspect a database table to create a resource skeleton:**
+::
+
+    omi init db-resource ./metadata my_dataset postgresql://user:pass@localhost:5432/db --schema public --table my_table
+
+**3. Assemble split YAML files into a final JSON document:**
+::
+
+    omi assemble --base-dir ./metadata --dataset-id my_dataset --output-file ./out/my_dataset.json
+
+**4. Push metadata directly to the OEP:**
+::
+
+    omi push-oep-all --base-dir ./metadata --dataset-id my_dataset --token YOUR_API_TOKEN
+
+*For a full list of commands and options, run* ``omi --help``.
+
 Documentation
 =============
 
-Documentation for OMI versions up to 0.2:
-https://omi.readthedocs.io/
+This README provides a minimal overview. For comprehensive guides, Python module API references, and advanced CLI usage, please refer to our official documentation:
 
-Documentation for reworked OMI versions starting from 1.0 you can find in the README document. Later on we migrate the documentation to mkdocs.
+* **Current Documentation:** Check the `docs/ <docs/>`_ directory in this repository.
+* **Legacy Documentation (up to v0.2):** `omi.readthedocs.io <https://omi.readthedocs.io/>`_
 
-Usage
-=====
-
-You can use omi as python module and import its functionality into your codebase or use the cli capabilities. OMI provides tooling for validation
-of oemetdata JSON documents using JSON-Schema. It also include helpers to generate the tabular data resource definition to seep up the metadata
-creation and helps to select a open license by checking the license identifier against the SPDX license list.
-
-As the oemetadata is updated from time to time we provides conversion functionality to convert metadata documents that use an earlier version
-of the oemetadata-specification to help users stick with the latest enhancements the latest oemetadata version offers.
-
-**Conversion**
-
-To ease the conversion of oemetadata from any outdated version to the latest version, we provide a
-conversion functionality. The following example shows how to convert the oemetadata from v1.6 to v2.0.
-
-Starting form v2 we do not support conversions for patch versions. This means you can convert from v1.6 to v2.0 but not from v2.0.0 to v2.0.1.
-The oemetadata release procedure requires to only add breaking changes to major or minor version. Only these changes will require a conversion.
-
-CLI - oemetadata conversion::
-
-    # Not implemented yet
-    omi convert -i {input/path} -o {output/path}
-
-Module usage - In python scripts you can use the conversion::
-
-    from omi.conversion import convert_metadata
-
-    import json
-
-    # you a function like this one to read you oemetadata json file
-    def read_json_file(file_path: str) -> dict:
-        with open(file_path, "r") as file:
-            data = json.load(file)
-        return data
-
-    # for example you can use the oemetdata example.json for version 1.6.0
-    # find it here https://github.com/OpenEnergyPlatform/oemetadata/blob/develop/metadata/v160/example.json
-    # make sure to provide a valid path relative to where you store the python environment
-    file_path = "example_v16.json"
-
-    # read the metadata document
-    meta = read_json_file(file_path)
-
-    # use omi to convert it to the latest release
-    converted = convert_metadata(meta, "OEMetadata-2.0")
-
-    # now you can store the result as json file
-    with open("result.json", "w", encoding="utf-8") as json_file:
-    json.dump(converted, json_file, ensure_ascii=False, indent=4)  # `indent=4` makes the JSON file easier to read
-
-
-**Validation**
-
-The validation is based on `jsonschema`. We release a schema with each `oemetadata` release, that schema
-can be used to validate the user metadata. The dialect currently does not support direct access on to the
-validation. This will be updated soon.
-This will create a report.json containing information to debug possible errors. The parser.validate() takes
-two arguments the first one is the metadata and the second optional one is the schmea. By default (if no schema is passed)
-the validation will try to get the matching schema for the current metadata.
-
-
-CLI - oemetadata validation::
-
-    # Not implemented yet
-
-
-Module usage::
-
-    import json
-    from omi.validation import validate_oemetadata_licenses, validate_metadata
-
-
-    # use a function like this one to read you oemetadata json file
-    def read_json_file(file_path: str) -> dict:
-        with open(file_path, "r") as file:
-            data = json.load(file)
-        return data
-
-    # for example you can use the oemetdata example.json for version 2.0.0
-    # find it here https://github.com/OpenEnergyPlatform/oemetadata/blob/develop/metadata/v20/example.json
-    # make sure to provide a valid path relative to where you store the python environment
-    file_path = "example_v16.json"
-
-    # read the new input from file
-    meta = read_json_file(file_path)
-
-    # validate the oemetadata: This will return noting or the errors including descriptions
-    validate_metadata(meta)
-
-    # As we are prone to open data we use this license check to validate the license name that
-    # is available in the metadata document for each data resource/distribution.
-    validate_oemetadata_licenses(meta)
-
-
-**Inspection**
-
-Describing your data structure is a quite technical task. OMI offers functionality to describe your data automatically.
-You need to provide your data in tabular text based format for this, for example a CSV file. Using frictionless OMI
-guesses the data schema specification you can use this you provide required fields in an oemetadata document.
-
-CLI - oemetadata conversion::
-
-    # Not implemented yet
-
-Module usage::
-
-    import json
-
-    import pathlib
-
-    from omi.inspection import infer_metadata
-
-    CSV_DATA_FILE = pathlib.Path(__file__).parent / "data" / "data.csv"
-
-    # infer the data fields from CSV fuile and add to an empty metadata template
-    with CSV_DATA_FILE.open("r") as f:
-        metadata = infer_metadata(f, "OEP")
-
-    # Save to a JSON file
-    with open("script/metadata/result_inspection.json", "w", encoding="utf-8") as json_file:
-        json.dump(metadata, json_file, ensure_ascii=False, indent=4)  # `indent=4` makes the JSON file easier to read
-
-**Additional Fields**
-
-To be in line with the oemetadata specification we do not allow for additional properties or fields in the metadata.
-We want to keep the oemetadata relatively lean and readable still linking to other documents or to
-propose a new property to extend the oemetadata would be a possibility here.
-
-Still some times it becomes necessary to add additional information then this would be a use case outside of the OpenEnergyPlatform
-specifically for your own use. You are welcome to use the oemetadata as base and add new fields we are happy to integrate them
-back into the oeplatform and oemetadata if they seem relevant to other users.
+*(Note: We are actively migrating our documentation to MkDocs).*
 
 Development
 ===========
 
-To install additional dependencies for development::
+To install additional dependencies for development:
+
+::
 
     pip install -e .[dev]
 
-We encourage the use of pre-commit-hooks in this project. Those enforce some
-formatting conventions (e.g. the use of `isort` and `black`). To enable hooks::
+We encourage the use of pre-commit-hooks in this project. Those enforce formatting conventions (e.g., ``isort`` and ``black``). To enable hooks:
+
+::
 
     pre-commit install
 
-To run the all tests run::
+To run all tests:
+
+::
 
     tox
 
@@ -225,13 +147,13 @@ Note, to combine the coverage data from all the tox environments run:
     :widths: 10 90
     :stub-columns: 1
 
-    - - Windows
+    * - Windows
       - ::
 
             set PYTEST_ADDOPTS=--cov-append
             tox
 
-    - - Other
+    * - Other
       - ::
 
             PYTEST_ADDOPTS=--cov-append tox
