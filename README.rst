@@ -81,22 +81,43 @@ You can install the package via `pip`_.
 
     pip install omi
 
-**Note:** We recommend to use the tool `uv`_ to manage your python environments.
+**Note:** We recommend using the tool `uv`_ to manage your python environments.
 
 .. _uv: https://docs.astral.sh/uv/
 
 CLI Quickstart
 ==============
 
-OMI comes with a powerful CLI to manage your metadata workflow without writing Python code. Here are a few basic commands to get started:
+OMI comes with a powerful CLI to manage your metadata workflow without writing Python code. 
 
-**Get an overview of the functionality:**
+**Data Requirements:** OMI requires you to have your data ready in a tabular format. Currently, only CSV files and PostgreSQL database tables are supported data resources. 
+
+When working with local files, OMI expects the structure defined by the Frictionless `datapackage`_ standard. Your local directory structure should look something like this:
+
+.. _datapackage: https://datapackage.org/standard/data-package/#structure
+
+::
+
+    my_data_publication/
+    ├── datapackage.json                         # Optional: You might already use a Frictionless datapackage, otherwise you will generate this file using OMI.
+    └── data/
+        ├── elements/
+        │   ├── biomass_gas-bpchp_heat_high.csv
+        │   ├── bus.csv
+        │   └── ... (other element CSVs)
+        └── sequences/
+            ├── electricity-demand_cts_profile.csv
+            ├── electricity-wind_profile.csv
+            └── ... (other sequence CSVs)
+
+
+**Get an overview of the CLI functionality:**
 
 ::
 
     omi --help
-    omi resources --help
-
+    omi init --help
+    omi inspect --help
 
 **1. Initialize a new metadata dataset:**
 ::
