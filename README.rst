@@ -83,7 +83,7 @@ You can install the package via `pip`_.
 
 *(Note: We recommend to use the tool `uv`_ to manage your python environments).*
 
-::_uv: https://docs.astral.sh/uv/
+.. _uv: https://docs.astral.sh/uv/
 
 CLI Quickstart
 ==============
