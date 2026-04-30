@@ -88,9 +88,9 @@ You can install the package via `pip`_.
 CLI Quickstart
 ==============
 
-OMI comes with a powerful CLI to manage your metadata workflow without writing Python code. 
+OMI comes with a powerful CLI to manage your metadata workflow without writing Python code.
 
-**Data Requirements:** OMI requires you to have your data ready in a tabular format. Currently, only CSV files and PostgreSQL database tables are supported data resources. 
+**Data Requirements:** OMI requires you to have your data ready in a tabular format. Currently, only CSV files and PostgreSQL database tables are supported data resources.
 
 When working with local files, OMI expects the structure defined by the Frictionless `datapackage`_ standard. Your local directory structure should look something like this:
 
@@ -143,7 +143,7 @@ When working with local files, OMI expects the structure defined by the Friction
     omi assemble --base-dir ./metadata --dataset-id my_data_publication --output-file ./out/my_data_publication_metadata.json
 
 **4. Push metadata directly to the OEP:**
-Note: Make sure you already created all tables which are part of you dataset on the OEP. OMI will not do that, for smaller dataset you can use the Wizard on the OEP. 
+Note: Make sure you already created all tables which are part of you dataset on the OEP. OMI will not do that, for smaller dataset you can use the Wizard on the OEP.
 For expert users we offer the tool oem2orm which uses the metadata descriptions to generate database tables on the OEP for you. This requires you to already have your
 data format ready (data files and columns).
 
