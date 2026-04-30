@@ -81,6 +81,10 @@ You can install the package via `pip`_.
 
     pip install omi
 
+*(Note: We recommend to use the tool `uv`_ to manage your python environments).*
+
+::_uv: https://docs.astral.sh/uv/
+
 CLI Quickstart
 ==============
 
