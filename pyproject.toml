@@ -19,6 +19,7 @@ jsonschema = "^4.22.0"
 oemetadata = ">=1.5.2"
 frictionless = "^5.17.0"
 pandas = "^2.2.2"
+sqlalchemy = {version = ">=1.4", optional = true}
 
 [tool.poetry.group.dev.dependencies]
 tox = "^4.15.0"
