@@ -623,6 +623,103 @@ def inspect_db_drift_cmd(  # noqa: PLR0913
         click.secho(f"✓ Automatically updated resource YAML: {resource_path.name}", fg="green")
 
 
+@grp.command("add-source")
+@click.argument("resource_yaml", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option(
+    "--kind",
+    type=click.Choice(["external", "internal"]),
+    default="external",
+    show_default=True,
+    help="external: literature/other database; internal: another table in this project.",
+)
+@click.option("--title", default=None, help="Source title (required for --kind external).")
+@click.option("--table", "ref_table", default=None, help="Referenced table name (required for --kind internal).")
+@click.option("--path", "src_path", default="", help="URL or reference path of the source.")
+@click.option("--description", default="", help="Human-readable source description.")
+def add_source_cmd(  # noqa: PLR0913
+    resource_yaml: Path,
+    kind: str,
+    title: Optional[str],
+    ref_table: Optional[str],
+    src_path: str,
+    description: str,
+) -> None:
+    """Append a provenance source to a resource YAML (non-destructive, de-duplicated)."""
+    from omi.creation.sources import (
+        add_source_to_resource_file,
+        build_external_source,
+        build_internal_source,
+    )
+
+    if kind == "internal":
+        if not ref_table:
+            msg = "--table is required for --kind internal"
+            raise click.UsageError(msg)
+        source = build_internal_source(ref_table, title=title, description=description, path=src_path)
+    else:
+        if not title:
+            msg = "--title is required for --kind external"
+            raise click.UsageError(msg)
+        source = build_external_source(title, description=description, path=src_path)
+
+    added = add_source_to_resource_file(resource_yaml, source)
+    if added:
+        click.secho(f"✓ Added {kind} source to {resource_yaml}", fg="green")
+    else:
+        click.secho(f"= Equivalent source already present in {resource_yaml}; unchanged", fg="yellow")
+
+
+@grp.command("coverage")
+@click.argument("base_dir", type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.option(
+    "--expected-file",
+    required=True,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="File listing expected resource names, one per line ('#' comments allowed).",
+)
+@click.option("--dataset-id", "dataset_ids", multiple=True, help="Restrict scan to these dataset ids (repeatable).")
+@click.option("--strict", is_flag=True, help="Exit non-zero if any expected resource is missing.")
+@click.option(
+    "--no-field-descriptions",
+    is_flag=True,
+    help="Do not require per-field descriptions for a resource to count as complete.",
+)
+def coverage_cmd(
+    base_dir: Path,
+    expected_file: Path,
+    dataset_ids: tuple[str, ...],
+    *,
+    strict: bool,
+    no_field_descriptions: bool,
+) -> None:
+    """Report documented/skeleton/missing/orphan coverage against an expected resource list."""
+    from omi.creation.coverage import coverage_report
+
+    expected = [
+        line.strip()
+        for line in expected_file.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.strip().startswith("#")
+    ]
+    report = coverage_report(
+        base_dir,
+        expected,
+        dataset_ids=dataset_ids or None,
+        require_field_descriptions=not no_field_descriptions,
+    )
+
+    click.echo(report.summary())
+    for name in report.missing:
+        click.secho(f"[missing]  {name}", fg="red")
+    for state in report.skeleton:
+        detail = "; ".join(state.reasons[:3])
+        click.secho(f"[skeleton] {state.name}  ({detail})", fg="yellow")
+    for name in report.orphans:
+        click.secho(f"[orphan]   {name}", fg="cyan")
+
+    if strict and not report.ok:
+        raise click.Abort
+
+
 # Keep CommandCollection for backwards compatibility with your entry point
 cli = click.CommandCollection(sources=[grp, init, inspect])
 

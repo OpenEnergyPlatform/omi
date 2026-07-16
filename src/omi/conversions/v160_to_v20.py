@@ -304,23 +304,48 @@ def rename_path_to_id(annotation_object: dict) -> dict:
 
 
 def ___v2_populate_schema_primary_keys(resource_v2: dict, resource: dict) -> None:
-    """Populate schema fields in resource_v2 from resource in v1.6."""
-    for i_pk, pk in enumerate(resource.get("schema", {}).get("primaryKey", []) or []):
-        if i_pk >= len(resource_v2["schema"]["primaryKey"]):
-            resource_v2["schema"]["primaryKey"].append(deepcopy(resource_v2["schema"]["primaryKey"][0]))
+    """
+    Populate schema.primaryKey in resource_v2 from the v1.6 resource.
 
-        if isinstance(pk, str):
-            resource_v2["schema"]["primaryKey"].pop()
-            resource_v2["schema"]["primaryKey"].append(pk)
+    v1.5/v1.6 may store ``primaryKey`` as a comma-separated string
+    (e.g. ``"id, scn_name"``) or as a list; OEMetadata v2 requires a list of
+    column names. A string is split on commas and whitespace-stripped; the
+    ``"none"`` sentinel and empty values become an empty list. Iterating the
+    string directly (the previous behaviour) split it into individual
+    characters, so this coercion must happen before any iteration.
+    """
+    raw_pk = resource.get("schema", {}).get("primaryKey", []) or []
+
+    if isinstance(raw_pk, str):
+        if raw_pk.strip().lower() in ("", "none"):
+            primary_keys: list = []
+        else:
+            primary_keys = [part.strip() for part in raw_pk.split(",") if part.strip()]
+    else:
+        primary_keys = [pk for pk in raw_pk if pk not in (None, "")]
+
+    resource_v2["schema"]["primaryKey"] = primary_keys
 
 
 def ___v2_populate_schema_foreign_keys(resource_v2: dict, resource: dict) -> None:
-    """Populate schema fields in resource_v2 from resource in v1.6."""
-    for i_fk, fk in enumerate(resource.get("schema", {}).get("foreignKeys", [])):
+    """
+    Populate schema.foreignKeys in resource_v2 from the v1.6 resource.
+
+    When the source declares no foreign keys, emit an empty list rather than
+    leaking the v2 template placeholder stub (an empty ``{fields, reference}``
+    entry) into the output.
+    """
+    source_fks = resource.get("schema", {}).get("foreignKeys", []) or []
+
+    if not source_fks:
+        resource_v2["schema"]["foreignKeys"] = []
+        return
+
+    for i_fk, fk in enumerate(source_fks):
         if i_fk >= len(resource_v2["schema"]["foreignKeys"]):
             resource_v2["schema"]["foreignKeys"].append(deepcopy(resource_v2["schema"]["foreignKeys"][0]))
 
-        if isinstance(fk, object):
+        if isinstance(fk, dict):
             resource_v2["schema"]["foreignKeys"][i_fk].update(
                 (k, resource["schema"]["foreignKeys"][i_fk][k])
                 for k in resource_v2["schema"]["foreignKeys"][i_fk].keys()

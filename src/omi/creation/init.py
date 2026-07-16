@@ -8,6 +8,7 @@ infer resource information from existing data files.
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Union
@@ -15,7 +16,8 @@ from typing import TYPE_CHECKING, Union
 import yaml
 
 from omi.base import MetadataError, get_metadata_specification
-from omi.inspection import InspectionError, infer_metadata
+from omi.creation.builder import MetadataBuilder
+from omi.inspection import InspectionError, infer_metadata, inspect_db_table
 
 from .utils import (
     collect_common_resource_fields,
@@ -475,3 +477,94 @@ def add_resource_from_oem_metadata(  # noqa: PLR0913
 
     dump_yaml(out_path, out)
     return out_path
+
+
+# ---------------------------------------------------------------------------
+# Non-destructive merge-update of a resource from a DB-inspection skeleton
+# ---------------------------------------------------------------------------
+
+
+def update_resource_from_db_skeleton(
+    resource: dict,
+    db_skeleton: dict,
+    *,
+    strict: bool = False,
+) -> tuple[dict, dict]:
+    """
+    Merge a DB-inspection skeleton into an existing resource, non-destructively.
+
+    Human-authored content in ``resource`` (field descriptions, units, titles)
+    is preserved; the database supplies structural truth (column presence,
+    types, nullability). Columns present in the DB but absent from the YAML are
+    added with a ``TODO`` description placeholder; columns present in the YAML
+    but absent from the DB are kept and reported as drift.
+
+    Parameters
+    ----------
+    resource :
+        An OEMetadata resource dict (as loaded from a ``.resource.yaml``).
+    db_skeleton :
+        The resource skeleton produced by :func:`omi.inspection.inspect_db_table`.
+    strict :
+        If True, raise ``SchemaDriftError`` when columns are missing on either
+        side instead of merging and reporting.
+
+    Returns
+    -------
+    (updated_resource, drift_report)
+        ``updated_resource`` is a new dict (the input is not mutated);
+        ``drift_report`` has keys ``missing_in_yaml``, ``missing_in_db`` and
+        ``type_mismatches``.
+    """
+    builder = MetadataBuilder({"resources": [deepcopy(resource)]})
+    report = builder.resource(0).merge_and_diff_db_schema(db_skeleton, strict=strict)
+    updated = builder.build(validate_policy="skip")["resources"][0]
+    return dict(updated), report
+
+
+def update_resource_yaml_from_db(  # noqa: PLR0913
+    base_dir: Union[str, Path],
+    dataset_id: str,
+    resource_name: str,
+    engine_or_url: object,
+    *,
+    schema_name: str | None = None,
+    table_name: str | None = None,
+    strict: bool = False,
+) -> tuple[Path, dict]:
+    """
+    Update a resource YAML in place from a live database table.
+
+    Loads ``resources/<dataset_id>/<safe_name>.resource.yaml`` (where
+    ``safe_name`` is ``resource_name`` with ``.`` replaced by ``_``), inspects
+    the corresponding DB table, merges the schema non-destructively via
+    :func:`update_resource_from_db_skeleton`, and writes the file back.
+
+    ``schema_name`` / ``table_name`` default to the two halves of a dotted
+    ``resource_name`` (``schema.table``).
+
+    Returns
+    -------
+    (resource_path, drift_report)
+    """
+    base_dir = Path(base_dir)
+    safe_name = resource_name.replace(".", "_")
+    resource_path = base_dir / "resources" / dataset_id / f"{safe_name}.resource.yaml"
+    if not resource_path.exists():
+        raise FileNotFoundError(f"Resource YAML not found: {resource_path}")
+
+    if schema_name is None or table_name is None:
+        parts = resource_name.split(".")
+        expected_parts = 2
+        if len(parts) == expected_parts:
+            schema_name = schema_name or parts[0]
+            table_name = table_name or parts[1]
+        else:
+            table_name = table_name or resource_name
+
+    db_skeleton = inspect_db_table(engine_or_url, schema_name or "", table_name or "")
+
+    resource = load_yaml(resource_path)
+    updated, report = update_resource_from_db_skeleton(resource, db_skeleton, strict=strict)
+    dump_yaml(resource_path, updated)
+    return resource_path, report
