@@ -348,11 +348,17 @@ def init_dataset_cmd(
 @click.argument("files", nargs=-1, type=click.Path(exists=True, dir_okay=False, path_type=Path))
 @click.option("--oem-version", default="OEMetadata-2.0", show_default=True)
 @click.option("--overwrite", is_flag=True, help="Overwrite existing files.")
-def init_resources_cmd(
+@click.option(
+    "--delimiter",
+    default=None,
+    help="CSV column delimiter. Detected per file if omitted.",
+)
+def init_resources_cmd(  # noqa: PLR0913
     base_dir: Path,
     dataset_id: str,
     files: tuple[Path, ...],
     oem_version: str,
+    delimiter: Optional[str],
     *,
     overwrite: bool,
 ) -> None:
@@ -363,6 +369,7 @@ def init_resources_cmd(
         files,
         oem_version=oem_version,
         overwrite=overwrite,
+        delimiter=delimiter,
     )
     for p in outs:
         click.echo(p)
@@ -719,6 +726,14 @@ def coverage_cmd(
     if strict and not report.ok:
         raise click.Abort
 
+
+# The `init` and `inspect` groups are reachable both ways:
+#   * nested, as documented:  `omi init resources ...`, `omi inspect db ...`
+#   * flat, for backwards compatibility:  `omi resources ...`, `omi db ...`
+# The nesting comes from registering the groups on `grp`, the flat aliases from
+# listing them as CommandCollection sources.
+grp.add_command(init)
+grp.add_command(inspect)
 
 # Keep CommandCollection for backwards compatibility with your entry point
 cli = click.CommandCollection(sources=[grp, init, inspect])

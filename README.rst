@@ -132,6 +132,10 @@ When working with local files, OMI expects the structure defined by the Friction
 
     omi init resources ./metadata my_data_publication my_data_publication/data/elements/*.csv
 
+This creates one ``<name>.resource.yaml`` per file, prefilled with the inferred
+field names and types. The CSV column delimiter is detected per file; pass
+``--delimiter`` to set it explicitly.
+
 *Or, from a database table:*
 ::
 
@@ -152,6 +156,10 @@ data format ready (data files and columns).
     omi push-oep-all --base-dir ./metadata --dataset-id my_data_publication --token YOUR_API_TOKEN
 
 *For a full list of commands and options, run* ``omi --help``.
+
+**Note:** For backwards compatibility the subcommands are also available
+without their group, e.g. ``omi resources ...`` is the same as
+``omi init resources ...``.
 
 Documentation
 =============

@@ -22,6 +22,10 @@ if TYPE_CHECKING:
 DEFAULT_CONCAT_LIST_KEYS = {"keywords", "topics", "languages"}
 OEM_BBOX_MIN_LENGTH = 4
 
+# Used when a dataset YAML does not declare a `version`. Must be a version
+# known to `omi.base.METADATA_FORMATS`, otherwise assembly fails.
+DEFAULT_OEM_VERSION = "OEMetadata-2.0"
+
 
 def _is_effectively_empty(value: object) -> bool:
     """
@@ -251,7 +255,7 @@ def load_parts(
     tuple[str, dict[str, object], list[dict[str, object]], dict[str, object]]
         A tuple containing:
         - version: str
-            The OEMetadata version from the dataset YAML (default "OEMetadata-2.0.4").
+            The OEMetadata version from the dataset YAML (default "OEMetadata-2.0").
         - dataset: dict[str, object]
             The dataset mapping from the dataset YAML.
         - resources: list[dict[str, object]]
@@ -265,7 +269,7 @@ def load_parts(
         raise FileNotFoundError(f"Dataset YAML not found for '{dataset_id}'")
 
     dataset_yaml = load_yaml(dataset_path)
-    version = str(dataset_yaml.get("version", "OEMetadata-2.0.4"))
+    version = str(dataset_yaml.get("version") or DEFAULT_OEM_VERSION)
     # Support either dataset: {...} or flat style with top-level dataset keys.
     dataset = dataset_yaml.get("dataset", dataset_yaml)
 

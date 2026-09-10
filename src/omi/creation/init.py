@@ -79,6 +79,24 @@ def _blankify(obj: object) -> object:
     return blank
 
 
+def _is_empty(value: object) -> bool:
+    """
+    Return True if `value` counts as "not filled in yet".
+
+    The blank skeletons produced by :func:`_blankify` contain every spec key
+    with an empty value, so a plain ``dict.setdefault`` would never fire. This
+    predicate is what makes "fill in a default unless the user provided
+    something" work on those skeletons.
+    """
+    return value is None or value == "" or value == [] or value == {}
+
+
+def _fill_if_empty(target: dict, key: str, value: object) -> None:
+    """Set `target[key]` to `value` if the key is missing or still empty."""
+    if _is_empty(target.get(key)):
+        target[key] = value
+
+
 def _load_spec_template(oem_version: str) -> dict:
     """Return the raw OEMetadata template document for the given version."""
     spec = get_metadata_specification(oem_version)
@@ -97,10 +115,9 @@ def _dataset_stub_from_spec_template(oem_version: str, dataset_id: str) -> dict:
     t.pop("metaMetadata", None)
 
     blank = _blankify(t)
-    blank.setdefault("name", dataset_id)
-    blank.setdefault("title", "")
-    blank.setdefault("description", "")
-    blank.setdefault("@id", "")
+    _fill_if_empty(blank, "name", dataset_id)
+    for key in ("title", "description", "@id"):
+        blank.setdefault(key, "")
 
     return {"version": oem_version, "dataset": blank}
 
@@ -200,6 +217,55 @@ def _update_dataset_yaml_from_top_level(dataset_yaml_path: Path, top: dict) -> N
     dump_yaml(dataset_yaml_path, doc)
 
 
+def _apply_format_hints(res: dict, ext: str) -> None:
+    """
+    Fill in format/encoding/scheme hints for a resource based on its file extension.
+
+    Only empty values are filled, so information the user already provided (or
+    that was imported from elsewhere) is never overwritten.
+    """
+    if ext == "csv":
+        _fill_if_empty(res, "type", "table")
+        _fill_if_empty(res, "format", "CSV")
+        _fill_if_empty(res, "encoding", "UTF-8")
+    elif ext == "xlsx":
+        _fill_if_empty(res, "type", "table")
+        _fill_if_empty(res, "format", "xlsx")
+    elif ext == "json":
+        _fill_if_empty(res, "format", "json")
+    elif ext:
+        _fill_if_empty(res, "format", ext)
+    _fill_if_empty(res, "scheme", "file")
+
+
+def _apply_inferred_csv_schema(res: dict, file: Path, delimiter: str | None) -> None:
+    """
+    Attach schema and dialect inferred from a CSV file to a resource stub.
+
+    Uses `omi.inspection`, which detects the column delimiter unless one is
+    given explicitly. Inference failures are non-fatal: the stub simply keeps
+    its blank schema.
+    """
+    # Use existing inspection: "OEP" == OEMetadata in this code base
+    try:
+        inferred = infer_metadata(str(file), metadata_format="OEP", delimiter=delimiter)
+    except InspectionError:
+        return
+
+    # We only care about the *resource* part here
+    try:
+        inferred_resource = inferred["resources"][0]
+    except (KeyError, IndexError, TypeError):
+        return
+
+    if inferred_resource.get("schema"):
+        # Overwrite/attach the schema from inspection to this resource stub
+        res["schema"] = inferred_resource["schema"]
+    if inferred_resource.get("dialect"):
+        # Carry the detected delimiter/decimalSeparator over
+        res["dialect"] = inferred_resource["dialect"]
+
+
 # -----------------------------
 # public API
 # -----------------------------
@@ -243,19 +309,36 @@ def init_dataset(
     return InitResult(dataset_yaml=out_dataset, template_yaml=out_template, resource_yamls=created_resources)
 
 
-def init_resources_from_files(
+def init_resources_from_files(  # noqa: PLR0913
     base_dir: Path,
     dataset_id: str,
     files: Iterable[Path],
     *,
-    oem_version: str = "OEMetadata-2.0.4",
+    oem_version: str = "OEMetadata-2.0",
     overwrite: bool = False,
+    delimiter: str | None = None,
 ) -> list[Path]:
     """
     Create resource stubs for DATASET_ID from the given FILES.
 
     Uses the spec resource template structure, prefills name/path/format hints,
     and for CSV files also infers a schema (fields + types) using `omi.inspection`.
+
+    Parameters
+    ----------
+    base_dir :
+        Base metadata directory (contains `datasets/` and `resources/`).
+    dataset_id :
+        Identifier of the dataset the resources belong to.
+    files :
+        Data files to create resource stubs for.
+    oem_version :
+        OEMetadata version string used for the spec/template.
+    overwrite :
+        Overwrite existing resource YAML files.
+    delimiter :
+        Column delimiter of the CSV files. If None (default), it is detected
+        per file by `omi.inspection.detect_delimiter`.
     """
     _ = get_metadata_specification(oem_version)
 
@@ -267,39 +350,9 @@ def init_resources_from_files(
         res["path"] = str(f)
 
         # Lightweight format hinting (non-authoritative; user should review)
+        _apply_format_hints(res, ext)
         if ext == "csv":
-            res.setdefault("format", "CSV")
-            res.setdefault("encoding", "UTF-8")
-            res.setdefault("scheme", "file")
-
-            # Use existing inspection: "OEP" == OEMetadata in this code base
-            try:
-                inferred = infer_metadata(str(f), metadata_format="OEP")
-            except InspectionError:
-                inferred = None
-
-            if inferred is not None:
-                # We only care about the *resource* part here
-                try:
-                    inferred_resource = inferred["resources"][0]
-                    inferred_schema = inferred_resource.get("schema")
-                except (KeyError, IndexError, TypeError):
-                    inferred_schema = None
-
-                if inferred_schema:
-                    # Overwrite/attach the schema from inspection to this resource stub
-                    res["schema"] = inferred_schema
-
-        elif ext == "json":
-            res.setdefault("format", "json")
-            res.setdefault("scheme", "file")
-        elif ext == "xlsx":
-            res.setdefault("format", "xlsx")
-            res.setdefault("scheme", "file")
-        else:
-            if ext:
-                res.setdefault("format", ext)
-            res.setdefault("scheme", "file")
+            _apply_inferred_csv_schema(res, f, delimiter)
 
         out_path = base_dir / "resources" / dataset_id / f"{name}.resource.yaml"
         outputs.append(_dump_yaml(out_path, res, overwrite=overwrite))
