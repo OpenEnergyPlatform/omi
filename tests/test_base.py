@@ -7,7 +7,7 @@ from omi import base, validation
 
 def deactivate_test_metadata_from_oep():
     """Test metadata from OEP."""
-    metadata = base.get_metadata_from_oep_table("ind_steel_pellet_1")
+    metadata = base.get_metadata_from_oep_table("omi_test_table_meta_v16", oep_schema="sandbox")
     validation.validate_metadata(metadata)
 
 
