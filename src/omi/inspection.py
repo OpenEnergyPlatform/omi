@@ -296,6 +296,31 @@ METADATA_TEMPLATE_ENGINE: dict[str, Callable] = {"OEP": __apply_fields_to_oep_me
 ##########################################################################################
 
 
+def _postgres_column_types(engine: Any, schema_name: str, table_name: str) -> dict[str, str]:  # noqa: ANN401
+    """Return PostgreSQL's own type names per column (e.g. ``geometry(Point,4326)``); empty for other dialects."""
+    if engine.dialect.name != "postgresql":
+        return {}
+    from sqlalchemy import text
+
+    qualified = f'"{schema_name}"."{table_name}"' if schema_name else f'"{table_name}"'
+    query = text(
+        "SELECT a.attname, format_type(a.atttypid, a.atttypmod) FROM pg_attribute a "
+        "WHERE a.attrelid = to_regclass(:qualified) AND a.attnum > 0 AND NOT a.attisdropped",
+    )
+    with engine.connect() as connection:
+        return dict(connection.execute(query, {"qualified": qualified}).fetchall())
+
+
+def _compiled_type(col_type: Any, dialect: Any, sqltypes: Any) -> str:  # noqa: ANN401
+    """Return the dialect's DDL name of a reflected column type, lower-cased."""
+    if isinstance(col_type, sqltypes.NullType):  # type unknown to SQLAlchemy
+        return "unknown"
+    try:
+        return col_type.compile(dialect=dialect).lower()
+    except Exception:  # noqa: BLE001 -- some reflected types cannot compile
+        return type(col_type).__name__.lower()
+
+
 def inspect_db_table(engine_or_url: Union[str, object], schema_name: str, table_name: str) -> dict[str, Any]:
     """
     Inspect a database table using SQLAlchemy and return an OEMetadata resource dictionary skeleton.
@@ -327,38 +352,29 @@ def inspect_db_table(engine_or_url: Union[str, object], schema_name: str, table_
 
     inspector = inspect(engine)
 
-    if not inspector.has_table(table_name, schema=schema_name):
+    schema = schema_name or None  # "" would name a database on some dialects
+    if not inspector.has_table(table_name, schema=schema):
         raise InspectionError(f"Table '{table_name}' not found in schema '{schema_name}'.")
 
-    columns = inspector.get_columns(table_name, schema=schema_name)
-    pk_constraint = inspector.get_pk_constraint(table_name, schema=schema_name)
+    columns = inspector.get_columns(table_name, schema=schema)
+    pk_constraint = inspector.get_pk_constraint(table_name, schema=schema)
     primary_keys = pk_constraint.get("constrained_columns", [])
+
+    # OEMetadata field types are the database's own type names (geometry
+    # with shape and CRS), as on the OEP -- not frictionless types (#147).
+    native_types = _postgres_column_types(engine, schema_name, table_name)
 
     oem_fields = []
     for col in columns:
-        col_type = col["type"]
-
-        # TODO(jh-RLI): Mapping should be defined in a central place / OEM2ORM also defines mapping
-        # https://github.com/OpenEnergyPlatform/omi/issues/147
-        # Map SQLAlchemy types to frictionles/OEMetadata types
-        if isinstance(col_type, sqltypes.Integer):
-            oem_type = "integer"
-        elif isinstance(col_type, (sqltypes.Numeric, sqltypes.Float)):
-            oem_type = "number"
-        elif isinstance(col_type, sqltypes.Boolean):
-            oem_type = "boolean"
-        elif isinstance(col_type, (sqltypes.Date, sqltypes.DateTime)):
-            oem_type = "datetime"
-        elif isinstance(col_type, sqltypes.ARRAY):
-            oem_type = "array"
-        # Check for GeoAlchemy2 Geometry types safely without importing geoalchemy2
-        elif type(col_type).__name__ == "Geometry":
-            oem_type = "geometry"
-        else:
-            oem_type = "string"
-
+        oem_type = native_types.get(col["name"]) or _compiled_type(col["type"], engine.dialect, sqltypes)
         oem_fields.append(
-            {"name": col["name"], "description": "TODO: Add description", "type": oem_type, "unit": "none"},
+            {
+                "name": col["name"],
+                "description": "TODO: Add description",
+                "type": oem_type,
+                "nullable": bool(col.get("nullable", True)),
+                "unit": "none",
+            },
         )
 
     resource_name = f"{schema_name}.{table_name}" if schema_name else table_name

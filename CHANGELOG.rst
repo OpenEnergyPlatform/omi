@@ -8,6 +8,7 @@ current
 * Fix v1.5 conversion: a comma-separated string ``primaryKey`` is now split into a list instead of being iterated character by character, and an empty template ``foreignKeys`` stub is dropped [(#152)](https://github.com/OpenEnergyPlatform/omi/pull/152)
 * Fix CSV inspection: detect the delimiter and fill resource stub defaults
 * Fix the conversion contributor added by v1.6 -> v2 conversion: use the v2 ``roles`` key instead of ``role``, stamp the actual conversion date instead of a fixed 2021 date, and fix the missing spaces in its comment
+* Fix database inspection: field types are the database's own type names (e.g. ``bigint``, ``text``, ``geometry(Point,4326)`` via ``format_type`` on PostgreSQL) instead of frictionless types that turned geometries into ``string`` and overwrote curated types on merge-update; fields carry ``nullable``; an empty schema name means the default schema [(#147)](https://github.com/OpenEnergyPlatform/omi/issues/147)
 * Relax the pandas requirement to ``>=2.0,<3`` so OMI installs next to projects pinned to pandas 2.0 (e.g. eGon-data); the test suite passes on pandas 2.0.3
 
 1.2.0 (2026-04-30)
