@@ -4,7 +4,10 @@ Changelog
 
 current
 --------------------
-* ...
+* Add eGon-data driven metadata helpers to the creation module: ``add-source`` (external stub or internal cross-reference), a documented-vs-missing coverage report, and merge-update wrappers that refresh a resource from a database table without overwriting curated fields; exposed as ``omi add-source`` and ``omi coverage`` [(#152)](https://github.com/OpenEnergyPlatform/omi/pull/152)
+* Fix v1.5 conversion: a comma-separated string ``primaryKey`` is now split into a list instead of being iterated character by character, and an empty template ``foreignKeys`` stub is dropped [(#152)](https://github.com/OpenEnergyPlatform/omi/pull/152)
+* Fix CSV inspection: detect the delimiter and fill resource stub defaults
+* Relax the pandas requirement to ``>=2.0,<3`` so OMI installs next to projects pinned to pandas 2.0 (e.g. eGon-data); the test suite passes on pandas 2.0.3
 
 1.2.0 (2026-04-30)
 --------------------
