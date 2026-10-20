@@ -1,6 +1,7 @@
 """Conversion functions for metadata version "OEP-1.6.0" to "OEMetadata-2.0"."""
 
 from copy import deepcopy
+from datetime import datetime, timezone
 
 from omi.base import get_metadata_specification
 
@@ -239,12 +240,12 @@ def ___v2_populate_contributors(resource_v2: dict, contributors: list) -> None:
             {
                 "title": "Open Energy Platform oemetadata conversion to v2",
                 "path": "https://github.com/OpenEnergyPlatform",
-                "role": ["platform-maintainer"],
+                "roles": ["platform-maintainer"],
                 "organization": "OpenEnergyFamily",
-                "date": "2021-09-01",
-                "object": "conversion of all metadata to oemetadata  version 2.0.4",
-                "comment": "The conversion was done by the OpenEnergyFamily team using the OMI software."
-                "We did our best to mitigate data loss. Most unexpected or incorrect metadata property"
+                "date": datetime.now(tz=timezone.utc).date().isoformat(),
+                "object": "conversion of all metadata to oemetadata version 2.0.4",
+                "comment": "The conversion was done by the OpenEnergyFamily team using the OMI software. "
+                "We did our best to mitigate data loss. Most unexpected or incorrect metadata property "
                 "entries will be lost.",
             },
         )
