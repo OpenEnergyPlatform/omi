@@ -4,12 +4,16 @@ Changelog
 
 current
 --------------------
+* ...
+
+1.3.0 (2026-10-20)
+--------------------
 * Add eGon-data driven metadata helpers to the creation module: ``add-source`` (external stub or internal cross-reference), a documented-vs-missing coverage report, and merge-update wrappers that refresh a resource from a database table without overwriting curated fields; exposed as ``omi add-source`` and ``omi coverage`` [(#152)](https://github.com/OpenEnergyPlatform/omi/pull/152)
 * Fix v1.5 conversion: a comma-separated string ``primaryKey`` is now split into a list instead of being iterated character by character, and an empty template ``foreignKeys`` stub is dropped [(#152)](https://github.com/OpenEnergyPlatform/omi/pull/152)
 * Fix CSV inspection: detect the delimiter and fill resource stub defaults
-* Fix the conversion contributor added by v1.6 -> v2 conversion: use the v2 ``roles`` key instead of ``role``, stamp the actual conversion date instead of a fixed 2021 date, and fix the missing spaces in its comment
-* Fix database inspection: field types are the database's own type names (e.g. ``bigint``, ``text``, ``geometry(Point,4326)`` via ``format_type`` on PostgreSQL) instead of frictionless types that turned geometries into ``string`` and overwrote curated types on merge-update; fields carry ``nullable``; an empty schema name means the default schema [(#147)](https://github.com/OpenEnergyPlatform/omi/issues/147)
-* Relax the requirements on pandas (``>=2.0,<3``), click (``>=8.0,<9``) and frictionless (``>=5.0,<6``) so OMI installs next to projects pinned to pandas 2.0, click 8.0 and pydantic 1 (e.g. eGon-data with Airflow 2); the test suite passes on pandas 2.0.3, click 8.0.4, frictionless 5.14.5 and pydantic 1.10
+* Fix the conversion contributor added by v1.6 -> v2 conversion: use the v2 ``roles`` key instead of ``role``, stamp the actual conversion date instead of a fixed 2021 date, and fix the missing spaces in its comment [(#156)](https://github.com/OpenEnergyPlatform/omi/pull/156)
+* Fix database inspection: field types are the database's own type names (e.g. ``bigint``, ``text``, ``geometry(Point,4326)`` via ``format_type`` on PostgreSQL) instead of frictionless types that turned geometries into ``string`` and overwrote curated types on merge-update; fields carry ``nullable``; an empty schema name means the default schema [(#147)](https://github.com/OpenEnergyPlatform/omi/issues/147) [(#156)](https://github.com/OpenEnergyPlatform/omi/pull/156)
+* Relax the requirements on pandas (``>=2.0,<3``), click (``>=8.0,<9``) and frictionless (``>=5.0,<6``) so OMI installs next to projects pinned to pandas 2.0, click 8.0 and pydantic 1 (e.g. eGon-data with Airflow 2); the test suite passes on pandas 2.0.3, click 8.0.4, frictionless 5.14.5 and pydantic 1.10 [(#156)](https://github.com/OpenEnergyPlatform/omi/pull/156)
 
 1.2.0 (2026-04-30)
 --------------------
