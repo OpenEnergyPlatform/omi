@@ -8,6 +8,7 @@ infer resource information from existing data files.
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Union
@@ -15,7 +16,8 @@ from typing import TYPE_CHECKING, Union
 import yaml
 
 from omi.base import MetadataError, get_metadata_specification
-from omi.inspection import InspectionError, infer_metadata
+from omi.creation.builder import MetadataBuilder
+from omi.inspection import InspectionError, infer_metadata, inspect_db_table
 
 from .utils import (
     collect_common_resource_fields,
@@ -77,6 +79,24 @@ def _blankify(obj: object) -> object:
     return blank
 
 
+def _is_empty(value: object) -> bool:
+    """
+    Return True if `value` counts as "not filled in yet".
+
+    The blank skeletons produced by :func:`_blankify` contain every spec key
+    with an empty value, so a plain ``dict.setdefault`` would never fire. This
+    predicate is what makes "fill in a default unless the user provided
+    something" work on those skeletons.
+    """
+    return value is None or value == "" or value == [] or value == {}
+
+
+def _fill_if_empty(target: dict, key: str, value: object) -> None:
+    """Set `target[key]` to `value` if the key is missing or still empty."""
+    if _is_empty(target.get(key)):
+        target[key] = value
+
+
 def _load_spec_template(oem_version: str) -> dict:
     """Return the raw OEMetadata template document for the given version."""
     spec = get_metadata_specification(oem_version)
@@ -95,10 +115,9 @@ def _dataset_stub_from_spec_template(oem_version: str, dataset_id: str) -> dict:
     t.pop("metaMetadata", None)
 
     blank = _blankify(t)
-    blank.setdefault("name", dataset_id)
-    blank.setdefault("title", "")
-    blank.setdefault("description", "")
-    blank.setdefault("@id", "")
+    _fill_if_empty(blank, "name", dataset_id)
+    for key in ("title", "description", "@id"):
+        blank.setdefault(key, "")
 
     return {"version": oem_version, "dataset": blank}
 
@@ -198,6 +217,55 @@ def _update_dataset_yaml_from_top_level(dataset_yaml_path: Path, top: dict) -> N
     dump_yaml(dataset_yaml_path, doc)
 
 
+def _apply_format_hints(res: dict, ext: str) -> None:
+    """
+    Fill in format/encoding/scheme hints for a resource based on its file extension.
+
+    Only empty values are filled, so information the user already provided (or
+    that was imported from elsewhere) is never overwritten.
+    """
+    if ext == "csv":
+        _fill_if_empty(res, "type", "table")
+        _fill_if_empty(res, "format", "CSV")
+        _fill_if_empty(res, "encoding", "UTF-8")
+    elif ext == "xlsx":
+        _fill_if_empty(res, "type", "table")
+        _fill_if_empty(res, "format", "xlsx")
+    elif ext == "json":
+        _fill_if_empty(res, "format", "json")
+    elif ext:
+        _fill_if_empty(res, "format", ext)
+    _fill_if_empty(res, "scheme", "file")
+
+
+def _apply_inferred_csv_schema(res: dict, file: Path, delimiter: str | None) -> None:
+    """
+    Attach schema and dialect inferred from a CSV file to a resource stub.
+
+    Uses `omi.inspection`, which detects the column delimiter unless one is
+    given explicitly. Inference failures are non-fatal: the stub simply keeps
+    its blank schema.
+    """
+    # Use existing inspection: "OEP" == OEMetadata in this code base
+    try:
+        inferred = infer_metadata(str(file), metadata_format="OEP", delimiter=delimiter)
+    except InspectionError:
+        return
+
+    # We only care about the *resource* part here
+    try:
+        inferred_resource = inferred["resources"][0]
+    except (KeyError, IndexError, TypeError):
+        return
+
+    if inferred_resource.get("schema"):
+        # Overwrite/attach the schema from inspection to this resource stub
+        res["schema"] = inferred_resource["schema"]
+    if inferred_resource.get("dialect"):
+        # Carry the detected delimiter/decimalSeparator over
+        res["dialect"] = inferred_resource["dialect"]
+
+
 # -----------------------------
 # public API
 # -----------------------------
@@ -241,19 +309,36 @@ def init_dataset(
     return InitResult(dataset_yaml=out_dataset, template_yaml=out_template, resource_yamls=created_resources)
 
 
-def init_resources_from_files(
+def init_resources_from_files(  # noqa: PLR0913
     base_dir: Path,
     dataset_id: str,
     files: Iterable[Path],
     *,
-    oem_version: str = "OEMetadata-2.0.4",
+    oem_version: str = "OEMetadata-2.0",
     overwrite: bool = False,
+    delimiter: str | None = None,
 ) -> list[Path]:
     """
     Create resource stubs for DATASET_ID from the given FILES.
 
     Uses the spec resource template structure, prefills name/path/format hints,
     and for CSV files also infers a schema (fields + types) using `omi.inspection`.
+
+    Parameters
+    ----------
+    base_dir :
+        Base metadata directory (contains `datasets/` and `resources/`).
+    dataset_id :
+        Identifier of the dataset the resources belong to.
+    files :
+        Data files to create resource stubs for.
+    oem_version :
+        OEMetadata version string used for the spec/template.
+    overwrite :
+        Overwrite existing resource YAML files.
+    delimiter :
+        Column delimiter of the CSV files. If None (default), it is detected
+        per file by `omi.inspection.detect_delimiter`.
     """
     _ = get_metadata_specification(oem_version)
 
@@ -265,39 +350,9 @@ def init_resources_from_files(
         res["path"] = str(f)
 
         # Lightweight format hinting (non-authoritative; user should review)
+        _apply_format_hints(res, ext)
         if ext == "csv":
-            res.setdefault("format", "CSV")
-            res.setdefault("encoding", "UTF-8")
-            res.setdefault("scheme", "file")
-
-            # Use existing inspection: "OEP" == OEMetadata in this code base
-            try:
-                inferred = infer_metadata(str(f), metadata_format="OEP")
-            except InspectionError:
-                inferred = None
-
-            if inferred is not None:
-                # We only care about the *resource* part here
-                try:
-                    inferred_resource = inferred["resources"][0]
-                    inferred_schema = inferred_resource.get("schema")
-                except (KeyError, IndexError, TypeError):
-                    inferred_schema = None
-
-                if inferred_schema:
-                    # Overwrite/attach the schema from inspection to this resource stub
-                    res["schema"] = inferred_schema
-
-        elif ext == "json":
-            res.setdefault("format", "json")
-            res.setdefault("scheme", "file")
-        elif ext == "xlsx":
-            res.setdefault("format", "xlsx")
-            res.setdefault("scheme", "file")
-        else:
-            if ext:
-                res.setdefault("format", ext)
-            res.setdefault("scheme", "file")
+            _apply_inferred_csv_schema(res, f, delimiter)
 
         out_path = base_dir / "resources" / dataset_id / f"{name}.resource.yaml"
         outputs.append(_dump_yaml(out_path, res, overwrite=overwrite))
@@ -475,3 +530,94 @@ def add_resource_from_oem_metadata(  # noqa: PLR0913
 
     dump_yaml(out_path, out)
     return out_path
+
+
+# ---------------------------------------------------------------------------
+# Non-destructive merge-update of a resource from a DB-inspection skeleton
+# ---------------------------------------------------------------------------
+
+
+def update_resource_from_db_skeleton(
+    resource: dict,
+    db_skeleton: dict,
+    *,
+    strict: bool = False,
+) -> tuple[dict, dict]:
+    """
+    Merge a DB-inspection skeleton into an existing resource, non-destructively.
+
+    Human-authored content in ``resource`` (field descriptions, units, titles)
+    is preserved; the database supplies structural truth (column presence,
+    types, nullability). Columns present in the DB but absent from the YAML are
+    added with a ``TODO`` description placeholder; columns present in the YAML
+    but absent from the DB are kept and reported as drift.
+
+    Parameters
+    ----------
+    resource :
+        An OEMetadata resource dict (as loaded from a ``.resource.yaml``).
+    db_skeleton :
+        The resource skeleton produced by :func:`omi.inspection.inspect_db_table`.
+    strict :
+        If True, raise ``SchemaDriftError`` when columns are missing on either
+        side instead of merging and reporting.
+
+    Returns
+    -------
+    (updated_resource, drift_report)
+        ``updated_resource`` is a new dict (the input is not mutated);
+        ``drift_report`` has keys ``missing_in_yaml``, ``missing_in_db`` and
+        ``type_mismatches``.
+    """
+    builder = MetadataBuilder({"resources": [deepcopy(resource)]})
+    report = builder.resource(0).merge_and_diff_db_schema(db_skeleton, strict=strict)
+    updated = builder.build(validate_policy="skip")["resources"][0]
+    return dict(updated), report
+
+
+def update_resource_yaml_from_db(  # noqa: PLR0913
+    base_dir: Union[str, Path],
+    dataset_id: str,
+    resource_name: str,
+    engine_or_url: object,
+    *,
+    schema_name: str | None = None,
+    table_name: str | None = None,
+    strict: bool = False,
+) -> tuple[Path, dict]:
+    """
+    Update a resource YAML in place from a live database table.
+
+    Loads ``resources/<dataset_id>/<safe_name>.resource.yaml`` (where
+    ``safe_name`` is ``resource_name`` with ``.`` replaced by ``_``), inspects
+    the corresponding DB table, merges the schema non-destructively via
+    :func:`update_resource_from_db_skeleton`, and writes the file back.
+
+    ``schema_name`` / ``table_name`` default to the two halves of a dotted
+    ``resource_name`` (``schema.table``).
+
+    Returns
+    -------
+    (resource_path, drift_report)
+    """
+    base_dir = Path(base_dir)
+    safe_name = resource_name.replace(".", "_")
+    resource_path = base_dir / "resources" / dataset_id / f"{safe_name}.resource.yaml"
+    if not resource_path.exists():
+        raise FileNotFoundError(f"Resource YAML not found: {resource_path}")
+
+    if schema_name is None or table_name is None:
+        parts = resource_name.split(".")
+        expected_parts = 2
+        if len(parts) == expected_parts:
+            schema_name = schema_name or parts[0]
+            table_name = table_name or parts[1]
+        else:
+            table_name = table_name or resource_name
+
+    db_skeleton = inspect_db_table(engine_or_url, schema_name or "", table_name or "")
+
+    resource = load_yaml(resource_path)
+    updated, report = update_resource_from_db_skeleton(resource, db_skeleton, strict=strict)
+    dump_yaml(resource_path, updated)
+    return resource_path, report

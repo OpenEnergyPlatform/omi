@@ -73,7 +73,9 @@ class OEMetadataCreator:
         indent = dump_kwargs.pop("indent", 2)
         ensure_ascii = dump_kwargs.pop("ensure_ascii", False)
 
-        with Path(output_file).open("w", encoding="utf-8") as f:
+        path = Path(output_file)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("w", encoding="utf-8") as f:
             json.dump(metadata, f, indent=indent, ensure_ascii=ensure_ascii, **dump_kwargs)
 
         print(f"OEMetadata written to {output_file}")  # noqa: T201

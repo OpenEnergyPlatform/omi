@@ -13,7 +13,7 @@ from typing import Union
 
 import yaml
 
-from omi.inspection import infer_metadata
+from omi.inspection import DEFAULT_DELIMITER, infer_metadata
 
 
 @dataclass
@@ -119,10 +119,15 @@ def infer_file_metadata(file_path: Path) -> dict:
 
     if file_format == "CSV":
         with file_path.open("r") as f:
-            fields = infer_metadata(f, "OEP")["resources"][0]["schema"]
+            inferred = infer_metadata(f, "OEP")["resources"][0]
 
-        resource["schema"] = fields
-        resource["dialect"] = {"delimiter": fields.get("delimiter", ","), "decimalSeparator": "."}
+        resource["schema"] = inferred["schema"]
+        # The delimiter is part of the inferred dialect; it used to be read off
+        # the schema dict, which never carries one and always yielded ",".
+        resource["dialect"] = inferred.get("dialect") or {
+            "delimiter": DEFAULT_DELIMITER,
+            "decimalSeparator": ".",
+        }
 
     return resource
 
